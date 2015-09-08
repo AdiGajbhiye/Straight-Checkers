@@ -7,18 +7,10 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.pennywise.FindWords;
 
 public class AndroidLauncher extends AndroidApplication {
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         initialize(new FindWords(), config);
-
-
     }
-
-
-
 }
