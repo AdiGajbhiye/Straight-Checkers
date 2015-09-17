@@ -208,6 +208,7 @@ public class GameScreen extends AbstractScreen {
         sr.rectLine(startX, startY, endX, endY, size);
         sr.arc(startX, startY, (size / 2), 0,180);
         sr.arc(endX, endY, (size / 2), 0, 180);
+        //
         shapeRenderer.end();
 
 
