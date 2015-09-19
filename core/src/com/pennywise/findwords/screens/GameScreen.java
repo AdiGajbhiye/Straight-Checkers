@@ -61,7 +61,7 @@ public class GameScreen extends AbstractScreen {
         camera = GameCam.instance;
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
-        font = loadFont("fonts/Roboto-Regular.ttf");
+        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         dragTracker = new Vector2[2];
@@ -125,38 +125,16 @@ public class GameScreen extends AbstractScreen {
 
     }
 
-    //fonts/Roboto-Regular.ttf
-    public BitmapFont loadFont(String path) {
-        // how much bigger is the real device screen, compared to the defined viewport
-        float SCALE = 1.0f * Gdx.graphics.getWidth() / Constants.GAME_WIDTH;
-        // prevents unwanted downscale on devices with resolution SMALLER than 320x480
-        if (SCALE < 1)
-            SCALE = 1;
-        //set the font parameters
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int) (14 * SCALE);
-        parameter.flip = true;
-        parameter.color = Color.BLACK;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
-        // 12 is the size i want to give for the font on all devices
-        // bigger font textures = better results
-        BitmapFont font = generator.generateFont(parameter);
-        // aplly the inverse scale of what Libgdx will do at runtime
-        font.getData().setScale((float) (1.0 / SCALE));
-        // the resulting font scale is: 1.0 / SCALE * SCALE = 1
-        //Apply Linear filtering; best choice to keep everything looking sharp
-        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        return font;
-    }
 
     private void setupPuzzle() {
         // build all layers
         Table layerPuzzle = buildBoard();
+        Table layerWordlist = buildWordList();
         stage.clear();
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+        stack.add(layerWordlist);
         stack.add(layerPuzzle);
         stage.addActor(stack);
     }
@@ -164,6 +142,12 @@ public class GameScreen extends AbstractScreen {
     private Table buildBoard() {
         Table layer = new Table();
         layer.addActor(board(10, 8));
+        return layer;
+    }
+
+    private Table buildWordList() {
+        Table layer = new Table();
+        layer.addActor(wordList());
         return layer;
     }
 
@@ -187,7 +171,7 @@ public class GameScreen extends AbstractScreen {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
+                        ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
                 tiles[index] = new Tile("A", new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
@@ -199,28 +183,31 @@ public class GameScreen extends AbstractScreen {
         }
 
         //fill grid with letters
-        words.add("yellow");
-        words.add("purple");
-        words.add("green");
-        words.add("chair");
-        words.add("penny");
-        words.add("tablet");
-        words.add("tower");
-        words.add("pillar");
-        words.add("chicken");
+        words.add("everton");
+        words.add("watford");
+        words.add("liverpool");
+        words.add("swansea");
+        words.add("astonvilla");
+        words.add("manchester");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("newcastle");
 
         PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
         Grid grid = pg.generate();
 
-        words.add("yellow");
-        words.add("purple");
-        words.add("green");
-        words.add("chair");
-        words.add("penny");
-        words.add("tablet");
-        words.add("tower");
-        words.add("pillar");
-        words.add("chicken");
+
+        words.add("everton");
+        words.add("watford");
+        words.add("liverpool");
+        words.add("swansea");
+        words.add("astonvilla");
+        words.add("manchester");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("newcastle");
 
         for (int i = 0; i < grid.width(); i++) {
             for (int j = 0; j < grid.height(); j++) {
@@ -231,6 +218,46 @@ public class GameScreen extends AbstractScreen {
         }
 
         return board;
+    }
+
+    private Group wordList() {
+        Group wordList = new Group();
+        int count = words.size();
+
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = font;
+        style.background = tileTexture("background/clear_cell.png");
+
+
+        int rows = 4;
+        int cols = (count / rows) + 1;
+
+        Vector2[] position = new Vector2[rows * cols];
+
+        Tile[] tiles = new Tile[rows * cols];
+
+        float width = ((Constants.GAME_WIDTH - cols) / (cols));
+        float height = font.getData().capHeight + 10;
+        float padding = (Constants.GAME_WIDTH - (width * cols)) / 2;
+        int index = 0;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
+                if (index >= count)
+                    break;
+                position[index] = new Vector2((col * width) + padding,
+                        ((row * (height)) + (Constants.GAME_HEIGHT * 0.80f)));
+                tiles[index] = new Tile(words.get(index), new Label.LabelStyle(style));
+                tiles[index].setSize(width, height);
+                tiles[index].setAlignment(Align.center);
+                tiles[index].setPosition(position[index].x, position[index].y);
+                tiles[index].setName(index + "");
+                wordList.addActor(tiles[index]);
+            }
+        }
+
+        return wordList;
     }
 
     public SpriteDrawable tileTexture(String name) {

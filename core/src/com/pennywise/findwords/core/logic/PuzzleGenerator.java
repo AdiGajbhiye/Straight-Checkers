@@ -51,6 +51,10 @@ public class PuzzleGenerator {
 
     private void addWords() {
 
+        int triecount = 0;
+        Direction direction;
+        int dirLen = Direction.values().length;
+
         while (_wordList.size() != 0) {
             //put the first word from the list into a string
             String aWord = (String) _wordList.get(0).toUpperCase();
@@ -58,8 +62,8 @@ public class PuzzleGenerator {
             _wordList.remove(0);
             boolean numTries = true;
 
-            Direction direction;
             int count = Direction.values().length;
+
             while (numTries) {
                 //Choose a random location on the puzzle to start placement of word
                 int startRow = random.nextInt(getWidth());
