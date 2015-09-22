@@ -9,18 +9,17 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -55,13 +54,14 @@ public class GameScreen extends AbstractScreen {
     private Random random = new Random();
     private List<String> words;
     private int color = 0;
+    private TextureAtlas gameUI;
 
     public GameScreen(FindWords game) {
         super(game);
         camera = GameCam.instance;
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
-        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
+        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         dragTracker = new Vector2[2];
@@ -69,7 +69,8 @@ public class GameScreen extends AbstractScreen {
         sb = new StringBuilder();
         words = new LinkedList<String>();
         color = random.nextInt(7);
-        setupPuzzle();
+        gameUI = new TextureAtlas("images/ui-pack.atlas");
+        setupScreen();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
@@ -126,7 +127,7 @@ public class GameScreen extends AbstractScreen {
     }
 
 
-    private void setupPuzzle() {
+    private void setupScreen() {
         // build all layers
         Table layerPuzzle = buildBoard();
         Table layerWordlist = buildWordList();
@@ -134,9 +135,26 @@ public class GameScreen extends AbstractScreen {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+        stack.add(backGround());
+        //stack.add(hud());
         stack.add(layerWordlist);
         stack.add(layerPuzzle);
         stage.addActor(stack);
+    }
+
+    private Table backGround() {
+        Table layer = new Table();
+        Image bg = new Image(gameUI.createPatch("panel_brown"));
+        layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
+        return layer;
+    }
+
+    private Table hud() {
+        Table layer = new Table();
+        layer.bottom();
+        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
+        layer.add(bg).height(60).width(Constants.SCREEN_WIDTH - 10).bottom().expandX().padBottom(10);
+        return layer;
     }
 
     private Table buildBoard() {
@@ -158,7 +176,6 @@ public class GameScreen extends AbstractScreen {
         //fill grid with letters
         words.add("everton");
         words.add("watford");
-        words.add("bradford");
         words.add("swansea");
         words.add("leeds");
         words.add("stoke");
@@ -172,7 +189,6 @@ public class GameScreen extends AbstractScreen {
 
         words.add("everton");
         words.add("watford");
-        words.add("bradford");
         words.add("swansea");
         words.add("leeds");
         words.add("stoke");

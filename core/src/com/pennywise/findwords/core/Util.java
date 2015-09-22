@@ -29,7 +29,7 @@ public class Util {
             SCALE = 1;
         //set the font parameters
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int) (14 * SCALE);
+        parameter.size = (int) (16 * SCALE);
         parameter.flip = true;
         parameter.color = color;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
