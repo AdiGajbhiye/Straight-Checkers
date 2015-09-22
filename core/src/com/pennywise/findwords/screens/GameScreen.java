@@ -146,7 +146,7 @@ public class GameScreen extends AbstractScreen {
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(gameUI.createPatch("panel_brown"));
+        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
@@ -201,7 +201,7 @@ public class GameScreen extends AbstractScreen {
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
-        style.background = tileTexture("background/brown_tile.png");
+        style.background = tileTexture("background/black_tile.png");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -215,7 +215,7 @@ public class GameScreen extends AbstractScreen {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
 
                 String val = String.valueOf(grid.at(col, row));
                 val = val.toUpperCase();
@@ -316,7 +316,7 @@ public class GameScreen extends AbstractScreen {
             if (tile != null) {
                 if (tile.getName().equals(b.getName())) {
                     sb.deleteCharAt(sb.length() - 1);
-                    b.getStyle().background = Util.loadTexture("background/brown_tile.png");
+                    b.getStyle().background = Util.loadTexture("background/black_tile.png");
                     tile = null;
                     return true;
                 }
