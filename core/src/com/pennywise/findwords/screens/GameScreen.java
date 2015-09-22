@@ -155,6 +155,32 @@ public class GameScreen extends AbstractScreen {
 
         Group board = new Group();
 
+        //fill grid with letters
+        words.add("everton");
+        words.add("watford");
+        words.add("bradford");
+        words.add("swansea");
+        words.add("leeds");
+        words.add("stoke");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("city");
+
+        PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
+        Grid grid = pg.generate();
+
+        words.add("everton");
+        words.add("watford");
+        words.add("bradford");
+        words.add("swansea");
+        words.add("leeds");
+        words.add("stoke");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("city");
+
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
         style.background = tileTexture("background/brown_tile.png");
@@ -172,48 +198,17 @@ public class GameScreen extends AbstractScreen {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
                         ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
-                tiles[index] = new Tile("A", new Label.LabelStyle(style));
+
+                String val = String.valueOf(grid.at(col, row));
+                val = val.toUpperCase();
+                //style.background = tileTexture("background/Wood/letter_" + val.trim() + ".png");
+                tiles[index] = new Tile(val, new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
                 tiles[index].setPosition(position[index].x, position[index].y);
                 tiles[index].addListener(tileListener);
                 tiles[index].setName(index + "");
                 board.addActor(tiles[index]);
-            }
-        }
-
-        //fill grid with letters
-        words.add("everton");
-        words.add("watford");
-        words.add("liverpool");
-        words.add("swansea");
-        words.add("astonvilla");
-        words.add("manchester");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
-        words.add("newcastle");
-
-        PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
-        Grid grid = pg.generate();
-
-
-        words.add("everton");
-        words.add("watford");
-        words.add("liverpool");
-        words.add("swansea");
-        words.add("astonvilla");
-        words.add("manchester");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
-        words.add("newcastle");
-
-        for (int i = 0; i < grid.width(); i++) {
-            for (int j = 0; j < grid.height(); j++) {
-                index = i + (j * cols);
-                String val = String.valueOf(grid.at(i, j));
-                tiles[index].setText(val);
             }
         }
 
@@ -263,7 +258,9 @@ public class GameScreen extends AbstractScreen {
     public SpriteDrawable tileTexture(String name) {
         final Texture t = new Texture(Gdx.files.internal(name));
         Sprite sprite = new Sprite(t);
+        sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
+        //drawable
         return drawable;
     }
 
