@@ -51,7 +51,6 @@ public class PuzzleGenerator {
 
     private void addWords() {
 
-        int triecount = 0;
         Direction direction;
         int dirLen = Direction.values().length;
 
@@ -76,38 +75,39 @@ public class PuzzleGenerator {
 
                 switch (direction) {
                     case NORTH_SOUTH:
-                        numTries = move(aWord, startRow, startCol, direction, 0, 1);
+                        numTries = move(aWord, startRow, startCol, Direction.NORTH_SOUTH, 0, 1);
                         break;
                     case NORTHEAST_SOUTHWEST:
-                        numTries = move(aWord, startRow, startCol, direction, 1, -1);
+                        numTries = move(aWord, startRow, startCol, Direction.NORTHEAST_SOUTHWEST, 1, -1);
                         break;
                     case EAST_WEST:
-                        numTries = move(aWord, startRow, startCol, direction, -1, 0);
+                        numTries = move(aWord, startRow, startCol, Direction.EAST_WEST, -1, 0);
                         break;
                     case SOUTHEAST_NORTHWEST:
-                        numTries = move(aWord, startRow, startCol, direction, -1, 1);
+                        numTries = move(aWord, startRow, startCol, Direction.SOUTHEAST_NORTHWEST, -1, 1);
                         break;
                     case SOUTH_NORTH:
-                        numTries = move(aWord, startRow, startCol, direction, -1, 0);
+                        numTries = move(aWord, startRow, startCol, Direction.SOUTH_NORTH, -1, 0);
                         break;
                     case SOUTHWEST_NORTHEAST:
                         numTries = move(aWord, startRow, startCol, direction, -1, -1);
                         break;
                     case WEST_EAST:
-                        numTries = move(aWord, startRow, startCol, direction, 1, 0);
+                        numTries = move(aWord, startRow, startCol, Direction.WEST_EAST, 1, 0);
                         break;
                     case NORTHWEST_SOUTHEAST:
-                        numTries = move(aWord, startRow, startCol, direction, 1, 1);
+                        numTries = move(aWord, startRow, startCol, Direction.NORTHWEST_SOUTHEAST, 1, 1);
                         break;
                 }
 
             }
         }
+
     }
 
     private boolean validMove(int startX, int startY, int wordlen) {
 
-        if (startX < 0 || startX >= getWidth() || startY < 0 || startY >= getHeight())
+        if (startX < 0 || startX > getWidth() || startY < 0 || startY > getHeight())
             return false;
 
         if ((getWidth() - (startX)) < wordlen && (getHeight() - (startY)) < wordlen)

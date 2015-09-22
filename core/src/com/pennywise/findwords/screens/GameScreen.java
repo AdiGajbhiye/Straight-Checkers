@@ -9,10 +9,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -20,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -32,6 +29,8 @@ import com.pennywise.findwords.core.logic.Grid;
 import com.pennywise.findwords.core.logic.PuzzleGenerator;
 import com.pennywise.findwords.objects.Tile;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -141,7 +140,7 @@ public class GameScreen extends AbstractScreen {
 
     private Table buildBoard() {
         Table layer = new Table();
-        layer.addActor(board(10, 8));
+        layer.addActor(board(12, 10));
         return layer;
     }
 
@@ -185,14 +184,16 @@ public class GameScreen extends AbstractScreen {
         //fill grid with letters
         words.add("everton");
         words.add("watford");
-        words.add("liverpool");
+        words.add("bolton");
         words.add("swansea");
-        words.add("astonvilla");
-        words.add("manchester");
+        words.add("leeds");
+        words.add("cardiff");
         words.add("arsenal");
         words.add("chelsea");
         words.add("fulham");
-        words.add("newcastle");
+        words.add("stoke");
+
+        Collections.sort(words, new LengthComparator());
 
         PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
         Grid grid = pg.generate();
@@ -200,14 +201,15 @@ public class GameScreen extends AbstractScreen {
 
         words.add("everton");
         words.add("watford");
-        words.add("liverpool");
+        words.add("bolton");
         words.add("swansea");
-        words.add("astonvilla");
-        words.add("manchester");
+        words.add("leeds");
+        words.add("cardiff");
         words.add("arsenal");
         words.add("chelsea");
         words.add("fulham");
-        words.add("newcastle");
+        words.add("stoke");
+
 
         for (int i = 0; i < grid.width(); i++) {
             for (int j = 0; j < grid.height(); j++) {
@@ -332,4 +334,12 @@ public class GameScreen extends AbstractScreen {
             return true; //or false
         }
     };
+
+    class LengthComparator implements Comparator<String> {
+        @Override
+        public int compare(String str1, String str2) {
+            return str2.length() - str1.length();
+        }
+    }
+
 }
