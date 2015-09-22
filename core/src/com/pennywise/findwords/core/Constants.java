@@ -14,7 +14,7 @@ public class Constants {
     // The height will be dynamically determined!
     // We will calculate our device's screen resolution and determine how tall the game should be.
 
-    public static final float GAME_WIDTH = 240;
+    public static final float GAME_WIDTH = 480;
     public static final float GAME_HEIGHT = SCREEN_HEIGHT / (SCREEN_WIDTH / GAME_WIDTH);
 
 }

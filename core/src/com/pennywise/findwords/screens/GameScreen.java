@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -54,13 +56,14 @@ public class GameScreen extends AbstractScreen {
     private Random random = new Random();
     private List<String> words;
     private int color = 0;
+    private TextureAtlas gameUI;
 
     public GameScreen(FindWords game) {
         super(game);
         camera = GameCam.instance;
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
-        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
+        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         dragTracker = new Vector2[2];
@@ -68,7 +71,8 @@ public class GameScreen extends AbstractScreen {
         sb = new StringBuilder();
         words = new LinkedList<String>();
         color = random.nextInt(7);
-        setupPuzzle();
+        gameUI = new TextureAtlas("images/ui-pack.atlas");
+        setupScreen();
     }
 
     @Override
@@ -78,7 +82,7 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
@@ -125,7 +129,7 @@ public class GameScreen extends AbstractScreen {
     }
 
 
-    private void setupPuzzle() {
+    private void setupScreen() {
         // build all layers
         Table layerPuzzle = buildBoard();
         Table layerWordlist = buildWordList();
@@ -133,9 +137,26 @@ public class GameScreen extends AbstractScreen {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+        stack.add(backGround());
+        //stack.add(hud());
         stack.add(layerWordlist);
         stack.add(layerPuzzle);
         stage.addActor(stack);
+    }
+
+    private Table backGround() {
+        Table layer = new Table();
+        Image bg = new Image(gameUI.createPatch("panel_brown"));
+        layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
+        return layer;
+    }
+
+    private Table hud() {
+        Table layer = new Table();
+        layer.bottom();
+        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
+        layer.add(bg).height(60).width(Constants.SCREEN_WIDTH - 10).bottom().expandX().padBottom(10);
+        return layer;
     }
 
     private Table buildBoard() {
@@ -154,6 +175,30 @@ public class GameScreen extends AbstractScreen {
 
         Group board = new Group();
 
+        //fill grid with letters
+        words.add("everton");
+        words.add("watford");
+        words.add("swansea");
+        words.add("leeds");
+        words.add("stoke");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("city");
+
+        PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
+        Grid grid = pg.generate();
+
+        words.add("everton");
+        words.add("watford");
+        words.add("swansea");
+        words.add("leeds");
+        words.add("stoke");
+        words.add("arsenal");
+        words.add("chelsea");
+        words.add("fulham");
+        words.add("city");
+
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
         style.background = tileTexture("background/brown_tile.png");
@@ -171,51 +216,17 @@ public class GameScreen extends AbstractScreen {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
                         ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
-                tiles[index] = new Tile("A", new Label.LabelStyle(style));
+
+                String val = String.valueOf(grid.at(col, row));
+                val = val.toUpperCase();
+                //style.background = tileTexture("background/Wood/letter_" + val.trim() + ".png");
+                tiles[index] = new Tile(val, new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
                 tiles[index].setPosition(position[index].x, position[index].y);
                 tiles[index].addListener(tileListener);
                 tiles[index].setName(index + "");
                 board.addActor(tiles[index]);
-            }
-        }
-
-        //fill grid with letters
-        words.add("everton");
-        words.add("watford");
-        words.add("bolton");
-        words.add("swansea");
-        words.add("leeds");
-        words.add("cardiff");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
-        words.add("stoke");
-
-        Collections.sort(words, new LengthComparator());
-
-        PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
-        Grid grid = pg.generate();
-
-
-        words.add("everton");
-        words.add("watford");
-        words.add("bolton");
-        words.add("swansea");
-        words.add("leeds");
-        words.add("cardiff");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
-        words.add("stoke");
-
-
-        for (int i = 0; i < grid.width(); i++) {
-            for (int j = 0; j < grid.height(); j++) {
-                index = i + (j * cols);
-                String val = String.valueOf(grid.at(i, j));
-                tiles[index].setText(val);
             }
         }
 
@@ -265,7 +276,9 @@ public class GameScreen extends AbstractScreen {
     public SpriteDrawable tileTexture(String name) {
         final Texture t = new Texture(Gdx.files.internal(name));
         Sprite sprite = new Sprite(t);
+        sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
+        //drawable
         return drawable;
     }
 
