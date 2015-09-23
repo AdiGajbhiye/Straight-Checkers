@@ -31,6 +31,8 @@ import com.pennywise.findwords.core.logic.Grid;
 import com.pennywise.findwords.core.logic.PuzzleGenerator;
 import com.pennywise.findwords.objects.Tile;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -144,7 +146,7 @@ public class GameScreen extends AbstractScreen {
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(gameUI.createPatch("panel_brown"));
+        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
@@ -159,7 +161,7 @@ public class GameScreen extends AbstractScreen {
 
     private Table buildBoard() {
         Table layer = new Table();
-        layer.addActor(board(10, 8));
+        layer.addActor(board(12, 10));
         return layer;
     }
 
@@ -199,7 +201,7 @@ public class GameScreen extends AbstractScreen {
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = font;
-        style.background = tileTexture("background/brown_tile.png");
+        style.background = tileTexture("background/black_tile.png");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -213,7 +215,7 @@ public class GameScreen extends AbstractScreen {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
 
                 String val = String.valueOf(grid.at(col, row));
                 val = val.toUpperCase();
@@ -314,7 +316,7 @@ public class GameScreen extends AbstractScreen {
             if (tile != null) {
                 if (tile.getName().equals(b.getName())) {
                     sb.deleteCharAt(sb.length() - 1);
-                    b.getStyle().background = Util.loadTexture("background/brown_tile.png");
+                    b.getStyle().background = Util.loadTexture("background/black_tile.png");
                     tile = null;
                     return true;
                 }
@@ -345,4 +347,12 @@ public class GameScreen extends AbstractScreen {
             return true; //or false
         }
     };
+
+    class LengthComparator implements Comparator<String> {
+        @Override
+        public int compare(String str1, String str2) {
+            return str2.length() - str1.length();
+        }
+    }
+
 }
