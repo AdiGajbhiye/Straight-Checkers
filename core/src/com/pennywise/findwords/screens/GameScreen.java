@@ -31,7 +31,9 @@ import com.pennywise.findwords.core.logic.Grid;
 import com.pennywise.findwords.core.logic.PuzzleGenerator;
 import com.pennywise.findwords.objects.Tile;
 
-import java.util.Collections;
+import org.apache.commons.lang3.StringUtils;
+
+import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,6 +47,7 @@ public class GameScreen extends AbstractScreen {
 
     private final Stage stage;
     private final GameCam camera;
+    private final BitmapFont uiFont;
     private ShapeRenderer shapeRenderer;
     SpriteBatch batch;
     private final BitmapFont font;
@@ -64,6 +67,8 @@ public class GameScreen extends AbstractScreen {
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
         font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
+        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
+        uiFont.getData().setScale(1, -1);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         dragTracker = new Vector2[2];
@@ -92,6 +97,10 @@ public class GameScreen extends AbstractScreen {
         stage.act();
         stage.draw();
 
+        batch.begin();
+        renderScore(batch, delta);
+        renderFpsCounter(batch);
+        batch.end();
         // shapeRenderer.begin();
         if (dragTracker[1] != null) {
             Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -238,7 +247,7 @@ public class GameScreen extends AbstractScreen {
         int count = words.size();
 
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = font;
+        style.font = uiFont;
         style.background = tileTexture("background/clear_cell.png");
 
 
@@ -355,4 +364,42 @@ public class GameScreen extends AbstractScreen {
         }
     }
 
+    private void renderScore(SpriteBatch batch, float gameTime) {
+
+        float x = Constants.GAME_WIDTH * 0.80f;
+        float y = Constants.GAME_HEIGHT * 0.95f;
+
+        //show score
+        String score = "10";
+        uiFont.draw(batch, score, x, y);
+
+        float minutes = (float) Math.floor(gameTime / 60.0f);
+        float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
+
+        //show time
+        String time = String.format("%s:%s", StringUtils.leftPad(new DecimalFormat("##").format(minutes), 2, "0"),
+                StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));
+        uiFont.draw(batch, time, 15, y);
+    }
+
+    private void renderFpsCounter(SpriteBatch batch) {
+
+        float x = Constants.GAME_WIDTH - 150;
+        float y = 30;
+
+        int fps = Gdx.graphics.getFramesPerSecond();
+        BitmapFont fpsFont = uiFont;
+        if (fps >= 45) {
+            // 45 or more FPS show up in green
+            fpsFont.setColor(0, 1, 0, 1);
+        } else if (fps >= 30) {
+            // 30 or more FPS show up in yellow
+            fpsFont.setColor(1, 1, 0, 1);
+        } else {
+            // less than 30 FPS show up in red
+            fpsFont.setColor(1, 0, 0, 1);
+        }
+        fpsFont.draw(batch, "FPS: " + fps, x, y);
+        fpsFont.setColor(1, 1, 1, 1); // white
+    }
 }
