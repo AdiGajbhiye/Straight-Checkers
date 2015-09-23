@@ -5,17 +5,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -31,6 +32,10 @@ import com.pennywise.findwords.core.logic.Grid;
 import com.pennywise.findwords.core.logic.PuzzleGenerator;
 import com.pennywise.findwords.objects.Tile;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -45,10 +50,11 @@ public class GameScreen extends AbstractScreen {
 
     private final Stage stage;
     private final GameCam camera;
-    private ShapeRenderer shapeRenderer;
+    private final BitmapFont uiFont;
+    private final BitmapFont strikeThrough;
     SpriteBatch batch;
-    private final BitmapFont font;
-    private Vector2[] dragTracker;
+    private final BitmapFont gridFont;
+    private final BitmapFont listFont;
     private float cellsize = 0;
     protected Tile tile;
     protected String foundWord;
@@ -57,20 +63,28 @@ public class GameScreen extends AbstractScreen {
     private List<String> words;
     private int color = 0;
     private TextureAtlas gameUI;
+    private Image time;
+    private Button pause;
+    private boolean isBusy = false;
+    private int longestWordLen;
 
     public GameScreen(FindWords game) {
         super(game);
         camera = GameCam.instance;
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
-        font = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
-        shapeRenderer = new ShapeRenderer();
+
+        //load fonts
+        gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
+        listFont = Util.loadFont("fonts/Roboto-Bold.ttf", Color.BLACK);
+        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
+        uiFont.getData().setScale(1, -1);
+        strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", Color.BLACK);
+
         batch = new SpriteBatch();
-        dragTracker = new Vector2[2];
-        dragTracker[0] = new Vector2();
         sb = new StringBuilder();
         words = new LinkedList<String>();
-        color = random.nextInt(7);
+        color = random.nextInt(8) + 1;
         gameUI = new TextureAtlas("images/ui-pack.atlas");
         setupScreen();
     }
@@ -87,19 +101,13 @@ public class GameScreen extends AbstractScreen {
 
 
         camera.update();
-        shapeRenderer.setProjectionMatrix(camera.combined);
 
         stage.act();
         stage.draw();
 
-        // shapeRenderer.begin();
-        if (dragTracker[1] != null) {
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-            drawLineForSelected(shapeRenderer);
-            //Gdx.gl.glDisable(GL20.GL_BLEND);
-            // shapeRenderer.end();
-        }
+        batch.begin();
+        renderScore(batch, delta);
+        batch.end();
 
     }
 
@@ -138,9 +146,9 @@ public class GameScreen extends AbstractScreen {
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(backGround());
-        //stack.add(hud());
-        stack.add(layerWordlist);
+        stack.add(hud());
         stack.add(layerPuzzle);
+        stack.add(layerWordlist);
         stage.addActor(stack);
     }
 
@@ -154,8 +162,8 @@ public class GameScreen extends AbstractScreen {
     private Table hud() {
         Table layer = new Table();
         layer.bottom();
-        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
-        layer.add(bg).height(60).width(Constants.SCREEN_WIDTH - 10).bottom().expandX().padBottom(10);
+        time = new Image(gameUI.createPatch("pause"));
+        layer.add(time).height(40).width(40).bottom().right().expandX().padBottom(10);
         return layer;
     }
 
@@ -186,6 +194,9 @@ public class GameScreen extends AbstractScreen {
         words.add("fulham");
         words.add("city");
 
+        Collections.sort(words, new LengthComparator());
+        longestWordLen = words.get(0).length();
+
         PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
         Grid grid = pg.generate();
 
@@ -200,8 +211,8 @@ public class GameScreen extends AbstractScreen {
         words.add("city");
 
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = font;
-        style.background = tileTexture("background/black_tile.png");
+        style.font = gridFont;
+        style.background = tileTexture("brown_tile");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -219,7 +230,6 @@ public class GameScreen extends AbstractScreen {
 
                 String val = String.valueOf(grid.at(col, row));
                 val = val.toUpperCase();
-                //style.background = tileTexture("background/Wood/letter_" + val.trim() + ".png");
                 tiles[index] = new Tile(val, new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
@@ -238,8 +248,8 @@ public class GameScreen extends AbstractScreen {
         int count = words.size();
 
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = font;
-        style.background = tileTexture("background/clear_cell.png");
+        style.font = listFont;
+        style.background = tileTexture("clear_cell");
 
 
         int rows = 4;
@@ -250,8 +260,8 @@ public class GameScreen extends AbstractScreen {
         Tile[] tiles = new Tile[rows * cols];
 
         float width = ((Constants.GAME_WIDTH - cols) / (cols));
-        float height = font.getData().capHeight + 10;
-        float padding = (Constants.GAME_WIDTH - (width * cols)) / 2;
+        float height = listFont.getData().capHeight + 10;
+        float padding = 10;
         int index = 0;
 
         for (int row = 0; row < rows; row++) {
@@ -260,10 +270,12 @@ public class GameScreen extends AbstractScreen {
                 if (index >= count)
                     break;
                 position[index] = new Vector2((col * width) + padding,
-                        ((row * (height)) + (Constants.GAME_HEIGHT * 0.80f)));
-                tiles[index] = new Tile(words.get(index), new Label.LabelStyle(style));
+                        ((row * (height)) + (Constants.GAME_HEIGHT * 0.85f)));
+                String word = words.get(index);
+                word = WordUtils.capitalize(word);
+                tiles[index] = new Tile(word, new Label.LabelStyle(style));
                 tiles[index].setSize(width, height);
-                tiles[index].setAlignment(Align.center);
+                tiles[index].setAlignment(Align.left);
                 tiles[index].setPosition(position[index].x, position[index].y);
                 tiles[index].setName(index + "");
                 wordList.addActor(tiles[index]);
@@ -274,49 +286,56 @@ public class GameScreen extends AbstractScreen {
     }
 
     public SpriteDrawable tileTexture(String name) {
-        final Texture t = new Texture(Gdx.files.internal(name));
-        Sprite sprite = new Sprite(t);
-        sprite.setFlip(false, true);
+        Gdx.app.log("Color", name);
+        Sprite sprite = gameUI.createSprite(name);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
-        //drawable
         return drawable;
-    }
-
-    private void drawLineForSelected(ShapeRenderer sr) {
-
-
-        int startX = (int) ((dragTracker[0].x + cellsize) / 2);
-        int startY = (int) ((dragTracker[0].y + cellsize) / 2);
-        int endX = (int) dragTracker[1].x;
-        int endY = (int) dragTracker[1].y;
-        int size = (int) (cellsize - 2);
-
-
-        sr.setColor(new Color().set(255.0f, 108.0f, 0.0f, 0.5f));
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        sr.rectLine(startX, startY, endX, endY, size);
-        sr.arc(startX, startY, (size / 2), 0, 180);
-        sr.arc(endX, endY, (size / 2), 0, 180);
-        shapeRenderer.end();
     }
 
     protected void updateColor() {
 
         if (words.contains(sb.toString().toLowerCase())) {
             sb.setLength(0);
-            color = random.nextInt(7);
+            color = random.nextInt(8) + 1;
         }
-
     }
 
+    protected boolean validInput() {
+
+        isBusy = true;
+
+        if (sb.length() > longestWordLen) {
+            sb.setLength(0);
+            isBusy = false;
+            return false;
+        }
+
+        for (String word : words) {
+
+            String s = sb.toString().toLowerCase();
+            if (word.startsWith(s)) {
+                Gdx.app.log("WordTest", sb.toString());
+                isBusy = false;
+                return true;
+            }
+        }
+
+
+        isBusy = false;
+
+        return false;
+    }
+
+    protected Tile startTile, endTile;
+
     private InputListener tileListener = new InputListener() {
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+       /* public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             Tile b = (Tile) event.getListenerActor();
 
             if (tile != null) {
                 if (tile.getName().equals(b.getName())) {
                     sb.deleteCharAt(sb.length() - 1);
-                    b.getStyle().background = Util.loadTexture("background/black_tile.png");
+                    b.getStyle().background = Util.loadTexture("background/brown_tile.png");
                     tile = null;
                     return true;
                 }
@@ -327,24 +346,54 @@ public class GameScreen extends AbstractScreen {
             String v = b.getText().toString();
             sb.append(v);
 
-            if (color == 1)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_yellow_glow.png");
-            else if (color == 2)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_green_glow.png");
-            else if (color == 3)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_red_glow.png");
-            else if (color == 4)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_orange_glow.png");
-            else if (color == 5)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_pink_glow.png");
-            else if (color == 6)
-                b.getStyle().background = Util.loadTexture("background/beige_tile_purple_glow.png");
-            else
-                b.getStyle().background = Util.loadTexture("background/beige_tile_blue_glow.png");
+            b.getStyle().background = tileTexture("tile" + color);
 
             updateColor();
 
             return true; //or false
+        }*/
+
+        /*   @Override
+           public void touchDragged(InputEvent event, float x, float y, int pointer) {
+               super.touchDragged(event, x, y, pointer);
+               Tile b = (Tile) event.getListenerActor();
+               Gdx.app.log("Actor",b.getName() + " ");
+           }
+
+           @Override
+           public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+               super.touchUp(event, x, y, pointer, button);
+           }
+   */
+        @Override
+        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            super.exit(event, x, y, pointer, toActor);
+
+            Tile t = (Tile) event.getListenerActor();
+
+            if (tile != null) {
+                if (tile.getName().equals(t.getName())) {
+                    if (sb.length() > 1)
+                        sb.deleteCharAt(sb.length() - 1);
+                    t.getStyle().background = Util.loadTexture("background/brown_tile.png");
+                    tile = null;
+                    return;
+                }
+            }
+
+            tile = t;
+
+            String v = t.getText().toString();
+            sb.append(v);
+
+            if (isBusy)
+                return;
+
+            if (validInput())
+                t.getStyle().background = tileTexture("tile" + color);
+
+            updateColor();
+
         }
     };
 
@@ -353,6 +402,24 @@ public class GameScreen extends AbstractScreen {
         public int compare(String str1, String str2) {
             return str2.length() - str1.length();
         }
+    }
+
+    private void renderScore(SpriteBatch batch, float gameTime) {
+
+        float x = Constants.GAME_WIDTH * 0.80f;
+        float y = Constants.GAME_HEIGHT * 0.95f;
+
+        //show score
+        String score = "0";
+        uiFont.draw(batch, score, x, y);
+
+        float minutes = (float) Math.floor(gameTime / 60.0f);
+        float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
+
+        //show time
+        String time = String.format("%s:%s", StringUtils.leftPad(new DecimalFormat("##").format(minutes), 2, "0"),
+                StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));
+        uiFont.draw(batch, time, 15, y);
     }
 
 }
