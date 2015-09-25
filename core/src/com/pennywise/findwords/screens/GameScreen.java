@@ -60,6 +60,7 @@ public class GameScreen extends AbstractScreen {
     protected StringBuilder sb;
     private Random random = new Random();
     private List<String> words;
+    private List<String> foundWords;
     private int color = 0;
     private TextureAtlas gameUI;
     private Image time;
@@ -67,6 +68,7 @@ public class GameScreen extends AbstractScreen {
     private boolean isBusy = false;
     private int longestWordLen;
     private int width, height;
+    protected List<Tile> tileList = new LinkedList<Tile>();
 
     public GameScreen(FindWords game) {
         super(game);
@@ -75,21 +77,20 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
 
         //load fonts
-        gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
-        listFont = Util.loadFont("fonts/Roboto-Bold.ttf", 24, Color.BLUE);
-        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLUE);
-        uiFont.getData().setScale(1, -1);
-        strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", 24, Color.BLUE);
+        gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", 16, Color.BLACK);
+        listFont = Util.loadFont("fonts/Roboto-Bold.ttf", 24, Color.BLACK);
+        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.TEAL);
+        strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", 24, Color.BLACK);
 
-        width = 11;
-        height = 13;
-        //2/3 of the height
+        width = 10;
+        height = 12;
         gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
         sb = new StringBuilder();
         words = new LinkedList<String>();
-        color = random.nextInt(8) + 1;
+        foundWords = new LinkedList<String>();
+        color = random.nextInt(6) + 1;
         gameUI = new TextureAtlas("images/ui-pack.atlas");
         setupScreen();
     }
@@ -101,15 +102,15 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
+        //Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-
-        camera.update();
 
         stage.act();
         stage.draw();
 
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
         renderScore(batch, delta);
         batch.end();
@@ -167,8 +168,8 @@ public class GameScreen extends AbstractScreen {
     private Table hud() {
         Table layer = new Table();
         layer.bottom();
-        time = new Image(gameUI.createPatch("pause"));
-        layer.add(time).height(40).width(40).bottom().right().expandX().padBottom(10);
+        time = new Image(gameUI.createSprite("pause_dark"));
+        layer.add(time).height(40).width(40).bottom().right().expandX().padRight(20).padBottom(30);
         return layer;
     }
 
@@ -217,7 +218,7 @@ public class GameScreen extends AbstractScreen {
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = gridFont;
-        style.background = tileTexture("brown_tile");
+        style.background = tileTexture("line_dark");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -276,8 +277,14 @@ public class GameScreen extends AbstractScreen {
                 if (index >= count)
                     break;
                 position[index] = new Vector2((col * width) + padding,
-                        ((row * (height)) + (Constants.GAME_HEIGHT * 0.85f)));
-                String word = words.get(index);
+                        ((row * (height)) + (Constants.GAME_HEIGHT * 0.80f)));
+                String word = words.get(index).toLowerCase();
+
+                if (foundWords.contains(word))
+                    style.font = strikeThrough;
+                else
+                    style.font = listFont;
+
                 word = WordUtils.capitalize(word);
                 tiles[index] = new Tile(word, new Label.LabelStyle(style));
                 tiles[index].setSize(width, height);
@@ -302,8 +309,9 @@ public class GameScreen extends AbstractScreen {
 
         if (words.contains(sb.toString().toLowerCase())) {
             sb.setLength(0);
+            foundWords.add(sb.toString().toLowerCase());
             tileList.clear();
-            color = random.nextInt(8) + 1;
+            color = random.nextInt(6) + 1;
         }
     }
 
@@ -340,14 +348,11 @@ public class GameScreen extends AbstractScreen {
         sb.setLength(0);
 
         for (Tile t : tileList) {
-            t.getStyle().background = Util.loadTexture("background/brown_tile.png");
+            t.getStyle().background = Util.loadTexture("background/line_dark.png");
         }
 
         tileList.clear();
     }
-
-    protected Tile startTile, endTile;
-    protected List<Tile> tileList = new LinkedList<Tile>();
 
     private InputListener tileListener = new InputListener() {
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -357,7 +362,7 @@ public class GameScreen extends AbstractScreen {
             if (tile != null) {
                 if (tile.getName().equals(t.getName())) {
                     sb.deleteCharAt(sb.length() - 1);
-                    t.getStyle().background = Util.loadTexture("background/brown_tile.png");
+                    t.getStyle().background = Util.loadTexture("background/line_dark.png");
                     tile = null;
                     return true;
                 }
@@ -376,65 +381,6 @@ public class GameScreen extends AbstractScreen {
 
             return true; //or false
         }
-
-        /*   @Override
-           public void touchDragged(InputEvent event, float x, float y, int pointer) {
-               super.touchDragged(event, x, y, pointer);
-               Tile b = (Tile) event.getListenerActor();
-               Gdx.app.log("Actor",b.getName() + " ");
-           }
-
-           @Override
-           public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-               super.touchUp(event, x, y, pointer, button);
-           }
-
-
-        @Override
-        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            super.enter(event, x, y, pointer, fromActor);
-            Tile t = (Tile) event.getListenerActor();
-            tileList.add(t);
-            Gdx.app.log("Enter", t.getName());
-        }
-
-
-        @Override
-        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            super.exit(event, x, y, pointer, toActor);
-
-            Tile t = (Tile) event.getListenerActor();
-
-            Gdx.app.log("Exit", t.getName());
-
-            t.getStyle().background = tileTexture("tile" + color);
-
-
-            /*
-            if (tile != null) {
-                if (tile.getName().equals(t.getName())) {
-                    if (sb.length() > 1)
-                        sb.deleteCharAt(sb.length() - 1);
-                    t.getStyle().background = Util.loadTexture("background/brown_tile.png");
-                    tile = null;
-                    return;
-                }
-            }
-
-            tile = t;
-
-            String v = t.getText().toString();
-            sb.append(v);
-
-            if (isBusy)
-                return;
-
-            if (validInput())
-                t.getStyle().background = tileTexture("tile" + color);
-
-            updateColor();
-
-        }*/
     };
 
     class LengthComparator implements Comparator<String> {
@@ -446,11 +392,11 @@ public class GameScreen extends AbstractScreen {
 
     private void renderScore(SpriteBatch batch, float gameTime) {
 
-        float x = Constants.GAME_WIDTH * 0.80f;
-        float y = Constants.GAME_HEIGHT * 0.95f;
+        float x = Constants.GAME_WIDTH * 0.45f;
+        float y = Constants.GAME_HEIGHT * 0.05f;
 
         //show score
-        String score = "0";
+        String score = "00/00";
         uiFont.draw(batch, score, x, y);
 
         float minutes = (float) Math.floor(gameTime / 60.0f);
