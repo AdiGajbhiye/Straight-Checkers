@@ -21,7 +21,7 @@ public class Util {
     }
 
     //fonts/Roboto-Regular.ttf
-    public static BitmapFont loadFont(String path, Color color) {
+    public static BitmapFont loadFont(String path, int fontSize, Color color) {
         // how much bigger is the real device screen, compared to the defined viewport
         float SCALE = 1.0f * Gdx.graphics.getWidth() / Constants.GAME_WIDTH;
         // prevents unwanted downscale on devices with resolution SMALLER than 320x480
@@ -29,7 +29,7 @@ public class Util {
             SCALE = 1;
         //set the font parameters
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int) (16 * SCALE);
+        parameter.size = (int) (fontSize * SCALE);
         parameter.flip = true;
         parameter.color = color;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));

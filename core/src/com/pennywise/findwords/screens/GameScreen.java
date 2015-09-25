@@ -9,9 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -56,6 +54,7 @@ public class GameScreen extends AbstractScreen {
     private final BitmapFont gridFont;
     private final BitmapFont listFont;
     private float cellsize = 0;
+    private float gridHeight = 0;
     protected Tile tile;
     protected String foundWord;
     protected StringBuilder sb;
@@ -67,6 +66,7 @@ public class GameScreen extends AbstractScreen {
     private Button pause;
     private boolean isBusy = false;
     private int longestWordLen;
+    private int width, height;
 
     public GameScreen(FindWords game) {
         super(game);
@@ -75,11 +75,16 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(new InputMultiplexer(stage));
 
         //load fonts
-        gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", Color.WHITE);
-        listFont = Util.loadFont("fonts/Roboto-Bold.ttf", Color.BLACK);
-        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", Color.BLACK);
+        gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", 16, Color.WHITE);
+        listFont = Util.loadFont("fonts/Roboto-Bold.ttf", 24, Color.BLUE);
+        uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLUE);
         uiFont.getData().setScale(1, -1);
-        strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", Color.BLACK);
+        strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", 24, Color.BLUE);
+
+        width = 11;
+        height = 13;
+        //2/3 of the height
+        gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
         sb = new StringBuilder();
@@ -169,7 +174,7 @@ public class GameScreen extends AbstractScreen {
 
     private Table buildBoard() {
         Table layer = new Table();
-        layer.addActor(board(12, 10));
+        layer.addActor(board(height, width));
         return layer;
     }
 
@@ -219,6 +224,7 @@ public class GameScreen extends AbstractScreen {
         Tile[] tiles = new Tile[rows * cols];
 
         cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
+        //float cellHeight = ((gridHeight - rows) / rows);
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
         int index = 0;
 
@@ -296,6 +302,7 @@ public class GameScreen extends AbstractScreen {
 
         if (words.contains(sb.toString().toLowerCase())) {
             sb.setLength(0);
+            tileList.clear();
             color = random.nextInt(8) + 1;
         }
     }
@@ -313,6 +320,7 @@ public class GameScreen extends AbstractScreen {
         for (String word : words) {
 
             String s = sb.toString().toLowerCase();
+
             if (word.startsWith(s)) {
                 Gdx.app.log("WordTest", sb.toString());
                 isBusy = false;
@@ -320,38 +328,54 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
+        rewind();
+
 
         isBusy = false;
 
         return false;
     }
 
+    private void rewind() {
+        sb.setLength(0);
+
+        for (Tile t : tileList) {
+            t.getStyle().background = Util.loadTexture("background/brown_tile.png");
+        }
+
+        tileList.clear();
+    }
+
     protected Tile startTile, endTile;
+    protected List<Tile> tileList = new LinkedList<Tile>();
 
     private InputListener tileListener = new InputListener() {
-       /* public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            Tile b = (Tile) event.getListenerActor();
+        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            Tile t = (Tile) event.getListenerActor();
+            tileList.add(t);
 
             if (tile != null) {
-                if (tile.getName().equals(b.getName())) {
+                if (tile.getName().equals(t.getName())) {
                     sb.deleteCharAt(sb.length() - 1);
-                    b.getStyle().background = Util.loadTexture("background/brown_tile.png");
+                    t.getStyle().background = Util.loadTexture("background/brown_tile.png");
                     tile = null;
                     return true;
                 }
             }
 
-            tile = b;
-
-            String v = b.getText().toString();
+            String v = t.getText().toString();
             sb.append(v);
 
-            b.getStyle().background = tileTexture("tile" + color);
+            if (isBusy)
+                return true;
+
+            if (validInput())
+                t.getStyle().background = tileTexture("tile" + color);
 
             updateColor();
 
             return true; //or false
-        }*/
+        }
 
         /*   @Override
            public void touchDragged(InputEvent event, float x, float y, int pointer) {
@@ -364,13 +388,29 @@ public class GameScreen extends AbstractScreen {
            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                super.touchUp(event, x, y, pointer, button);
            }
-   */
+
+
+        @Override
+        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            super.enter(event, x, y, pointer, fromActor);
+            Tile t = (Tile) event.getListenerActor();
+            tileList.add(t);
+            Gdx.app.log("Enter", t.getName());
+        }
+
+
         @Override
         public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
             super.exit(event, x, y, pointer, toActor);
 
             Tile t = (Tile) event.getListenerActor();
 
+            Gdx.app.log("Exit", t.getName());
+
+            t.getStyle().background = tileTexture("tile" + color);
+
+
+            /*
             if (tile != null) {
                 if (tile.getName().equals(t.getName())) {
                     if (sb.length() > 1)
@@ -394,7 +434,7 @@ public class GameScreen extends AbstractScreen {
 
             updateColor();
 
-        }
+        }*/
     };
 
     class LengthComparator implements Comparator<String> {
@@ -421,5 +461,6 @@ public class GameScreen extends AbstractScreen {
                 StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));
         uiFont.draw(batch, time, 15, y);
     }
+
 
 }
