@@ -5,17 +5,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -70,7 +73,14 @@ public class GameScreen extends AbstractScreen {
     private int longestWordLen;
     private int width, height;
     protected List<Tile> tileList = new LinkedList<Tile>();
-    NinePatch d;
+    NinePatch pinkSelector;
+    NinePatch purpleSelector;
+    NinePatch orangeSelector;
+    NinePatch maroonSelector;
+    Texture purpleTexture;
+    Texture orangeTexture;
+    Texture maroonTexture;
+
 
     public GameScreen(FindWords game) {
         super(game);
@@ -94,14 +104,19 @@ public class GameScreen extends AbstractScreen {
         foundWords = new LinkedList<String>();
         color = random.nextInt(6) + 1;
         gameUI = new TextureAtlas("images/ui-pack.atlas");
-        setupScreen();
+
     }
 
     @Override
     public void show() {
 
-        d = gameUI.createPatch("highlighter");
+        //d = gameUI.createPatch("highlighter");
+        pinkSelector = gameUI.createPatch("pinkselector");
+        purpleTexture = gameUI.createPatch("purpleselector").getTexture();
+        orangeTexture = gameUI.createPatch("orangeselector").getTexture();
+        maroonTexture = gameUI.createPatch("maroonselector").getTexture();
 
+        setupScreen();
     }
 
     @Override
@@ -116,7 +131,7 @@ public class GameScreen extends AbstractScreen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        d.draw(batch, 5, 5, 150, 30);
+        pinkSelector.draw(batch, 5, 5, 200, 40);
         renderScore(batch, delta);
         batch.end();
 
@@ -154,10 +169,20 @@ public class GameScreen extends AbstractScreen {
         Table layerWordlist = buildWordList();
         stage.clear();
 
+        Image bg = new Image(pinkSelector);
+        Container wrapper = new Container(bg);
+        wrapper.setTransform(true);
+        wrapper.setWidth(200);
+        wrapper.setHeight(80);
+        wrapper.setOrigin(5,90);
+        wrapper.setRotation(45);
+        wrapper.setScaleX(1.5f);
+
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(backGround());
         stack.add(hud());
+        stack.add(wrapper);
         stack.add(layerPuzzle);
         stack.add(layerWordlist);
         stage.addActor(stack);
