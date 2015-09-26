@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -69,6 +70,7 @@ public class GameScreen extends AbstractScreen {
     private int longestWordLen;
     private int width, height;
     protected List<Tile> tileList = new LinkedList<Tile>();
+    NinePatch d;
 
     public GameScreen(FindWords game) {
         super(game);
@@ -98,6 +100,8 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void show() {
 
+        d = gameUI.createPatch("highlighter");
+
     }
 
     @Override
@@ -112,6 +116,7 @@ public class GameScreen extends AbstractScreen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+        d.draw(batch, 5, 5, 150, 30);
         renderScore(batch, delta);
         batch.end();
 
@@ -247,7 +252,10 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
+
         return board;
+
+
     }
 
     private Group wordList() {
