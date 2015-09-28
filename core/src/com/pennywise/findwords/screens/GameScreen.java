@@ -2,7 +2,7 @@ package com.pennywise.findwords.screens;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,8 +11,9 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -47,7 +48,7 @@ import java.util.Random;
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
  */
-public class GameScreen extends AbstractScreen {
+public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
     private final Stage stage;
@@ -86,7 +87,7 @@ public class GameScreen extends AbstractScreen {
         super(game);
         camera = GameCam.instance;
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage));
+        Gdx.input.setInputProcessor(this);
 
         //load fonts
         gridFont = Util.loadFont("fonts/Roboto-Regular.ttf", 16, Color.BLACK);
@@ -119,6 +120,8 @@ public class GameScreen extends AbstractScreen {
         setupScreen();
     }
 
+    private final Vector2 stageCoords = new Vector2();
+
     @Override
     public void render(float delta) {
         //Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
@@ -127,13 +130,88 @@ public class GameScreen extends AbstractScreen {
 
         stage.act();
         stage.draw();
-
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
+        if (Gdx.input.isTouched()) {
+            stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
+            Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
+            if (actor instanceof Tile) {
+                distanceFromCenter(((Tile) actor), stageCoords.x, stageCoords.y);
+
+                ((Tile) actor).getStyle().background = tileTexture("tile" + color);
+            }
+
+        }
+
+
         batch.begin();
-        pinkSelector.draw(batch, 5, 5, 200, 40);
+        //pinkSelector.draw(batch, 5, 5, 200, 40);
         renderScore(batch, delta);
         batch.end();
+
+    }
+
+    Vector2 v2 = new Vector2();
+    Vector2 v1 = new Vector2();
+
+    public float distance2d(float x1, float y1, float x2, float y2) {
+        Vector2 vect = v2.set(x2, y2);
+        return vect.dst(v1.set(x1, x2));
+    }
+
+    public void touchDirection(Tile tile, float hitX, float hitY) {
+        float size = 47.0f;
+
+
+        for (Tile t : tileList) {
+            if (t.getName().equalsIgnoreCase(tile.getName())) {
+                break;
+            }
+            tileList.add(tile);
+        }
+
+        if (tileList.size() < 4)
+            return;
+
+        Tile tile1 = tileList.get(0);
+        Tile tile2 = tileList.get(0);
+        Tile tile3 = tileList.get(0);
+        Tile tile4 = tileList.get(0);
+
+        String direction = "";
+        if ((tile1.getX() == tile2.getX()) && (tile2.getX() == tile3.getX()))
+            direction = "horizontal";
+        if ((tile1.getY() == tile2.getY()) && (tile2.getY() == tile3.getY()))
+            direction = "vertical";
+
+        if (((tile1.getY() + tile1.getHeight()) == tile2.getY())
+                && ((tile2.getY() + tile2.getHeight()) == tile3.getY()))
+            direction = "diagonal-up-down";
+
+        if (((tile1.getY() - tile1.getHeight()) == tile2.getY()) && ((tile2.getY() - tile2.getHeight()) == tile3.getY()))
+            direction = "diagonal-down-up";
+
+        float dst1 = distance2d(tile1.getX(), tile1.getY(), tile2.getX(), tile2.getY());
+        float dst2 = distance2d(tile2.getX(), tile2.getY(), tile3.getX(), tile3.getY());
+        float dst3 = distance2d(tile3.getX(), tile3.getY(), tile4.getX(), tile4.getY());
+
+        if (dst1 == tile1.getWidth() && dst2)
+
+            if (tile != null) {
+                if (tile.getName().equals(t.getName())) {
+                    sb.deleteCharAt(sb.length() - 1);
+                    t.getStyle().background = Util.loadTexture("background/line_dark.png");
+                    tile = null;
+                    return true;
+                }
+            }
+
+        float centerX = tile.getX() + (tile.getWidth() / 2);
+        float centerY = tile.getY() + (tile.getHeight() / 2);
+
+        Gdx.app.log("Logs", tile.getName() + " : Center X => " + centerX + "Center Y =>" + centerY);
+        Gdx.app.log("Logs", tile.getName() + " : distance X => " + Math.abs(centerX - hitX) + "distance Y =>" + Math.abs(centerY - hitY));
 
     }
 
@@ -174,7 +252,7 @@ public class GameScreen extends AbstractScreen {
         wrapper.setTransform(true);
         wrapper.setWidth(200);
         wrapper.setHeight(80);
-        wrapper.setOrigin(5,90);
+        wrapper.setOrigin(5, 90);
         wrapper.setRotation(45);
         wrapper.setScaleX(1.5f);
 
@@ -220,14 +298,14 @@ public class GameScreen extends AbstractScreen {
         Group board = new Group();
 
         //fill grid with letters
-        words.add("everton");
-        words.add("watford");
-        words.add("swansea");
+        //  words.add("everton");
+        //  words.add("watford");
+        //  words.add("swansea");
         words.add("leeds");
         words.add("stoke");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
+        // words.add("arsenal");
+        // words.add("chelsea");
+        // words.add("fulham");
         words.add("city");
 
         Collections.sort(words, new LengthComparator());
@@ -236,14 +314,14 @@ public class GameScreen extends AbstractScreen {
         PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
         Grid grid = pg.generate();
 
-        words.add("everton");
-        words.add("watford");
-        words.add("swansea");
+        // words.add("everton");
+        // words.add("watford");
+        //  words.add("swansea");
         words.add("leeds");
         words.add("stoke");
-        words.add("arsenal");
-        words.add("chelsea");
-        words.add("fulham");
+        //  words.add("arsenal");
+        //  words.add("chelsea");
+        //  words.add("fulham");
         words.add("city");
 
         Label.LabelStyle style = new Label.LabelStyle();
@@ -271,7 +349,7 @@ public class GameScreen extends AbstractScreen {
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
                 tiles[index].setPosition(position[index].x, position[index].y);
-                tiles[index].addListener(tileListener);
+                // tiles[index].addListener(tileListener);
                 tiles[index].setName(index + "");
                 board.addActor(tiles[index]);
             }
@@ -415,6 +493,46 @@ public class GameScreen extends AbstractScreen {
             return true; //or false
         }
     };
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
+    }
 
     class LengthComparator implements Comparator<String> {
         @Override
