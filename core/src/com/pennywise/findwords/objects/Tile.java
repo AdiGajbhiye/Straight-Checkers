@@ -15,10 +15,18 @@ import java.util.Random;
  */
 public class Tile extends Label {
 
-    private static Random random = new Random();
+    private boolean touched;
 
     public Tile(CharSequence tileValue, LabelStyle skin) {
         super(tileValue, skin);
+        touched = false;
     }
 
+    public boolean isTouched() {
+        return touched;
+    }
+
+    public void setTouched(boolean touched) {
+        this.touched = touched;
+    }
 }

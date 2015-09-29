@@ -74,6 +74,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private int longestWordLen;
     private int width, height;
     protected List<Tile> tileList = new LinkedList<Tile>();
+    protected List<String> validTileList = new LinkedList<String>();
     NinePatch pinkSelector;
     NinePatch purpleSelector;
     NinePatch orangeSelector;
@@ -81,6 +82,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     Texture purpleTexture;
     Texture orangeTexture;
     Texture maroonTexture;
+
+    enum Orientation {UNKNOWN, VERTICAL, HORIZONTAL, DIAGONALDOWN, DIAGONALUP}
+
+    protected Orientation orientation;
 
 
     public GameScreen(FindWords game) {
@@ -137,9 +142,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             if (actor instanceof Tile) {
-                distanceFromCenter(((Tile) actor), stageCoords.x, stageCoords.y);
-
                 ((Tile) actor).getStyle().background = tileTexture("tile" + color);
+                Gdx.app.log("Tile", ((Tile) actor).getName());
+                touchDirection(((Tile) actor), stageCoords.x, stageCoords.y);
+
             }
 
         }
@@ -160,59 +166,139 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return vect.dst(v1.set(x1, x2));
     }
 
+    protected void prune() {
+
+        isBusy = true;
+
+        for (int i = 0; i < tileList.size(); i++) {
+            if (!(tileList.get(i).getName().equalsIgnoreCase(validTileList.get(i)))) {
+                tileList.get(i).getStyle().background = tileTexture("line_dark");
+                tileList.remove(i);
+                //reset
+                i = 0;
+            }
+        }
+
+        isBusy = false;
+    }
+
     public void touchDirection(Tile tile, float hitX, float hitY) {
         float size = 47.0f;
 
-
-        for (Tile t : tileList) {
-            if (t.getName().equalsIgnoreCase(tile.getName())) {
-                break;
-            }
+        if (!tile.isTouched()) {
             tileList.add(tile);
-        }
-
-        if (tileList.size() < 4)
+            tile.setTouched(true);
+        } else
             return;
 
-        Tile tile1 = tileList.get(0);
-        Tile tile2 = tileList.get(0);
-        Tile tile3 = tileList.get(0);
-        Tile tile4 = tileList.get(0);
+        if (tileList.size() < 3 || tileList.size() > 3) {
+            if (tileList.size() >= 3) {
+                if (!isBusy)
+                    prune();
+            }
+            return;
+        }
 
-        String direction = "";
-        if ((tile1.getX() == tile2.getX()) && (tile2.getX() == tile3.getX()))
+
+        Tile tile1 = tileList.get(0);
+        Tile tile2 = tileList.get(1);
+        Tile tile3 = tileList.get(2);
+
+
+        String direction = "unknown";
+        orientation = Orientation.UNKNOWN;
+
+        if ((tile1.getY() == tile2.getY()) && (tile2.getY() == tile3.getY())) {
             direction = "horizontal";
-        if ((tile1.getY() == tile2.getY()) && (tile2.getY() == tile3.getY()))
+            orientation = Orientation.HORIZONTAL;
+        }
+
+        if ((tile1.getX() == tile2.getX()) && (tile2.getX() == tile3.getX())) {
             direction = "vertical";
+            orientation = Orientation.VERTICAL;
+        }
 
         if (((tile1.getY() + tile1.getHeight()) == tile2.getY())
-                && ((tile2.getY() + tile2.getHeight()) == tile3.getY()))
+                && (tile1.getX() + tile1.getWidth() == tile2.getX())
+                || ((tile1.getY() + tile1.getHeight()) == tile3.getY())
+                && (tile1.getX() + tile1.getWidth() == tile3.getX())) {
             direction = "diagonal-up-down";
+            orientation = Orientation.DIAGONALDOWN;
+        }
 
-        if (((tile1.getY() - tile1.getHeight()) == tile2.getY()) && ((tile2.getY() - tile2.getHeight()) == tile3.getY()))
+        if (((tile1.getY() - tile1.getHeight()) == tile2.getY())
+                && (tile1.getX() - tile1.getWidth() == tile2.getX())
+                || ((tile1.getY() - tile1.getHeight()) == tile3.getY())
+                && (tile1.getX() - tile1.getWidth() == tile3.getX())) {
             direction = "diagonal-down-up";
+            orientation = Orientation.DIAGONALUP;
+        }
 
-        float dst1 = distance2d(tile1.getX(), tile1.getY(), tile2.getX(), tile2.getY());
-        float dst2 = distance2d(tile2.getX(), tile2.getY(), tile3.getX(), tile3.getY());
-        float dst3 = distance2d(tile3.getX(), tile3.getY(), tile4.getX(), tile4.getY());
+        Gdx.app.log("Direction", direction);
 
-        if (dst1 == tile1.getWidth() && dst2)
+        if (orientation == Orientation.UNKNOWN)
+            return;
 
-            if (tile != null) {
-                if (tile.getName().equals(t.getName())) {
-                    sb.deleteCharAt(sb.length() - 1);
-                    t.getStyle().background = Util.loadTexture("background/line_dark.png");
-                    tile = null;
-                    return true;
+        validTileList = validTiles();
+
+    }
+
+    protected List<String> validTiles() {
+        List<String> list = new LinkedList<String>();
+        Tile t;
+        String n = "";
+        float row, col = 0;
+        int x = 0;
+
+        switch (orientation) {
+            case HORIZONTAL:
+                t = tileList.get(0);
+                x = Integer.parseInt(t.getName());
+                //find row
+                col = (t.getWidth() * x / t.getWidth());
+                n = "0";
+                for (int i = 0; i < width; i++) {
+                    n = "" + (int) ((col * width) + i);
+                    list.add(n);
                 }
-            }
+                break;
+            case VERTICAL:
+                t = tileList.get(0);
+                x = Integer.parseInt(t.getName());
+                //find row
+                row = ((t.getHeight() * x) / t.getHeight());
+                for (int i = 0; i < height; i++) {
+                    n = "" + (int) ((row * height) + i);
+                    list.add(n);
+                }
+                break;
+            case DIAGONALDOWN:
+                t = tileList.get(0);
+                x = Integer.parseInt(t.getName());
+                //find row
+                row = ((t.getHeight() * x) / t.getHeight()) / width;
+                col = x % width;
 
-        float centerX = tile.getX() + (tile.getWidth() / 2);
-        float centerY = tile.getY() + (tile.getHeight() / 2);
+                for (int i = (int) row; i < height; i++) {
+                    n = "" + (int) ((i * width) + (col++));
+                    list.add(n);
+                }
+                break;
+            case DIAGONALUP:
+                t = tileList.get(0);
+                x = Integer.parseInt(t.getName());
 
-        Gdx.app.log("Logs", tile.getName() + " : Center X => " + centerX + "Center Y =>" + centerY);
-        Gdx.app.log("Logs", tile.getName() + " : distance X => " + Math.abs(centerX - hitX) + "distance Y =>" + Math.abs(centerY - hitY));
+                col = x % width;
+                row = ((t.getHeight() * x) / t.getHeight()) / width;
 
+                for (int i = (int) row; col >= 0; i--) {
+                    n = "" + (int) ((i * width) + (col--));
+                    list.add(n);
+                }
+                break;
+        }
+
+        return list;
     }
 
     @Override
