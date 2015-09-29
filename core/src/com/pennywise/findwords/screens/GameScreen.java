@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -19,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -31,15 +29,12 @@ import com.pennywise.FindWords;
 import com.pennywise.findwords.core.Constants;
 import com.pennywise.findwords.core.GameCam;
 import com.pennywise.findwords.core.Util;
-import com.pennywise.findwords.core.logic.Grid;
-import com.pennywise.findwords.core.logic.PuzzleGenerator;
 import com.pennywise.findwords.objects.Tile;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.text.DecimalFormat;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,8 +95,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         uiFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.TEAL);
         strikeThrough = Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", 24, Color.BLACK);
 
-        width = 10;
-        height = 12;
+        width = 8;
+        height = 8;
         gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
@@ -144,8 +139,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             if (actor instanceof Tile) {
                 ((Tile) actor).getStyle().background = tileTexture("tile" + color);
                 Gdx.app.log("Tile", ((Tile) actor).getName());
-                touchDirection(((Tile) actor), stageCoords.x, stageCoords.y);
-
             }
 
         }
@@ -164,141 +157,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public float distance2d(float x1, float y1, float x2, float y2) {
         Vector2 vect = v2.set(x2, y2);
         return vect.dst(v1.set(x1, x2));
-    }
-
-    protected void prune() {
-
-        isBusy = true;
-
-        for (int i = 0; i < tileList.size(); i++) {
-            if (!(tileList.get(i).getName().equalsIgnoreCase(validTileList.get(i)))) {
-                tileList.get(i).getStyle().background = tileTexture("line_dark");
-                tileList.remove(i);
-                //reset
-                i = 0;
-            }
-        }
-
-        isBusy = false;
-    }
-
-    public void touchDirection(Tile tile, float hitX, float hitY) {
-        float size = 47.0f;
-
-        if (!tile.isTouched()) {
-            tileList.add(tile);
-            tile.setTouched(true);
-        } else
-            return;
-
-        if (tileList.size() < 3 || tileList.size() > 3) {
-            if (tileList.size() >= 3) {
-                if (!isBusy)
-                    prune();
-            }
-            return;
-        }
-
-
-        Tile tile1 = tileList.get(0);
-        Tile tile2 = tileList.get(1);
-        Tile tile3 = tileList.get(2);
-
-
-        String direction = "unknown";
-        orientation = Orientation.UNKNOWN;
-
-        if ((tile1.getY() == tile2.getY()) && (tile2.getY() == tile3.getY())) {
-            direction = "horizontal";
-            orientation = Orientation.HORIZONTAL;
-        }
-
-        if ((tile1.getX() == tile2.getX()) && (tile2.getX() == tile3.getX())) {
-            direction = "vertical";
-            orientation = Orientation.VERTICAL;
-        }
-
-        if (((tile1.getY() + tile1.getHeight()) == tile2.getY())
-                && (tile1.getX() + tile1.getWidth() == tile2.getX())
-                || ((tile1.getY() + tile1.getHeight()) == tile3.getY())
-                && (tile1.getX() + tile1.getWidth() == tile3.getX())) {
-            direction = "diagonal-up-down";
-            orientation = Orientation.DIAGONALDOWN;
-        }
-
-        if (((tile1.getY() - tile1.getHeight()) == tile2.getY())
-                && (tile1.getX() - tile1.getWidth() == tile2.getX())
-                || ((tile1.getY() - tile1.getHeight()) == tile3.getY())
-                && (tile1.getX() - tile1.getWidth() == tile3.getX())) {
-            direction = "diagonal-down-up";
-            orientation = Orientation.DIAGONALUP;
-        }
-
-        Gdx.app.log("Direction", direction);
-
-        if (orientation == Orientation.UNKNOWN)
-            return;
-
-        validTileList = validTiles();
-
-    }
-
-    protected List<String> validTiles() {
-        List<String> list = new LinkedList<String>();
-        Tile t;
-        String n = "";
-        float row, col = 0;
-        int x = 0;
-
-        switch (orientation) {
-            case HORIZONTAL:
-                t = tileList.get(0);
-                x = Integer.parseInt(t.getName());
-                //find row
-                col = (t.getWidth() * x / t.getWidth());
-                n = "0";
-                for (int i = 0; i < width; i++) {
-                    n = "" + (int) ((col * width) + i);
-                    list.add(n);
-                }
-                break;
-            case VERTICAL:
-                t = tileList.get(0);
-                x = Integer.parseInt(t.getName());
-                //find row
-                row = ((t.getHeight() * x) / t.getHeight());
-                for (int i = 0; i < height; i++) {
-                    n = "" + (int) ((row * height) + i);
-                    list.add(n);
-                }
-                break;
-            case DIAGONALDOWN:
-                t = tileList.get(0);
-                x = Integer.parseInt(t.getName());
-                //find row
-                row = ((t.getHeight() * x) / t.getHeight()) / width;
-                col = x % width;
-
-                for (int i = (int) row; i < height; i++) {
-                    n = "" + (int) ((i * width) + (col++));
-                    list.add(n);
-                }
-                break;
-            case DIAGONALUP:
-                t = tileList.get(0);
-                x = Integer.parseInt(t.getName());
-
-                col = x % width;
-                row = ((t.getHeight() * x) / t.getHeight()) / width;
-
-                for (int i = (int) row; col >= 0; i--) {
-                    n = "" + (int) ((i * width) + (col--));
-                    list.add(n);
-                }
-                break;
-        }
-
-        return list;
     }
 
     @Override
@@ -333,22 +191,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Table layerWordlist = buildWordList();
         stage.clear();
 
-        Image bg = new Image(pinkSelector);
-        Container wrapper = new Container(bg);
-        wrapper.setTransform(true);
-        wrapper.setWidth(200);
-        wrapper.setHeight(80);
-        wrapper.setOrigin(5, 90);
-        wrapper.setRotation(45);
-        wrapper.setScaleX(1.5f);
-
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(backGround());
         stack.add(hud());
-        stack.add(wrapper);
         stack.add(layerPuzzle);
-        stack.add(layerWordlist);
         stage.addActor(stack);
     }
 
@@ -383,33 +230,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Group board = new Group();
 
-        //fill grid with letters
-        //  words.add("everton");
-        //  words.add("watford");
-        //  words.add("swansea");
-        words.add("leeds");
-        words.add("stoke");
-        // words.add("arsenal");
-        // words.add("chelsea");
-        // words.add("fulham");
-        words.add("city");
-
-        Collections.sort(words, new LengthComparator());
-        longestWordLen = words.get(0).length();
-
-        PuzzleGenerator pg = new PuzzleGenerator(rows, cols, words);
-        Grid grid = pg.generate();
-
-        // words.add("everton");
-        // words.add("watford");
-        //  words.add("swansea");
-        words.add("leeds");
-        words.add("stoke");
-        //  words.add("arsenal");
-        //  words.add("chelsea");
-        //  words.add("fulham");
-        words.add("city");
-
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = gridFont;
         style.background = tileTexture("line_dark");
@@ -419,23 +239,27 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Tile[] tiles = new Tile[rows * cols];
 
         cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
-        //float cellHeight = ((gridHeight - rows) / rows);
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
-        int index = 0;
+        int index, y, x = 0;
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.10f)));
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
-                String val = String.valueOf(grid.at(col, row));
-                val = val.toUpperCase();
-                tiles[index] = new Tile(val, new Label.LabelStyle(style));
+                x = col * 22;
+                y = row * 22;
+
+                if ((row % 2) == (col % 2))
+                    style.background = tileTexture("white_cell");
+                else
+                    style.background = tileTexture("beige_cell");
+
+                tiles[index] = new Tile("", new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
                 tiles[index].setAlignment(Align.center);
                 tiles[index].setPosition(position[index].x, position[index].y);
-                // tiles[index].addListener(tileListener);
                 tiles[index].setName(index + "");
                 board.addActor(tiles[index]);
             }

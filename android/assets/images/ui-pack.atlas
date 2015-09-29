@@ -4,6 +4,20 @@ size: 512,512
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+beige_cell
+  rotate: false
+  xy: 104, 138
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+beige_plain
+  rotate: false
+  xy: 104, 138
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 beige_tile
   rotate: false
   xy: 456, 239
@@ -13,14 +27,14 @@ beige_tile
   index: -1
 black_tile
   rotate: false
-  xy: 468, 196
+  xy: 334, 125
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 brown_tile
   rotate: false
-  xy: 468, 153
+  xy: 377, 125
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
@@ -41,14 +55,14 @@ buttonRound_blue
   index: -1
 buttonRound_brown
   rotate: false
-  xy: 374, 131
+  xy: 471, 199
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_grey
   rotate: false
-  xy: 411, 131
+  xy: 471, 159
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
@@ -62,28 +76,35 @@ buttonSquare_beige_pressed
   index: -1
 buttonSquare_blue_pressed
   rotate: false
-  xy: 374, 171
+  xy: 424, 171
   size: 45, 45
   orig: 45, 45
   offset: 0, 0
   index: -1
 buttonSquare_brown_pressed
   rotate: false
-  xy: 421, 171
+  xy: 424, 124
   size: 45, 45
   orig: 45, 45
   offset: 0, 0
   index: -1
 cell
   rotate: false
-  xy: 104, 138
+  xy: 104, 88
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+white_cell
+  rotate: false
+  xy: 104, 88
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 clear_cell
   rotate: false
-  xy: 104, 88
+  xy: 443, 462
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -104,49 +125,49 @@ lineDark06
   index: -1
 lineDark08
   rotate: false
-  xy: 443, 462
+  xy: 443, 412
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark12
   rotate: false
-  xy: 443, 412
+  xy: 443, 362
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark17
   rotate: false
-  xy: 443, 362
+  xy: 84, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark18
   rotate: false
-  xy: 84, 2
+  xy: 134, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark27
   rotate: false
-  xy: 134, 2
+  xy: 184, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark29
   rotate: false
-  xy: 184, 2
+  xy: 234, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark30
   rotate: false
-  xy: 234, 2
+  xy: 284, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -195,7 +216,7 @@ lineDark42
   index: -1
 line_dark
   rotate: false
-  xy: 284, 2
+  xy: 264, 82
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -263,7 +284,7 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 264, 82
+  xy: 266, 270
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -287,42 +308,42 @@ purpleselector
   index: -1
 tile1
   rotate: false
-  xy: 266, 270
+  xy: 259, 220
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 tile2
   rotate: false
-  xy: 259, 220
+  xy: 274, 170
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 tile3
   rotate: false
-  xy: 274, 170
+  xy: 356, 218
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 tile4
   rotate: false
-  xy: 356, 218
+  xy: 406, 218
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 tile5
   rotate: false
-  xy: 406, 218
+  xy: 324, 168
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 tile6
   rotate: false
-  xy: 324, 168
+  xy: 374, 168
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
