@@ -1,7 +1,7 @@
 package com.pennywise;
 
 import com.badlogic.gdx.Game;
-import com.pennywise.findwords.screens.GameScreen;
+import com.pennywise.checkers.screens.GameScreen;
 
 public class FindWords extends Game {
 
