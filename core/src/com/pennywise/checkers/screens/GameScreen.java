@@ -29,6 +29,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.GameCam;
+import com.pennywise.checkers.core.Util;
+import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 
 import org.apache.commons.lang3.StringUtils;
@@ -253,7 +255,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected Group drawPieces(int rows, int cols) {
 
-        Group board = new Group();
+        Group board = new Group();//gameUI.createPatch("panel_brown"));
         board.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
