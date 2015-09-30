@@ -17,7 +17,8 @@ public class Panel extends Group {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        //image.draw(batch, getOriginX(), getOriginY(), getWidth(), getHeight());
+        image.draw(batch, getOriginX(), getOriginY(), getWidth(), getHeight());
+        super.draw(batch, parentAlpha);
     }
 
 }

@@ -32,6 +32,7 @@ import com.pennywise.checkers.core.GameCam;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
+import com.pennywise.checkers.objects.Tile;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -71,6 +72,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Button pause;
     private boolean isBusy = false;
     private int width, height;
+    private Tile[] backgroundTiles;
+    private Panel board;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -124,10 +127,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         if (Gdx.input.isTouched()) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
-            if (actor instanceof com.pennywise.checkers.objects.Tile) {
-                ((com.pennywise.checkers.objects.Tile) actor).getStyle().background = tileTexture("tile" + color);
-                Gdx.app.log("Tile", ((com.pennywise.checkers.objects.Tile) actor).getName());
-            }
+            Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
+            int y= 0;
+            
+            //if (actor instanceof Piece) {
+            //    board.stageToLocalCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
+            //    Actor bgTile = board.hit(stageCoords.x, stageCoords.y, true);
+           // }
 
         }
 
@@ -180,7 +186,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Stack stack = new Stack();
         stack.setSize(com.pennywise.checkers.core.Constants.GAME_WIDTH, com.pennywise.checkers.core.Constants.GAME_HEIGHT);
-        stack.add(backGround());
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
@@ -210,8 +215,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Group board(int rows, int cols) {
 
-        Group board = new Group();
-        board.setTouchable(Touchable.disabled);
+        board = new Panel(gameUI.createPatch("panel_brown"));
+        board.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = gridFont;
@@ -219,32 +224,40 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Vector2[] position = new Vector2[rows * cols];
 
-        com.pennywise.checkers.objects.Tile[] tiles = new com.pennywise.checkers.objects.Tile[rows * cols];
+        backgroundTiles = new Tile[rows * cols];
 
-        cellsize = ((com.pennywise.checkers.core.Constants.GAME_WIDTH - cols) / (cols));
-        float padding = (com.pennywise.checkers.core.Constants.GAME_WIDTH - (cellsize * cols)) / 2;
+        cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
+        float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
         int index, y, x = 0;
+
+
+        float posY = (float) (0.15 * Constants.GAME_HEIGHT);
+
+        board.setOrigin(0, posY);
+        board.setWidth(Constants.GAME_WIDTH);
+        float bHeight = (cellsize * rows) + (padding * 2);
+        board.setHeight(bHeight);
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (com.pennywise.checkers.core.Constants.GAME_HEIGHT * 0.20f)));
+                        padding + ((row * (cellsize)) + (com.pennywise.checkers.core.Constants.GAME_HEIGHT * 0.15f)));
 
                 x = col * 22;
                 y = row * 22;
 
                 if ((row % 2) == (col % 2))
-                    style.background = tileTexture("whiteCell");
+                    style.background = tileTexture("beigeCell");
                 else
                     style.background = tileTexture("blackCell");
 
-                tiles[index] = new com.pennywise.checkers.objects.Tile("", new Label.LabelStyle(style));
-                tiles[index].setSize(cellsize, cellsize);
-                tiles[index].setAlignment(Align.center);
-                tiles[index].setPosition(position[index].x, position[index].y);
-                tiles[index].setName(index + "");
-                board.addActor(tiles[index]);
+                backgroundTiles[index] = new com.pennywise.checkers.objects.Tile("", new Label.LabelStyle(style));
+                backgroundTiles[index].setSize(cellsize, cellsize);
+                backgroundTiles[index].setAlignment(Align.center);
+                backgroundTiles[index].setPosition(position[index].x, position[index].y);
+                backgroundTiles[index].setName(index + "");
+                board.addActor(backgroundTiles[index]);
             }
         }
 
@@ -255,7 +268,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected Group drawPieces(int rows, int cols) {
 
-        Group board = new Group();//gameUI.createPatch("panel_brown"));
+        Group board = new Group();
         board.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
@@ -266,12 +279,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
         int index, y, x = 0;
 
+        float posY = (float) (0.15 * Constants.GAME_HEIGHT);
+
+        board.setOrigin(0, posY);
+        board.setWidth(Constants.GAME_WIDTH);
+        float bHeight = (cellsize * rows) + (padding * 2);
+        board.setHeight(bHeight);
+
         //black pieces
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.15f)));
 
                 x = col * 22;
                 y = row * 22;
@@ -280,9 +300,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     continue;
                 else {
                     if (row < 3)
-                        pieces[index] = new Piece(tileTexture("whiteKing"));
+                        pieces[index] = new Piece(tileTexture("whitePiece"));
                     else if (row >= 5)
-                        pieces[index] = new Piece(tileTexture("blackKing"));
+                        pieces[index] = new Piece(tileTexture("blackPiece"));
                     else
                         continue;
 
