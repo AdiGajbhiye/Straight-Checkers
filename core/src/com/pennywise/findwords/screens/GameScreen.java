@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -29,6 +30,8 @@ import com.pennywise.FindWords;
 import com.pennywise.findwords.core.Constants;
 import com.pennywise.findwords.core.GameCam;
 import com.pennywise.findwords.core.Util;
+import com.pennywise.findwords.core.logic.Player;
+import com.pennywise.findwords.objects.Piece;
 import com.pennywise.findwords.objects.Tile;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +50,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
     private final Stage stage;
+    private final Stage boardStage;
     private final GameCam camera;
     private final BitmapFont uiFont;
     private final BitmapFont strikeThrough;
@@ -106,6 +110,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         color = random.nextInt(6) + 1;
         gameUI = new TextureAtlas("images/ui-pack.atlas");
 
+        boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
     }
 
     @Override
@@ -130,6 +135,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         stage.act();
         stage.draw();
+
+        boardStage.act();
+        boardStage.draw();
+
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
@@ -197,6 +206,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
+        boardStage.addActor(drawPieces(height, width));
     }
 
     private Table backGround() {
@@ -229,6 +239,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Group board(int rows, int cols) {
 
         Group board = new Group();
+        board.setTouchable(Touchable.disabled);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = gridFont;
@@ -254,7 +265,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if ((row % 2) == (col % 2))
                     style.background = tileTexture("white_cell");
                 else
-                    style.background = tileTexture("beige_cell");
+                    style.background = tileTexture("black_cell");
 
                 tiles[index] = new Tile("", new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
@@ -265,10 +276,55 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             }
         }
 
-
         return board;
 
 
+    }
+
+    protected Group drawPieces(int rows, int cols) {
+
+        Group board = new Group();
+        board.setTouchable(Touchable.childrenOnly);
+
+        Vector2[] position = new Vector2[rows * cols];
+
+        Piece[] pieces = new Piece[rows * cols];
+
+        cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
+        float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
+        int index, y, x = 0;
+
+        //black pieces
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
+                position[index] = new Vector2((col * cellsize) + padding,
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
+
+                x = col * 22;
+                y = row * 22;
+
+                if ((row % 2) == (col % 2))
+                    continue;
+                else {
+                    if (row < 3)
+                        pieces[index] = new Piece(tileTexture("buttonRound_blue"));
+                    else if (row >= 5)
+                        pieces[index] = new Piece(tileTexture("buttonRound_grey"));
+                    else
+                        continue;
+
+                }
+
+                pieces[index].setSize(cellsize - 2, cellsize - 2);
+                pieces[index].setPosition(position[index].x, position[index].y);
+                pieces[index].setName(index + "");
+                board.addActor(pieces[index]);
+            }
+        }
+
+
+        return board;
     }
 
     private Group wordList() {
