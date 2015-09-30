@@ -6,7 +6,7 @@ filter: Nearest,Nearest
 repeat: none
 beige_plain
   rotate: false
-  xy: 104, 138
+  xy: 104, 88
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
