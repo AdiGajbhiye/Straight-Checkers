@@ -1,14 +1,11 @@
 package com.pennywise.desktop;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
-import com.pennywise.FindWords;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
         /*LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new FindWords(), config);*/
+		new LwjglApplication(new Checkers(), config);*/
         TexturePacker.Settings settings = new TexturePacker.Settings();
         settings.maxWidth = 512;
         settings.maxHeight = 512;

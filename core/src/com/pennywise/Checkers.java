@@ -3,7 +3,7 @@ package com.pennywise;
 import com.badlogic.gdx.Game;
 import com.pennywise.checkers.screens.GameScreen;
 
-public class FindWords extends Game {
+public class Checkers extends Game {
 
     @Override
     public void create() {

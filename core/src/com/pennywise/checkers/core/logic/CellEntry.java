@@ -1,4 +1,4 @@
-package com.pennywise.findwords.core.logic;
+package com.pennywise.checkers.core.logic;
 
 /**
  *

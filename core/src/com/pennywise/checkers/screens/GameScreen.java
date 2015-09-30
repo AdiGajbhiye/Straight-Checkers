@@ -26,7 +26,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.pennywise.FindWords;
+import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.GameCam;
+import com.pennywise.checkers.objects.Piece;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -36,6 +39,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+
 
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
@@ -76,12 +80,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     Texture orangeTexture;
     Texture maroonTexture;
 
-    enum Orientation {UNKNOWN, VERTICAL, HORIZONTAL, DIAGONALDOWN, DIAGONALUP}
-
-    protected Orientation orientation;
-
-
-    public GameScreen(FindWords game) {
+    public GameScreen(Checkers game) {
         super(game);
         camera = com.pennywise.checkers.core.GameCam.instance;
         stage = new Stage(new FitViewport(com.pennywise.checkers.core.Constants.GAME_WIDTH, com.pennywise.checkers.core.Constants.GAME_HEIGHT, camera));
@@ -191,7 +190,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private void setupScreen() {
         // build all layers
         Table layerPuzzle = buildBoard();
-        Table layerWordlist = buildWordList();
         stage.clear();
 
         Stack stack = new Stack();
@@ -221,12 +219,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Table buildBoard() {
         Table layer = new Table();
         layer.addActor(board(height, width));
-        return layer;
-    }
-
-    private Table buildWordList() {
-        Table layer = new Table();
-        layer.addActor(wordList());
         return layer;
     }
 
@@ -321,132 +313,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return board;
     }
 
-    private Group wordList() {
-        Group wordList = new Group();
-        int count = words.size();
-
-        Label.LabelStyle style = new Label.LabelStyle();
-        style.font = listFont;
-        style.background = tileTexture("clear_cell");
-
-
-        int rows = 4;
-        int cols = (count / rows) + 1;
-
-        Vector2[] position = new Vector2[rows * cols];
-
-
-        float height = listFont.getData().capHeight + 10;
-        float padding = 10;
-        int index = 0;
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                index = col + (row * cols);
-                if (index >= count)
-                    break;
-                position[index] = new Vector2((col * width) + padding,
-                        ((row * (height)) + (com.pennywise.checkers.core.Constants.GAME_HEIGHT * 0.80f)));
-                String word = words.get(index).toLowerCase();
-
-                if (foundWords.contains(word))
-                    style.font = strikeThrough;
-                else
-                    style.font = listFont;
-
-                word = WordUtils.capitalize(word);
-                tiles[index].setSize(width, height);
-                tiles[index].setAlignment(Align.left);
-                tiles[index].setPosition(position[index].x, position[index].y);
-                tiles[index].setName(index + "");
-                wordList.addActor(tiles[index]);
-            }
-        }
-
-        return wordList;
-    }
-
     public SpriteDrawable tileTexture(String name) {
         Gdx.app.log("Color", name);
         Sprite sprite = gameUI.createSprite(name);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
     }
-
-    protected void updateColor() {
-
-        if (words.contains(sb.toString().toLowerCase())) {
-            sb.setLength(0);
-            foundWords.add(sb.toString().toLowerCase());
-            tileList.clear();
-            color = random.nextInt(6) + 1;
-        }
-    }
-
-    protected boolean validInput() {
-
-        isBusy = true;
-
-        if (sb.length() > longestWordLen) {
-            sb.setLength(0);
-            isBusy = false;
-            return false;
-        }
-
-        for (String word : words) {
-
-            String s = sb.toString().toLowerCase();
-
-            if (word.startsWith(s)) {
-                Gdx.app.log("WordTest", sb.toString());
-                isBusy = false;
-                return true;
-            }
-        }
-
-        rewind();
-
-
-        isBusy = false;
-
-        return false;
-    }
-
-    private void rewind() {
-        sb.setLength(0);
-
-        }
-
-        tileList.clear();
-    }
-
-    private InputListener tileListener = new InputListener() {
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            com.pennywise.checkers.objects.Tile t = (com.pennywise.checkers.objects.Tile) event.getListenerActor();
-            tileList.add(t);
-
-            if (tile != null) {
-                if (tile.getName().equals(t.getName())) {
-                    sb.deleteCharAt(sb.length() - 1);
-                    tile = null;
-                    return true;
-                }
-            }
-
-            String v = t.getText().toString();
-            sb.append(v);
-
-            if (isBusy)
-                return true;
-
-            if (validInput())
-                t.getStyle().background = tileTexture("tile" + color);
-
-            updateColor();
-
-            return true; //or false
-        }
-    };
 
     @Override
     public boolean keyDown(int keycode) {
@@ -496,7 +368,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     }
 
     private void renderScore(SpriteBatch batch, float gameTime) {
-
+        float x = 0, y = 0;
 
         //show score
         String score = "00/00";
