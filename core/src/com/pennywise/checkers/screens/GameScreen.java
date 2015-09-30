@@ -68,17 +68,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Image time;
     private Button pause;
     private boolean isBusy = false;
-    private int longestWordLen;
     private int width, height;
-    protected List<com.pennywise.checkers.objects.Tile> tileList = new LinkedList<com.pennywise.checkers.objects.Tile>();
-    protected List<String> validTileList = new LinkedList<String>();
-    NinePatch pinkSelector;
-    NinePatch purpleSelector;
-    NinePatch orangeSelector;
-    NinePatch maroonSelector;
-    Texture purpleTexture;
-    Texture orangeTexture;
-    Texture maroonTexture;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -108,12 +98,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     @Override
     public void show() {
-
-        //d = gameUI.createPatch("highlighter");
-        pinkSelector = gameUI.createPatch("pinkselector");
-        purpleTexture = gameUI.createPatch("purpleselector").getTexture();
-        orangeTexture = gameUI.createPatch("orangeselector").getTexture();
-        maroonTexture = gameUI.createPatch("maroonselector").getTexture();
 
         setupScreen();
     }
@@ -249,9 +233,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 y = row * 22;
 
                 if ((row % 2) == (col % 2))
-                    style.background = tileTexture("white_cell");
+                    style.background = tileTexture("whiteCell");
                 else
-                    style.background = tileTexture("black_cell");
+                    style.background = tileTexture("blackCell");
 
                 tiles[index] = new com.pennywise.checkers.objects.Tile("", new Label.LabelStyle(style));
                 tiles[index].setSize(cellsize, cellsize);
@@ -294,9 +278,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     continue;
                 else {
                     if (row < 3)
-                        pieces[index] = new Piece(tileTexture("buttonRound_blue"));
+                        pieces[index] = new Piece(tileTexture("whiteKing"));
                     else if (row >= 5)
-                        pieces[index] = new Piece(tileTexture("buttonRound_grey"));
+                        pieces[index] = new Piece(tileTexture("blackKing"));
                     else
                         continue;
 
@@ -316,6 +300,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public SpriteDrawable tileTexture(String name) {
         Gdx.app.log("Color", name);
         Sprite sprite = gameUI.createSprite(name);
+        sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
     }

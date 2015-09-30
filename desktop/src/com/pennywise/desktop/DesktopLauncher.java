@@ -7,8 +7,8 @@ public class DesktopLauncher {
         /*LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new Checkers(), config);*/
         TexturePacker.Settings settings = new TexturePacker.Settings();
-        settings.maxWidth = 512;
-        settings.maxHeight = 512;
+        settings.maxWidth = 1024;
+        settings.maxHeight = 1024;
 
         TexturePacker.process(settings, "android\\assets\\background", "android\\assets\\images", "ui-pack");
 

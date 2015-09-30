@@ -1,253 +1,222 @@
 
 ui-pack.png
-size: 512,512
+size: 1024,1024
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+beige_cell
+  rotate: false
+  xy: 960, 972
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+blackCell
+  rotate: false
+  xy: 960, 972
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 beige_plain
   rotate: false
-  xy: 104, 88
+  xy: 97, 98
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 beige_tile
   rotate: false
-  xy: 361, 125
+  xy: 97, 55
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
-black_cell
+blackKing
   rotate: false
-  xy: 104, 88
-  size: 48, 48
-  orig: 48, 48
+  xy: 2, 504
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
-black_tile
+blackpiece
   rotate: false
-  xy: 404, 125
-  size: 41, 41
-  orig: 41, 41
+  xy: 604, 828
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
 brown_tile
   rotate: false
-  xy: 316, 78
+  xy: 140, 55
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 buttonRound_beige
   rotate: false
-  xy: 471, 322
+  xy: 587, 586
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_blue
   rotate: false
-  xy: 471, 282
+  xy: 624, 586
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_brown
   rotate: false
-  xy: 474, 195
+  xy: 661, 586
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_grey
   rotate: false
-  xy: 474, 155
+  xy: 162, 15
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
-buttonSquare_beige_pressed
+clearCell
   rotate: false
-  xy: 309, 221
-  size: 45, 45
-  orig: 45, 45
-  offset: 0, 0
-  index: -1
-buttonSquare_blue_pressed
-  rotate: false
-  xy: 456, 235
-  size: 45, 45
-  orig: 45, 45
-  offset: 0, 0
-  index: -1
-buttonSquare_brown_pressed
-  rotate: false
-  xy: 314, 121
-  size: 45, 45
-  orig: 45, 45
-  offset: 0, 0
-  index: -1
-cell
-  rotate: false
-  xy: 443, 462
+  xy: 960, 922
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-white_cell
+crown
   rotate: false
-  xy: 443, 462
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-clear_cell
-  rotate: false
-  xy: 443, 412
-  size: 48, 48
-  orig: 48, 48
+  xy: 2, 698
+  size: 600, 322
+  orig: 600, 322
   offset: 0, 0
   index: -1
 lineDark03
   rotate: false
-  xy: 2, 350
+  xy: 798, 860
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark06
   rotate: false
-  xy: 2, 188
+  xy: 2, 148
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark08
   rotate: false
-  xy: 443, 362
+  xy: 960, 872
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark12
   rotate: false
-  xy: 84, 2
+  xy: 714, 682
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark17
   rotate: false
-  xy: 134, 2
+  xy: 764, 682
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark18
   rotate: false
-  xy: 184, 2
+  xy: 164, 260
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark27
   rotate: false
-  xy: 234, 2
+  xy: 164, 210
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark29
   rotate: false
-  xy: 284, 2
+  xy: 164, 160
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark30
   rotate: false
-  xy: 264, 82
+  xy: 214, 270
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark37
   rotate: false
-  xy: 164, 162
+  xy: 2, 2
   size: 108, 48
   orig: 108, 48
   offset: 0, 0
   index: -1
 lineDark38
   rotate: false
-  xy: 361, 298
+  xy: 604, 676
   size: 108, 48
   orig: 108, 48
   offset: 0, 0
   index: -1
 lineDark39
   rotate: false
-  xy: 154, 82
+  xy: 587, 626
   size: 108, 48
   orig: 108, 48
   offset: 0, 0
   index: -1
 lineDark40
   rotate: false
-  xy: 2, 4
+  xy: 196, 320
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 lineDark41
   rotate: false
-  xy: 361, 430
+  xy: 298, 422
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 lineDark42
   rotate: false
-  xy: 361, 348
+  xy: 390, 514
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 line_dark
   rotate: false
-  xy: 266, 270
+  xy: 214, 220
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-maroonselector
-  rotate: false
-  xy: 154, 132
-  size: 114, 28
-  split: 54, 55, 13, 14
-  orig: 114, 28
-  offset: 0, 0
-  index: -1
-orangeselector
-  rotate: false
-  xy: 84, 52
-  size: 114, 28
-  split: 53, 56, 13, 14
-  pad: 0, 0, 0, 0
-  orig: 114, 28
-  offset: 0, 0
-  index: -1
 panelInset_beige
   rotate: false
-  xy: 266, 416
+  xy: 2, 52
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panelInset_beigeLight
   rotate: false
-  xy: 164, 212
+  xy: 492, 602
   size: 93, 94
   split: 70, 14, 40, 46
   orig: 93, 94
@@ -255,28 +224,28 @@ panelInset_beigeLight
   index: -1
 panelInset_brown
   rotate: false
-  xy: 266, 320
+  xy: 706, 732
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panel_beige
   rotate: false
-  xy: 164, 410
+  xy: 604, 726
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel_beigeLight
   rotate: false
-  xy: 2, 86
+  xy: 196, 402
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel_brown
   rotate: false
-  xy: 164, 308
+  xy: 390, 596
   size: 100, 100
   split: 79, 12, 44, 46
   orig: 100, 100
@@ -284,67 +253,29 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 259, 220
+  xy: 214, 170
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-pinkselector
+whiteCell
   rotate: false
-  xy: 200, 52
-  size: 114, 28
-  split: 51, 58, 13, 14
-  pad: 0, 0, 0, 0
-  orig: 114, 28
-  offset: 0, 0
-  index: -1
-purpleselector
-  rotate: false
-  xy: 334, 268
-  size: 114, 28
-  split: 46, 64, 13, 14
-  orig: 114, 28
-  offset: 0, 0
-  index: -1
-tile1
-  rotate: false
-  xy: 274, 170
+  xy: 112, 5
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-tile2
+whiteKing
   rotate: false
-  xy: 356, 218
-  size: 48, 48
-  orig: 48, 48
+  xy: 2, 310
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
-tile3
+whitePiece
   rotate: false
-  xy: 406, 218
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-tile4
-  rotate: false
-  xy: 324, 168
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-tile5
-  rotate: false
-  xy: 374, 168
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-tile6
-  rotate: false
-  xy: 424, 168
-  size: 48, 48
-  orig: 48, 48
+  xy: 196, 504
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
