@@ -39,7 +39,7 @@ blackKing
   orig: 192, 192
   offset: 0, 0
   index: -1
-blackPiece
+blackpiece
   rotate: false
   xy: 604, 828
   size: 192, 192
@@ -55,28 +55,28 @@ brown_tile
   index: -1
 buttonRound_beige
   rotate: false
-  xy: 162, 15
+  xy: 278, 362
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_blue
   rotate: false
-  xy: 278, 362
+  xy: 278, 322
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_brown
   rotate: false
-  xy: 278, 322
+  xy: 472, 556
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_grey
   rotate: false
-  xy: 472, 556
+  xy: 472, 516
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
@@ -251,23 +251,37 @@ pause_dark
   orig: 48, 48
   offset: 0, 0
   index: -1
-selectedCell
+selectedBlackCell
   rotate: false
   xy: 112, 5
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-validCell
+selectedCell
   rotate: false
   xy: 587, 576
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-whiteCell
+validCell
   rotate: false
   xy: 637, 576
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+validDarkCell
+  rotate: false
+  xy: 147, 98
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+whiteCell
+  rotate: false
+  xy: 162, 5
   size: 48, 48
   orig: 48, 48
   offset: 0, 0

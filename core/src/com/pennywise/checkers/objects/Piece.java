@@ -13,11 +13,19 @@ import com.pennywise.checkers.core.logic.Player;
  */
 public class Piece extends Image {
 
-    private final boolean delete;
+    private  boolean captured;
 
     public Piece(SpriteDrawable img) {
         super(img);
-        delete = false;
+        captured = false;
+    }
+
+    public boolean isCaptured() {
+        return captured;
+    }
+
+    public void setCaptured(boolean captured) {
+        this.captured = captured;
     }
 
 }

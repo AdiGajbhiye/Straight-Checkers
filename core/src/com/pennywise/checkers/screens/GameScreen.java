@@ -30,6 +30,8 @@ import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.GameCam;
 import com.pennywise.checkers.core.Util;
+import com.pennywise.checkers.core.logic.CellEntry;
+import com.pennywise.checkers.core.logic.Player;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
@@ -128,34 +130,35 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
-            int y= 0;
-            
-            //if (actor instanceof Piece) {
-            //    board.stageToLocalCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
-            //    Actor bgTile = board.hit(stageCoords.x, stageCoords.y, true);
-           // }
+
+            //highlight occupied cells only
+
+            if (actor2 != null && actor2 instanceof Piece) {
+                Piece piece = (Piece) actor2;
+                if (actor instanceof Tile) {
+
+                    Tile tile = ((Tile) actor);
+
+                    if (tile.getCellEntry() == CellEntry.black)
+                        tile.getStyle().background = tileTexture("validDarkCell");
+                    else
+                        tile.getStyle().background = tileTexture("validCell");
+                }
+            }
+
+
+            batch.begin();
+            //pinkSelector.draw(batch, 5, 5, 200, 40);
+            renderScore(batch, delta);
+            batch.end();
 
         }
-
-
-        batch.begin();
-        //pinkSelector.draw(batch, 5, 5, 200, 40);
-        renderScore(batch, delta);
-        batch.end();
-
-    }
-
-    Vector2 v2 = new Vector2();
-    Vector2 v1 = new Vector2();
-
-    public float distance2d(float x1, float y1, float x2, float y2) {
-        Vector2 vect = v2.set(x2, y2);
-        return vect.dst(v1.set(x1, x2));
     }
 
     @Override
     public void resize(int width, int height) {
-
+        stage.getViewport().setScreenSize(width, height);
+        boardStage.getViewport().setScreenSize(width, height);
     }
 
     @Override
@@ -247,12 +250,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 x = col * 22;
                 y = row * 22;
 
-                if ((row % 2) == (col % 2))
+                if ((row % 2) == (col % 2)) {
                     style.background = tileTexture("beigeCell");
-                else
+                    backgroundTiles[index] = new com.pennywise.checkers.objects.Tile(CellEntry.white, new Label.LabelStyle(style));
+                } else {
                     style.background = tileTexture("blackCell");
+                    backgroundTiles[index] = new com.pennywise.checkers.objects.Tile(CellEntry.black, new Label.LabelStyle(style));
+                }
 
-                backgroundTiles[index] = new com.pennywise.checkers.objects.Tile("", new Label.LabelStyle(style));
                 backgroundTiles[index].setSize(cellsize, cellsize);
                 backgroundTiles[index].setAlignment(Align.center);
                 backgroundTiles[index].setPosition(position[index].x, position[index].y);
