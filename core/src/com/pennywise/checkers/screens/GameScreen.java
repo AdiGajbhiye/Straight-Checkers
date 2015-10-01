@@ -129,11 +129,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
             int y= 0;
-            
-            //if (actor instanceof Piece) {
+
+            if (actor instanceof Piece) {
             //    board.stageToLocalCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             //    Actor bgTile = board.hit(stageCoords.x, stageCoords.y, true);
-           // }
+                ;
+           }
 
         }
 
