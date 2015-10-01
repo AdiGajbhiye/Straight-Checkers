@@ -1,24 +1,25 @@
 package com.pennywise.checkers.objects;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.pennywise.checkers.core.logic.enums.CellEntry;
 
 /**
  * Created by Joshua on 4/16/2015.
  */
 public class Tile extends Label {
 
-    private boolean touched;
+    private CellEntry cellEntry;
 
-    public Tile(CharSequence tileValue, LabelStyle skin) {
-        super(tileValue, skin);
-        touched = false;
+    public Tile(CellEntry cellEntry, LabelStyle skin) {
+        super("", skin);
+        this.cellEntry = cellEntry;
     }
 
-    public boolean isTouched() {
-        return touched;
+    public CellEntry getCellEntry() {
+        return cellEntry;
     }
 
-    public void setTouched(boolean touched) {
-        this.touched = touched;
+    public void setCellEntry(CellEntry cellEntry) {
+        this.cellEntry = cellEntry;
     }
 }

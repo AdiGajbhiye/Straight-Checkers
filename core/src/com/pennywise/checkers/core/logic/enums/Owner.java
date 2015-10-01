@@ -1,4 +1,4 @@
-package com.pennywise.checkers.core.logic;
+package com.pennywise.checkers.core.logic.enums;
 
 /**
  * Owner is anybody who owns a color.
