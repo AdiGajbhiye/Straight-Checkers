@@ -1,8 +1,7 @@
 package com.pennywise.checkers.objects;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.pennywise.checkers.core.logic.CellEntry;
-import com.pennywise.checkers.core.logic.Player;
+import com.pennywise.checkers.core.logic.enums.CellEntry;
 
 /**
  * Created by Joshua on 4/16/2015.

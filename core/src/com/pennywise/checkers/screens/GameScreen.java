@@ -5,19 +5,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -29,15 +26,19 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.GameCam;
-import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.logic.CellEntry;
-import com.pennywise.checkers.core.logic.Player;
+import com.pennywise.checkers.core.logic.Black;
+import com.pennywise.checkers.core.logic.Board;
+import com.pennywise.checkers.core.logic.Human;
+import com.pennywise.checkers.core.logic.UserInteractions;
+import com.pennywise.checkers.core.logic.White;
+import com.pennywise.checkers.core.logic.enums.CellEntry;
+import com.pennywise.checkers.core.logic.enums.Owner;
+import com.pennywise.checkers.core.logic.enums.Player;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -76,6 +77,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel board;
+    private Piece selectePiece;
+    private static Board logicBoard;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -99,14 +102,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         foundWords = new LinkedList<String>();
         color = random.nextInt(6) + 1;
         gameUI = new TextureAtlas("images/ui-pack.atlas");
-
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+    }
+
+    private void initialize() {
+        logicBoard = new Board();
+        White.owner = Owner.HUMAN;
+        Black.owner = Owner.ROBOT;
     }
 
     @Override
     public void show() {
-
         setupScreen();
+        initialize();
     }
 
     private final Vector2 stageCoords = new Vector2();
@@ -131,21 +139,34 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-            //highlight occupied cells only
-
             if (actor2 != null && actor2 instanceof Piece) {
-                Piece piece = (Piece) actor2;
+                selectePiece = (Piece) actor2;
                 if (actor instanceof Tile) {
-
                     Tile tile = ((Tile) actor);
-
                     if (tile.getCellEntry() == CellEntry.black)
                         tile.getStyle().background = tileTexture("selectedBlackCell");
                     else
                         tile.getStyle().background = tileTexture("selectedCell");
                 }
-            }
+            } else {
 
+                if (selectePiece != null) {
+                    if (actor instanceof Tile) {
+                        Tile tile = ((Tile) actor);
+                        int position = Integer.parseInt(tile.getName());
+                        int dstRow = (width - 1) - (position / width);
+                        int dstCol = position % width;
+
+                        position = Integer.parseInt(selectePiece.getName());
+                        int curRow = (width - 1) - (position / width);
+                        int curCol = position % width;
+                        if (tile.getCellEntry() == CellEntry.black) {
+                            movePiece(curRow, curCol, dstRow, dstCol);
+                        }
+                    }
+
+                }
+            }
 
             batch.begin();
             //pinkSelector.draw(batch, 5, 5, 200, 40);
@@ -245,17 +266,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (com.pennywise.checkers.core.Constants.GAME_HEIGHT * 0.15f)));
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.15f)));
 
                 x = col * 22;
                 y = row * 22;
 
                 if ((row % 2) == (col % 2)) {
                     style.background = tileTexture("beigeCell");
-                    backgroundTiles[index] = new com.pennywise.checkers.objects.Tile(CellEntry.white, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(CellEntry.white, new Label.LabelStyle(style));
                 } else {
                     style.background = tileTexture("blackCell");
-                    backgroundTiles[index] = new com.pennywise.checkers.objects.Tile(CellEntry.black, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(CellEntry.black, new Label.LabelStyle(style));
                 }
 
                 backgroundTiles[index].setSize(cellsize, cellsize);
@@ -269,6 +290,50 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return board;
 
 
+    }
+
+    protected void movePiece(int r1, int c1, int r2, int c2) {
+
+        if (Human.makeNextBlackMoves(r1, c1, r2, c2, logicBoard)) {
+
+            float posX = cellsize * c2;
+            float posY = cellsize * r2;
+
+            MoveToAction moveAction = new MoveToAction();
+            moveAction.setPosition(posX, posY);
+            moveAction.setDuration(10f);
+            selectePiece.addAction(moveAction);
+
+            playGame();
+        }
+
+    }
+
+    public boolean playGame() {
+
+        if (!logicBoard.CheckGameComplete()) {
+            if (logicBoard.CheckGameDraw(Player.white)) {
+                return false;
+            }
+
+            logicBoard.CheckGameDraw(Player.black);
+
+            logicBoard.Display();
+
+            Black.Move(logicBoard);
+
+            if (logicBoard.CheckGameComplete()) {
+                UserInteractions.DisplayGreetings(Player.black, logicBoard);
+                logicBoard.Display();
+                return false;
+            }
+
+
+        } else
+            return true;
+
+
+        return false;
     }
 
     protected Group drawPieces(int rows, int cols) {
@@ -305,9 +370,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     continue;
                 else {
                     if (row < 3)
-                        pieces[index] = new Piece(tileTexture("whitePiece"));
-                    else if (row >= 5)
                         pieces[index] = new Piece(tileTexture("blackPiece"));
+                    else if (row >= 5)
+                        pieces[index] = new Piece(tileTexture("whitePiece"));
                     else
                         continue;
 

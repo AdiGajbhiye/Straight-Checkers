@@ -1,7 +1,10 @@
 package com.pennywise.checkers.core.logic;
 
+
+import com.pennywise.checkers.core.logic.enums.Player;
+import com.pennywise.checkers.core.logic.enums.CellEntry;
+
 /**
- *
  * @author apurv and ashish
  */
 public class Oracle {
@@ -15,7 +18,7 @@ public class Oracle {
     public final int POINT_ATTACK_NORMAL = 30;
     public final int POINT_ATTACK_KING = 60;
 
-    public int evaluateBoard(com.pennywise.checkers.core.logic.Board board, Player player) {
+    public int evaluateBoard(Board board, Player player) {
         int boardValue = 0;
 
         if (player == Player.black) {
@@ -27,7 +30,7 @@ public class Oracle {
         return boardValue;
     }
 
-    private int evaluateValueofBoardForWhite(com.pennywise.checkers.core.logic.Board board) {
+    private int evaluateValueofBoardForWhite(Board board) {
 
         int wValue = 0;
         if (board.isWhiteWinner()) {
@@ -42,7 +45,7 @@ public class Oracle {
         return wValue;
     }
 
-    private int evaluateValueofBoardForBlack(com.pennywise.checkers.core.logic.Board board) {
+    private int evaluateValueofBoardForBlack(Board board) {
 
         int bValue = 0;
         if (board.isBlackWinner()) {
@@ -57,24 +60,24 @@ public class Oracle {
         return bValue;
     }
 
-    private int WhiteBlackPiecesDifferencePoints(com.pennywise.checkers.core.logic.Board board) {
-        
+    private int WhiteBlackPiecesDifferencePoints(Board board) {
+
         int value = 0;
         // Scan across the board
-        for (int r = 0; r < com.pennywise.checkers.core.logic.Board.rows; r++) {
+        for (int r = 0; r < Board.rows; r++) {
             // Check only valid cols
             int c = (r % 2 == 0) ? 0 : 1;
-            for (; c < com.pennywise.checkers.core.logic.Board.cols; c += 2) {
-                assert (!board.cell[r][c].equals(com.pennywise.checkers.core.logic.CellEntry.inValid));
-                com.pennywise.checkers.core.logic.CellEntry entry = board.cell[r][c];
+            for (; c < Board.cols; c += 2) {
+                assert (!board.cell[r][c].equals(CellEntry.inValid));
+                CellEntry entry = board.cell[r][c];
 
-                if (entry == com.pennywise.checkers.core.logic.CellEntry.white) {
+                if (entry == CellEntry.white) {
                     value += POINT_NORMAL;
-                } else if (entry == com.pennywise.checkers.core.logic.CellEntry.whiteKing) {
+                } else if (entry == CellEntry.whiteKing) {
                     value += POINT_KING;
-                } else if (entry == com.pennywise.checkers.core.logic.CellEntry.black) {
+                } else if (entry == CellEntry.black) {
                     value -= POINT_NORMAL;
-                } else if (entry == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+                } else if (entry == CellEntry.blackKing) {
                     value -= POINT_KING;
                 }
             }
@@ -85,41 +88,41 @@ public class Oracle {
     private int BoardPositionPoints(com.pennywise.checkers.core.logic.Board board) {
 
         int value = 0;
-        
+
         // Central Points
-        if (board.cell[3][3] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[3][3] == com.pennywise.checkers.core.logic.CellEntry.whiteKing
-                || board.cell[3][5] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[3][5] == com.pennywise.checkers.core.logic.CellEntry.whiteKing) {
+        if (board.cell[3][3] == CellEntry.white || board.cell[3][3] == CellEntry.whiteKing
+                || board.cell[3][5] == CellEntry.white || board.cell[3][5] == CellEntry.whiteKing) {
             value += POINT_CENTRAL_PIECE;
         }
-        if (board.cell[4][2] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[4][2] == com.pennywise.checkers.core.logic.CellEntry.blackKing
-                || board.cell[4][4] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[4][4] == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+        if (board.cell[4][2] == CellEntry.black || board.cell[4][2] == CellEntry.blackKing
+                || board.cell[4][4] == CellEntry.black || board.cell[4][4] == CellEntry.blackKing) {
             value -= POINT_CENTRAL_PIECE;
         }
-        
+
         // End Points
-        if (board.cell[0][2] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[0][4] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[0][6] == com.pennywise.checkers.core.logic.CellEntry.white){
+        if (board.cell[0][2] == CellEntry.white || board.cell[0][4] == CellEntry.white || board.cell[0][6] == CellEntry.white) {
             value += POINT_END_PIECE;
         }
-        
-        if (board.cell[7][1] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[7][3] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[7][5] == com.pennywise.checkers.core.logic.CellEntry.black){
+
+        if (board.cell[7][1] == CellEntry.black || board.cell[7][3] == CellEntry.black || board.cell[7][5] == CellEntry.black) {
             value -= POINT_END_PIECE;
         }
-                
+
         return value;
     }
 
     //Calculate points for attacking white piece.
     //To be called only by on a cell which has a black piece.    
-    private int calcPointsFAforBlack(com.pennywise.checkers.core.logic.Board board, int r, int c) {
+    private int calcPointsFAforBlack(Board board, int r, int c) {
 
-        com.pennywise.checkers.core.logic.CellEntry entry = board.cell[r][c];
-        assert ((entry == com.pennywise.checkers.core.logic.CellEntry.black || entry == com.pennywise.checkers.core.logic.CellEntry.blackKing));
+        CellEntry entry = board.cell[r][c];
+        assert ((entry == CellEntry.black || entry == CellEntry.blackKing));
         int points = 0;
 
         if (r > 0) {
-            if (c < com.pennywise.checkers.core.logic.Board.cols - 1) {
-                if ((board.cell[r - 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[r - 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.whiteKing)
-                        && r < com.pennywise.checkers.core.logic.Board.rows - 1 && c >= 1 && board.cell[r + 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.empty) {
+            if (c < Board.cols - 1) {
+                if ((board.cell[r - 1][c + 1] == CellEntry.white || board.cell[r - 1][c + 1] == CellEntry.whiteKing)
+                        && r < Board.rows - 1 && c >= 1 && board.cell[r + 1][c - 1] == CellEntry.empty) {
                     points -= POINT_ATTACK_NORMAL;
                 }
                 //TODO: Add backward attack for black king.
@@ -128,8 +131,8 @@ public class Oracle {
 
             if (c > 0) {
                 //Attack Points
-                if ((board.cell[r - 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[r - 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.whiteKing)
-                        && r < com.pennywise.checkers.core.logic.Board.rows - 1 && c < com.pennywise.checkers.core.logic.Board.cols - 1 && board.cell[r + 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.empty) {
+                if ((board.cell[r - 1][c - 1] == CellEntry.white || board.cell[r - 1][c - 1] == CellEntry.whiteKing)
+                        && r < com.pennywise.checkers.core.logic.Board.rows - 1 && c < com.pennywise.checkers.core.logic.Board.cols - 1 && board.cell[r + 1][c + 1] == CellEntry.empty) {
                     points -= POINT_ATTACK_NORMAL;
                 }
             }
@@ -140,20 +143,20 @@ public class Oracle {
     //Calculate points for defending black.
     private int calcPointsFDforBlack(com.pennywise.checkers.core.logic.Board board, int r, int c) {
 
-        com.pennywise.checkers.core.logic.CellEntry entry = board.cell[r][c];
-        assert ((entry == com.pennywise.checkers.core.logic.CellEntry.black || entry == com.pennywise.checkers.core.logic.CellEntry.blackKing));
+        CellEntry entry = board.cell[r][c];
+        assert ((entry == CellEntry.black || entry == CellEntry.blackKing));
         int points = 0;
 
         if (r == com.pennywise.checkers.core.logic.Board.rows - 1) {
             points += POINT_DEFENCE;
         } else if (r == com.pennywise.checkers.core.logic.Board.rows - 3
-                && ((c < com.pennywise.checkers.core.logic.Board.cols - 2 && board.cell[com.pennywise.checkers.core.logic.Board.rows - 1][c + 2] == com.pennywise.checkers.core.logic.CellEntry.black && board.cell[com.pennywise.checkers.core.logic.Board.rows - 2][c + 1] == com.pennywise.checkers.core.logic.CellEntry.empty)
-                || (c >= 2 && board.cell[com.pennywise.checkers.core.logic.Board.rows - 1][c - 2] == com.pennywise.checkers.core.logic.CellEntry.black && board.cell[com.pennywise.checkers.core.logic.Board.rows - 2][c - 1] == com.pennywise.checkers.core.logic.CellEntry.empty))) {
+                && ((c < com.pennywise.checkers.core.logic.Board.cols - 2 && board.cell[com.pennywise.checkers.core.logic.Board.rows - 1][c + 2] == CellEntry.black && board.cell[com.pennywise.checkers.core.logic.Board.rows - 2][c + 1] == CellEntry.empty)
+                || (c >= 2 && board.cell[com.pennywise.checkers.core.logic.Board.rows - 1][c - 2] == CellEntry.black && board.cell[com.pennywise.checkers.core.logic.Board.rows - 2][c - 1] == CellEntry.empty))) {
             points += POINT_DEFENCE;
         } else if (r < com.pennywise.checkers.core.logic.Board.rows - 1) {
 
             if (c < com.pennywise.checkers.core.logic.Board.cols - 1) {
-                if (board.cell[r + 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[r + 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+                if (board.cell[r + 1][c + 1] == CellEntry.black || board.cell[r + 1][c + 1] == CellEntry.blackKing) {
                     points += POINT_DEFENCE;
                 }
 
@@ -161,7 +164,7 @@ public class Oracle {
 
             if (c > 0) {
                 //Defense points
-                if (board.cell[r + 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[r + 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+                if (board.cell[r + 1][c - 1] == CellEntry.black || board.cell[r + 1][c - 1] == CellEntry.blackKing) {
                     points += POINT_DEFENCE;
                 }
             }
@@ -171,15 +174,15 @@ public class Oracle {
     }
 
     private int calcPointsFAforWhite(com.pennywise.checkers.core.logic.Board board, int r, int c) {
-        com.pennywise.checkers.core.logic.CellEntry entry = board.cell[r][c];
-        assert ((entry == com.pennywise.checkers.core.logic.CellEntry.white || entry == com.pennywise.checkers.core.logic.CellEntry.whiteKing));
+        CellEntry entry = board.cell[r][c];
+        assert ((entry == CellEntry.white || entry == CellEntry.whiteKing));
         int points = 0;
 
         if (r < com.pennywise.checkers.core.logic.Board.rows - 1) {
             if (c < com.pennywise.checkers.core.logic.Board.cols - 1) {
 
                 //Debit points for unsafe attack.
-                if (board.cell[r + 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[r + 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+                if (board.cell[r + 1][c + 1] == CellEntry.black || board.cell[r + 1][c + 1] == CellEntry.blackKing) {
                     points -= POINT_ATTACK_NORMAL;
                 }
 
@@ -187,7 +190,7 @@ public class Oracle {
             if (c > 0) {
 
                 //Attack Points.
-                if (board.cell[r + 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.black || board.cell[r + 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.blackKing) {
+                if (board.cell[r + 1][c - 1] == CellEntry.black || board.cell[r + 1][c - 1] == CellEntry.blackKing) {
                     points += POINT_ATTACK_NORMAL;
                 }
 
@@ -197,29 +200,29 @@ public class Oracle {
         return points;
     }
 
-    private int calcPointsFDforWhite(com.pennywise.checkers.core.logic.Board board, int r, int c) {
+    private int calcPointsFDforWhite(Board board, int r, int c) {
 
-        com.pennywise.checkers.core.logic.CellEntry entry = board.cell[r][c];
-        assert ((entry == com.pennywise.checkers.core.logic.CellEntry.white || entry == com.pennywise.checkers.core.logic.CellEntry.whiteKing));
+        CellEntry entry = board.cell[r][c];
+        assert ((entry == CellEntry.white || entry == CellEntry.whiteKing));
         int points = 0;
 
         if (r == 0) {
             points += POINT_DEFENCE;
         } else if (r == 2
-                && ((c < com.pennywise.checkers.core.logic.Board.cols - 2 && board.cell[2][c + 2] == com.pennywise.checkers.core.logic.CellEntry.white && board.cell[1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.empty)
-                || (c >= 2 && board.cell[0][c - 2] == com.pennywise.checkers.core.logic.CellEntry.black && board.cell[1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.empty))) {
+                && ((c < com.pennywise.checkers.core.logic.Board.cols - 2 && board.cell[2][c + 2] == CellEntry.white && board.cell[1][c + 1] == CellEntry.empty)
+                || (c >= 2 && board.cell[0][c - 2] == CellEntry.black && board.cell[1][c - 1] == CellEntry.empty))) {
             points += POINT_DEFENCE;
         } else if (r >= 2) {
             if (c < com.pennywise.checkers.core.logic.Board.cols - 1) {
 
                 //Defense Points
-                if (board.cell[r - 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[r - 1][c + 1] == com.pennywise.checkers.core.logic.CellEntry.whiteKing) {
+                if (board.cell[r - 1][c + 1] == CellEntry.white || board.cell[r - 1][c + 1] == CellEntry.whiteKing) {
                     points += POINT_DEFENCE;
                 }
             }
             if (c > 0) {
 
-                if (board.cell[r - 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.white || board.cell[r - 1][c - 1] == com.pennywise.checkers.core.logic.CellEntry.whiteKing) {
+                if (board.cell[r - 1][c - 1] == CellEntry.white || board.cell[r - 1][c - 1] == CellEntry.whiteKing) {
                     points += POINT_DEFENCE;
                 }
             }
