@@ -140,7 +140,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     Tile tile = ((Tile) actor);
 
                     if (tile.getCellEntry() == CellEntry.black)
-                        tile.getStyle().background = tileTexture("selectedDarkCell");
+                        tile.getStyle().background = tileTexture("selectedBlackCell");
                     else
                         tile.getStyle().background = tileTexture("selectedCell");
                 }
