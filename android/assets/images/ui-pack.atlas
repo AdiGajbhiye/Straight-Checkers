@@ -39,7 +39,7 @@ blackKing
   orig: 192, 192
   offset: 0, 0
   index: -1
-blackpiece
+blackPiece
   rotate: false
   xy: 604, 828
   size: 192, 192
