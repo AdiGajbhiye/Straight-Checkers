@@ -23,12 +23,9 @@ public class Black {
         UserInteractions.PrintSeparator('-');
 
         if (owner.equals(Owner.HUMAN)) {
-
             Human.makeNextBlackMoves(board);
-
         } else {
-
-            assert (owner.equals(Owner.ROBOT));
+            assert(owner.equals(Owner.ROBOT));
             Robot.makeNextBlackMoves(board);
 
         }

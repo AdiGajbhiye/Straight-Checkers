@@ -11,7 +11,7 @@ import com.pennywise.checkers.core.logic.enums.CellEntry;
 public class Robot {
 
     static Oracle oracle = new Oracle();
-    static int MAX_DEPTH = 6;
+    static int MAX_DEPTH = 2;
 
     public static void makeNextWhiteMoves(Board board) {
 
