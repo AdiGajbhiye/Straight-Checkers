@@ -30,7 +30,7 @@ public class Robot {
     }
 
 
-    public static void makeNextBlackMoves(Board board) {
+    public static Vector<Move> makeNextBlackMoves(Board board) {
 
         Vector<Move> resultantMoveSeq = new Vector<Move>();
 
@@ -45,7 +45,7 @@ public class Robot {
         UserInteractions.DisplayMoveSeq(resultantMoveSeq);
         System.out.println();
 
-
+       return resultantMoveSeq;
     }
 
     /**
@@ -227,7 +227,7 @@ public class Robot {
         } else {
             for (Move m : forcedMoves) {
 
-                com.pennywise.checkers.core.logic.Board boardCopy = board.duplicate();
+                Board boardCopy = board.duplicate();
                 boardCopy.genericMakeBlackMove(m);
 
                 innerVector.add(m);
@@ -251,11 +251,11 @@ public class Robot {
     }
 
 
-    public static Vector<com.pennywise.checkers.core.logic.Board> getPossibleBoardConf(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Move>> possibleMoveSeq, Player player) {
-        Vector<com.pennywise.checkers.core.logic.Board> possibleBoardConf = new Vector<com.pennywise.checkers.core.logic.Board>();
+    public static Vector<Board> getPossibleBoardConf(Board board, Vector<Vector<Move>> possibleMoveSeq, Player player) {
+        Vector<Board> possibleBoardConf = new Vector<com.pennywise.checkers.core.logic.Board>();
 
         for (Vector<Move> moveSeq : possibleMoveSeq) {
-            com.pennywise.checkers.core.logic.Board boardCopy = board.duplicate();
+            Board boardCopy = board.duplicate();
             for (Move move : moveSeq) {
                 if (player == Player.black) {
                     boardCopy.genericMakeBlackMove(move);
@@ -269,168 +269,5 @@ public class Robot {
         }
 
         return possibleBoardConf;
-    }
-
-///////////////////////DEBUGGING PURPOSES/////////////////////////////////////////////////////////    
-
-    public static void main(String[] args) {
-//        
-//        CellEntry[][] cell = new CellEntry[][]{
-//{CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white},
-//{CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty},
-//{CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},            
-//{CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black},
-//{CellEntry.black,CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black}
-//            
-//        };        
-//        
-//        Board board = new Board(cell);
-//        
-//        Vector<Vector<Move>> outerVector = expandMoves(board, Player.black);
-//        
-//        board.Display();
-//        
-//        for(Vector<Move> innerVector:outerVector){
-//            for(Move move:innerVector){
-//                move.display();
-//                System.out.print(", ");
-//            }
-//            System.out.println();
-//        }
-
-
-//===================================================Checking Game Draw===============================      
-//        CellEntry[][] cell = new CellEntry[][]{                        
-//{CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black},
-//{CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty},
-//{CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},            
-//{CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white},
-//{CellEntry.white,CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid},
-//{CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white}
-//        };
-//
-//        Board board = new Board(cell);
-//        System.out.println(board.CheckGameDraw(Player.white));
-//====================================================================================================    
-
-//        //Board board = new Board();
-//        Vector<Move> resultantMoveSeq = new Vector<Move>();
-//        
-//        alphaBeta(board, Player.black, 0, Float.MIN_VALUE, Float.MAX_VALUE, resultantMoveSeq);
-//        board.Display();
-//        displayMovesInVector(resultantMoveSeq);
-//        System.out.println(resultantMoveSeq.size());
-
-        //testCase1();
-        //testCase2();
-        testCase3();
-
-    }
-
-    // For debugging
-    private static void displayMovesInVector(Vector<Move> v) {
-        for (Move m : v) {
-            m.display();
-            System.out.print(", ");
-        }
-        System.out.println();
-    }
-
-
-    private static void testCase1() {
-        CellEntry[][] cell = new CellEntry[][]{
-                {CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white},
-                {CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black}
-
-        };
-
-        System.out.println(Float.MIN_VALUE);
-        if (-600 > Integer.MIN_VALUE) {
-            System.out.println("Lele maje");///////
-        }
-
-        com.pennywise.checkers.core.logic.Board board = new com.pennywise.checkers.core.logic.Board(cell);
-        board.whitePieces = 7;
-        board.blackPieces = 7;
-
-        Vector<Move> resultantMoveSeq = new Vector<Move>();
-//        
-        alphaBeta(board, Player.black, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
-        board.Display();
-        displayMovesInVector(resultantMoveSeq);
-
-
-    }
-
-    private static void testCase2() {
-        CellEntry[][] cell = new CellEntry[][]{
-                {CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white},
-                {CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.black},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black}
-
-        };
-
-        com.pennywise.checkers.core.logic.Board board = new com.pennywise.checkers.core.logic.Board(cell);
-        board.whitePieces = 5;
-        board.blackPieces = 6;
-
-        com.pennywise.checkers.core.logic.Board newBoard = board.duplicate();
-        System.out.println(newBoard.CheckGameComplete());
-
-        Vector<Move> resultantMoveSeq = new Vector<Move>();
-//        
-        alphaBeta(board, Player.black, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
-        board.Display();
-        displayMovesInVector(resultantMoveSeq);
-
-        //Apply the move to the game board.
-        for (Move m : resultantMoveSeq) {
-            board.genericMakeWhiteMove(m);
-        }
-
-        resultantMoveSeq.clear();
-
-        alphaBeta(board, Player.white, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
-        board.Display();
-        displayMovesInVector(resultantMoveSeq);
-    }
-
-    private static void testCase3() {
-        CellEntry[][] cell = new CellEntry[][]{
-                {CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.white, CellEntry.inValid, CellEntry.empty, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.empty},
-                {CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid},
-                {CellEntry.inValid, CellEntry.empty, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black, CellEntry.inValid, CellEntry.black}
-        };
-
-        com.pennywise.checkers.core.logic.Board board = new com.pennywise.checkers.core.logic.Board(cell);
-        board.whitePieces = 5;
-        board.blackPieces = 6;
-
-        Vector<Move> resultantMoveSeq = new Vector<Move>();
-//        
-        alphaBeta(board, Player.black, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
-        board.Display();
-        displayMovesInVector(resultantMoveSeq);
     }
 }

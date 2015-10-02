@@ -13,7 +13,8 @@ public class Board {
 
     static final int rows = 8;
     static final int cols = 8;
-    CellEntry cell[][];
+
+    protected CellEntry cell[][];
 
     public Board() {
         this.blackPieces = this.whitePieces = 12;
@@ -36,6 +37,10 @@ public class Board {
         for (int i = 0; i < rows; i++) {
             System.arraycopy(board[i], 0, this.cell[i], 0, cols);
         }
+    }
+
+    public CellEntry[][] getCell() {
+        return cell;
     }
 
     public void MakeMove(int r1, int c1, int r2, int c2) {

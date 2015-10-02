@@ -16,7 +16,7 @@ public class Black {
 
     public static Owner owner;
 
-    public static void Move(Board board) {
+    public static Vector<Move> Move(Board board) {
 
         UserInteractions.PrintSeparator('-');
         System.out.println("\t\tBLACK's TURN");
@@ -25,10 +25,27 @@ public class Black {
         if (owner.equals(Owner.HUMAN)) {
             Human.makeNextBlackMoves(board);
         } else {
-            assert(owner.equals(Owner.ROBOT));
-            Robot.makeNextBlackMoves(board);
-
+            assert (owner.equals(Owner.ROBOT));
+            return Robot.makeNextBlackMoves(board);
         }
+
+        return null;
+    }
+
+    public static Vector<Move> Move(int r1, int c1, int r2, int c2, Board board) {
+
+        UserInteractions.PrintSeparator('-');
+        System.out.println("\t\tBLACK's TURN");
+        UserInteractions.PrintSeparator('-');
+
+        if (owner.equals(Owner.HUMAN)) {
+            Human.makeNextBlackMoves(r1, c1, r2, c2, board);
+        } else {
+            assert (owner.equals(Owner.ROBOT));
+            return Robot.makeNextBlackMoves(board);
+        }
+
+        return null;
     }
 
 
@@ -36,17 +53,17 @@ public class Black {
         Vector<Move> furtherCaptures = new Vector<Move>();
 
         if (board.cell[r][c].equals(CellEntry.black) || board.cell[r][c].equals(CellEntry.blackKing)) {
-            if (ForwardLeftCaptureForBlack(r, c, board) != null)
-                furtherCaptures.add(ForwardLeftCaptureForBlack(r, c, board));
-            if (ForwardRightCaptureForBlack(r, c, board) != null)
-                furtherCaptures.add(ForwardRightCaptureForBlack(r, c, board));
+            if (blackForwardLeftCapture(r, c, board) != null)
+                furtherCaptures.add(blackForwardLeftCapture(r, c, board));
+            if (blackForwardRightCapture(r, c, board) != null)
+                furtherCaptures.add(blackForwardRightCapture(r, c, board));
         }
 
         if (board.cell[r][c].equals(CellEntry.blackKing)) {
-            if (BackwardLeftCaptureForBlack(r, c, board) != null)
-                furtherCaptures.add(BackwardLeftCaptureForBlack(r, c, board));
-            if (BackwardRightCaptureForBlack(r, c, board) != null)
-                furtherCaptures.add(BackwardRightCaptureForBlack(r, c, board));
+            if (blackBackwardLeftCapture(r, c, board) != null)
+                furtherCaptures.add(blackBackwardLeftCapture(r, c, board));
+            if (blackBackwardRightCapture(r, c, board) != null)
+                furtherCaptures.add(blackBackwardRightCapture(r, c, board));
         }
 
         return furtherCaptures;
@@ -70,12 +87,12 @@ public class Black {
                     // Boundary Condition for forward capture for black
                     if (r >= 2) {
                         // Forward Left Capture for black
-                        if (ForwardLeftCaptureForBlack(r, c, board) != null)
-                            forcedMovesForBlack.add(ForwardLeftCaptureForBlack(r, c, board));
+                        if (blackForwardLeftCapture(r, c, board) != null)
+                            forcedMovesForBlack.add(blackForwardLeftCapture(r, c, board));
 
                         // Forward Right Capture for black
-                        if (ForwardRightCaptureForBlack(r, c, board) != null)
-                            forcedMovesForBlack.add(ForwardRightCaptureForBlack(r, c, board));
+                        if (blackForwardRightCapture(r, c, board) != null)
+                            forcedMovesForBlack.add(blackForwardRightCapture(r, c, board));
                     }
                 }
                 // Backward Capture for Black King
@@ -83,12 +100,12 @@ public class Black {
                     // Boundary Condition for backward capture
                     if (r < Board.rows - 2) {
                         // Backward Left Capture for black king
-                        if (BackwardLeftCaptureForBlack(r, c, board) != null)
-                            forcedMovesForBlack.add(BackwardLeftCaptureForBlack(r, c, board));
+                        if (blackBackwardLeftCapture(r, c, board) != null)
+                            forcedMovesForBlack.add(blackBackwardLeftCapture(r, c, board));
 
                         // Backward Right Capture for black king
-                        if (BackwardRightCaptureForBlack(r, c, board) != null)
-                            forcedMovesForBlack.add(BackwardRightCaptureForBlack(r, c, board));
+                        if (blackBackwardRightCapture(r, c, board) != null)
+                            forcedMovesForBlack.add(blackBackwardRightCapture(r, c, board));
                     }
                 }
             }
@@ -119,17 +136,17 @@ public class Black {
                 if (board.cell[r][c].equals(CellEntry.black)) {
 
                     Move move = null;
-                    move = ForwardLeftCaptureForBlack(r, c, board);
+                    move = blackForwardLeftCapture(r, c, board);
                     assert (move == null);
-                    move = ForwardRightCaptureForBlack(r, c, board);
+                    move = blackForwardRightCapture(r, c, board);
                     assert (move == null);
 
-                    move = ForwardLeftForBlack(r, c, board);
+                    move = blackForwardLeft(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
 
-                    move = ForwardRightForBlack(r, c, board);
+                    move = blackForwardRight(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
@@ -138,32 +155,32 @@ public class Black {
                 //Forward and Backward Move for black king piece.
                 if (board.cell[r][c] == CellEntry.blackKing) {
                     Move move = null;
-                    move = ForwardLeftCaptureForBlack(r, c, board);
+                    move = blackForwardLeftCapture(r, c, board);
                     assert (move == null);
-                    move = ForwardRightCaptureForBlack(r, c, board);
-                    assert (move == null);
-
-                    move = BackwardLeftCaptureForBlack(r, c, board);
-                    assert (move == null);
-                    move = BackwardRightCaptureForBlack(r, c, board);
+                    move = blackForwardRightCapture(r, c, board);
                     assert (move == null);
 
-                    move = ForwardLeftForBlack(r, c, board);
+                    move = blackBackwardLeftCapture(r, c, board);
+                    assert (move == null);
+                    move = blackBackwardRightCapture(r, c, board);
+                    assert (move == null);
+
+                    move = blackForwardLeft(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
 
-                    move = ForwardRightForBlack(r, c, board);
+                    move = blackForwardRight(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
 
-                    move = BackwardLeftForBlack(r, c, board);
+                    move = blackBackwardLeft(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
 
-                    move = BackwardRightForBlack(r, c, board);
+                    move = blackBackwardRight(r, c, board);
                     if (move != null) {
                         allNonForcedMovesForBlack.add(move);
                     }
@@ -178,7 +195,7 @@ public class Black {
     }
 
 
-    private static Move ForwardLeftForBlack(int r, int c, Board board) {
+    private static Move blackForwardLeft(int r, int c, Board board) {
         Move forwardLeft = null;
 
         assert (board.cell[r][c] == CellEntry.black || board.cell[r][c] == CellEntry.blackKing);
@@ -193,7 +210,7 @@ public class Black {
     }
 
     // Forward Left Capture for Black
-    private static Move ForwardLeftCaptureForBlack(int r, int c, Board board) {
+    private static Move blackForwardLeftCapture(int r, int c, Board board) {
         Move forwardLeftCapture = null;
 
         if (r >= 2 && c < Board.cols - 2 &&
@@ -212,7 +229,7 @@ public class Black {
 
 
     //Forward Right for Black
-    private static Move ForwardRightForBlack(int r, int c, Board board) {
+    private static Move blackForwardRight(int r, int c, Board board) {
         Move forwardRight = null;
         if (r >= 1 && c >= 1 &&
                 board.cell[r - 1][c - 1] == CellEntry.empty
@@ -223,7 +240,7 @@ public class Black {
     }
 
     // Forward Right Capture for White
-    private static Move ForwardRightCaptureForBlack(int r, int c, Board board) {
+    private static Move blackForwardRightCapture(int r, int c, Board board) {
 
         Move forwardRightCapture = null;
 
@@ -234,13 +251,13 @@ public class Black {
                 && board.cell[r - 2][c - 2].equals(CellEntry.empty)
                 ) {
             forwardRightCapture = new Move(r, c, r - 2, c - 2);
-            //System.out.println("Forward Right Capture for Black");
+
         }
 
         return forwardRightCapture;
     }
 
-    private static Move BackwardLeftForBlack(int r, int c, Board board) {
+    private static Move blackBackwardLeft(int r, int c, Board board) {
         Move backwardLeft = null;
 
         assert (board.cell[r][c].equals(CellEntry.blackKing));
@@ -254,7 +271,7 @@ public class Black {
     }
 
     // Backward Left Capture for Black
-    private static Move BackwardLeftCaptureForBlack(int r, int c, Board board) {
+    private static Move blackBackwardLeftCapture(int r, int c, Board board) {
 
         Move backwardLeftCapture = null;
 
@@ -265,14 +282,14 @@ public class Black {
                 && board.cell[r + 2][c + 2].equals(CellEntry.empty)
                 ) {
             backwardLeftCapture = new Move(r, c, r + 2, c + 2);
-            //System.out.println("Backward Left Capture for Black");
+
         }
 
         return backwardLeftCapture;
     }
 
 
-    private static Move BackwardRightForBlack(int r, int c, Board board) {
+    private static Move blackBackwardRight(int r, int c, Board board) {
         Move backwardRight = null;
 
         assert (board.cell[r][c].equals(CellEntry.blackKing));
@@ -287,7 +304,7 @@ public class Black {
 
 
     // Backward Right Capture for Black
-    private static Move BackwardRightCaptureForBlack(int r, int c, Board board) {
+    private static Move blackBackwardRightCapture(int r, int c, Board board) {
 
         Move backwardRightCapture = null;
 
@@ -298,7 +315,6 @@ public class Black {
                 && board.cell[r + 2][c - 2].equals(CellEntry.empty)
                 ) {
             backwardRightCapture = new Move(r, c, r + 2, c - 2);
-            //System.out.println("Backward Right Capture for Black");
         }
 
         return backwardRightCapture;

@@ -29,6 +29,7 @@ import com.pennywise.checkers.core.GameCam;
 import com.pennywise.checkers.core.logic.Black;
 import com.pennywise.checkers.core.logic.Board;
 import com.pennywise.checkers.core.logic.Human;
+import com.pennywise.checkers.core.logic.Move;
 import com.pennywise.checkers.core.logic.UserInteractions;
 import com.pennywise.checkers.core.logic.White;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
@@ -45,6 +46,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 
 
 /**
@@ -75,10 +77,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
+    //private Piece[] pieces;
     private Panel board;
     private Piece selectePiece;
     private Tile selectedTile;
     private static Board logicBoard;
+    private boolean opponentsTurn = false;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -121,7 +125,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     @Override
     public void render(float delta) {
-        //Gdx.gl.glClearColor(0.59f, 0.44f, 0.29f, 1);
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -164,10 +167,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             movePiece(curRow, curCol, dstRow, dstCol);
                         }
                     }
-
                 }
             }
 
+            try {
+                Thread.sleep(50);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            if (opponentsTurn) {
+                playGame();
+                opponentsTurn = false;
+            }
+
+            updateUI();
 
         }
     }
@@ -297,15 +311,77 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             MoveToAction moveAction = new MoveToAction();
             moveAction.setPosition(posX, posY, Align.center);
-            moveAction.setDuration(1f);
+            moveAction.setDuration(0.5f);
             selectePiece.addAction(moveAction);
 
-            playGame();
-
-            selectePiece = null;
+            selectePiece.setName(selectedTile.getName());// = null;
+            selectedTile.getStyle().background = tileTexture("blackCell");
+            opponentsTurn = true;
 
         }
+    }
 
+    protected Tile getTile(String name) {
+
+        for (Tile t : backgroundTiles) {
+            if (t.getName().equalsIgnoreCase(name))
+                return t;
+        }
+
+        return null;
+    }
+
+    protected void moveOpponentPiece(Vector<Move> moves) {
+
+        for (Move m : moves) {
+
+            int iR = m.getInitialRow();
+            int iC = m.getInitialCol();
+
+            int fR = m.getFinalRow();
+            int fC = m.getFinalCol();
+
+            int index = iC + (((width - 1) - iR) * width);
+
+            Tile srcTile = getTile(index + "");
+            String srcName = srcTile.getName();
+
+            index = fC + (((width - 1) - fR) * width);
+
+            Tile destTile = getTile(index + "");
+            String destName = destTile.getName();
+
+
+            if (srcTile != null && destTile != null) {
+                srcTile.getStyle().background = tileTexture("selectedBlackCell");
+                destTile.getStyle().background = tileTexture("selectedBlackCell");
+            }
+
+            //find the piece
+            for (Actor a : boardStage.getActors()) {
+                if (a instanceof Group) {
+                    for (Actor actor : ((Group) a).getChildren())
+                        if (actor instanceof Piece) {
+                            if (actor.getName().equalsIgnoreCase(srcName)) {
+                                Piece p = (Piece) actor;
+                                //update name
+                                actor.setName(destName);
+                                float posX = destTile.getX() + (destTile.getWidth() / 2);
+                                float posY = destTile.getY() + (destTile.getHeight() / 2);
+
+                                MoveToAction moveAction = new MoveToAction();
+                                moveAction.setPosition(posX, posY, Align.center);
+                                moveAction.setDuration(0.5f);
+                                p.addAction(moveAction);
+                                break;
+                            }
+                        }
+                }
+            }
+
+            srcTile.getStyle().background = tileTexture("blackCell");
+            destTile.getStyle().background = tileTexture("blackCell");
+        }
     }
 
     public boolean playGame() {
@@ -318,9 +394,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             logicBoard.CheckGameDraw(Player.black);
             logicBoard.Display();
 
-            Black.Move(logicBoard);
+            Vector<Move> moves = Black.Move(logicBoard);
+
+            moveOpponentPiece(moves);
 
             logicBoard.Display();
+
 
             if (logicBoard.CheckGameComplete()) {
                 UserInteractions.DisplayGreetings(Player.black, logicBoard);
@@ -335,6 +414,46 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         return false;
     }
+
+    protected void updateUI() {
+
+        for (int r = 0; r < height; r++) {
+            int c = (r % 2 == 0) ? 0 : 1;
+            for (; c < width; c += 2) {
+
+                updatePieces(r, c);
+
+            }
+        }
+    }
+
+    protected void updatePieces(int row, int col) {
+
+        int index = col + (((width - 1) - row) * width);
+        String targetName = index + "";
+
+        //find the piece
+        for (Actor a : boardStage.getActors()) {
+            if (a instanceof Group) {
+                for (Actor actor : ((Group) a).getChildren())
+                    if (actor instanceof Piece) {
+                        if (actor.getName().equalsIgnoreCase(targetName)) {
+                            if (logicBoard.getCell()[row][col].equals(CellEntry.empty)) {
+                                ((Group) a).removeActor(actor);
+                            }
+                            if (logicBoard.getCell()[row][col].equals(CellEntry.blackKing)) {
+                                ((Piece) actor).setDrawable(tileTexture("blackKing"));
+                            }
+                            if (logicBoard.getCell()[row][col].equals(CellEntry.whiteKing)) {
+                                ((Piece) actor).setDrawable(tileTexture("whiteKing"));
+                            }
+
+                        }
+                    }
+            }
+        }
+    }
+
 
     protected Group drawPieces(int rows, int cols) {
 
@@ -390,7 +509,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     }
 
     public SpriteDrawable tileTexture(String name) {
-        Gdx.app.log("Color", name);
         Sprite sprite = gameUI.createSprite(name);
         sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
@@ -442,6 +560,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         public int compare(String str1, String str2) {
             return str2.length() - str1.length();
         }
+
     }
 
     private void renderScore(SpriteBatch batch, float gameTime) {
