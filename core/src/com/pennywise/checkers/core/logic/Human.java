@@ -51,14 +51,9 @@ public class Human {
 
     private static boolean CheckValidMoveForWhiteHuman(int r1, int c1, int r2, int c2, Board board) {
         // Select Right Piece and Right Move
-        if (
-                board.cell[r1][c1].equals(CellEntry.inValid) ||
-                        !(
-                                board.cell[r1][c1].equals(CellEntry.white) ||
-                                        board.cell[r1][c1].equals(CellEntry.whiteKing)
-                        )
-                        || !board.cell[r2][c2].equals(CellEntry.empty)
-                ) {
+        if (board.cell[r1][c1].equals(CellEntry.inValid) ||
+                !(board.cell[r1][c1].equals(CellEntry.white) || board.cell[r1][c1].equals(CellEntry.whiteKing))
+                || !board.cell[r2][c2].equals(CellEntry.empty)) {
             UserInteractions.PrintSeparator('-');
             System.out.println("Check !!! Black/Invalid Piece Selected or Invalid Move..... Try Again.");
             UserInteractions.PrintSeparator('-');
