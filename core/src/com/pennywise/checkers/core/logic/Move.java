@@ -15,7 +15,7 @@ public class Move {
     int finalRow;
     int finalCol;
 
-    Move(int r1, int c1, int r2, int c2) {
+    public Move(int r1, int c1, int r2, int c2) {
         this.initialRow = r1;
         this.initialCol = c1;
         this.finalRow = r2;

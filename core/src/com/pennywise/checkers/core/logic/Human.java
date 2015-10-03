@@ -28,8 +28,7 @@ public class Human {
 
     }
 
-    public static ReturnCode makeNextWhiteMoves(int r1, int c1, int r2, int c2, Board board) {
-        Move move = new Move(r1, c1, r2, c2);
+    public static ReturnCode makeNextWhiteMoves(Move move, Board board) {
         return CheckValidMoveForWhiteHuman(move.initialRow, move.initialCol, move.finalRow, move.finalCol, board);
     }
 
@@ -57,7 +56,7 @@ public class Human {
                 board.cell[r1][c1].equals(CellEntry.whiteKing)
         ) || !board.cell[r2][c2].equals(CellEntry.empty)) {
             UserInteractions.PrintSeparator('-');
-            System.out.println("Check !!! Black/Invalid Piece Selected or Invalid Move..... Try Again.");
+            System.out.println("Check !!! White/Invalid Piece Selected or Invalid Move..... Try Again.");
             UserInteractions.PrintSeparator('-');
             return ReturnCode.INVALID_MOVE;
         }

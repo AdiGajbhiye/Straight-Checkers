@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -24,8 +25,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Cam;
 import com.pennywise.checkers.core.Constants;
-import com.pennywise.checkers.core.GameCam;
+import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.logic.Black;
 import com.pennywise.checkers.core.logic.Board;
 import com.pennywise.checkers.core.logic.Human;
@@ -46,8 +48,9 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -58,22 +61,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Stage stage;
     private final Stage boardStage;
-    private final GameCam camera;
-    private final BitmapFont uiFont;
-    private final BitmapFont strikeThrough;
+    private final Cam camera;
+    private OrthographicCamera hudCam;
+    private final BitmapFont hudFont;
     SpriteBatch batch;
-    private final BitmapFont gridFont;
-    private final BitmapFont listFont;
     private float cellsize = 0;
     private float gridHeight = 0;
-    protected String foundWord;
-    protected StringBuilder sb;
-    private Random random = new Random();
-    private List<String> words;
-    private List<String> foundWords;
-    private int color = 0;
     private TextureAtlas gameUI;
-    private Image time;
     private Button pause;
     private boolean isBusy = false;
     private int width, height;
@@ -83,37 +77,54 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private List<Tile> selectedTiles;
     private static Board logicBoard;
     private ReturnCode retCode;
+    private Executor executor;
+    private boolean gameOver = false;
+    String strTime = "";
+
+    private final SpriteDrawable validBlackCell;
+    private final SpriteDrawable validCell;
+    private final SpriteDrawable blackCell;
+    private final SpriteDrawable selectedBlackCell;
+    private Image pauseButton;
+
 
     public GameScreen(Checkers game) {
         super(game);
-        camera = com.pennywise.checkers.core.GameCam.instance;
-        stage = new Stage(new FitViewport(com.pennywise.checkers.core.Constants.GAME_WIDTH, com.pennywise.checkers.core.Constants.GAME_HEIGHT, camera));
-        Gdx.input.setInputProcessor(this);
+        camera = Cam.instance;
 
+        hudCam = new OrthographicCamera();
+        hudCam.position.set(0, 0, 0);
+        hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        hudCam.update();
+
+        stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+
+        Gdx.input.setInputProcessor(this);
         //load fonts
-        gridFont = com.pennywise.checkers.core.Util.loadFont("fonts/Roboto-Regular.ttf", 16, Color.BLACK);
-        listFont = com.pennywise.checkers.core.Util.loadFont("fonts/Roboto-Bold.ttf", 24, Color.BLACK);
-        uiFont = com.pennywise.checkers.core.Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.TEAL);
-        strikeThrough = com.pennywise.checkers.core.Util.loadFont("fonts/BPtypewriteStrikethrough.ttf", 24, Color.BLACK);
+        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
 
         width = 8;
         height = 8;
         gridHeight = ((com.pennywise.checkers.core.Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
-        sb = new StringBuilder();
-        words = new LinkedList<String>();
-        foundWords = new LinkedList<String>();
-        color = random.nextInt(6) + 1;
-        selectedTiles = new LinkedList<Tile>();
         gameUI = new TextureAtlas("images/ui-pack.atlas");
+        executor = Executors.newSingleThreadExecutor();
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+        selectedTiles = new LinkedList<Tile>();
+
+        selectedBlackCell = tileTexture("selectedBlackCell");
+        blackCell = tileTexture("blackCell");
+        validBlackCell = tileTexture("validDarkCell");
+        validCell = tileTexture("validCell");
+
     }
 
     private void initialize() {
         logicBoard = new Board();
         White.owner = Owner.HUMAN;
         Black.owner = Owner.ROBOT;
+
     }
 
     @Override
@@ -129,8 +140,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
+        renderHud(batch, delta);
+        renderFPS(batch);
 
         stage.act();
         stage.draw();
@@ -148,9 +159,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == CellEntry.black)
-                        tile.getStyle().background = tileTexture("validDarkCell");
+                        tile.getStyle().background = validBlackCell;
                     else
-                        tile.getStyle().background = tileTexture("validCell");
+                        tile.getStyle().background = validCell;
                 }
             } else {
 
@@ -165,19 +176,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         int curRow = (width - 1) - (position / width);
                         int curCol = position % width;
                         if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
-                            movePiece(curRow, curCol, dstRow, dstCol);
+                            movePiece(new Move(curRow, curCol, dstRow, dstCol));
                         } else {
-                            if (selectedTiles.size() != 0)
-                                selectedTiles.remove(0);
+                            selectedPiece = null;
+                            selectedTiles.clear();
                         }
                     }
                 }
-            }
-
-            try {
-                Thread.sleep(50);
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
 
             if (retCode == ReturnCode.VALID_MOVE) {
@@ -240,8 +245,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Table hud() {
         Table layer = new Table();
         layer.bottom();
-        time = new Image(gameUI.createSprite("pause_dark"));
-        layer.add(time).height(40).width(40).bottom().right().expandX().padRight(20).padBottom(30);
+        pauseButton = new Image(gameUI.createSprite("pause_dark"));
+        layer.add(pauseButton).height(40).width(40).bottom().right().expandX().padRight(20).padBottom(30);
         return layer;
     }
 
@@ -257,7 +262,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         board.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = gridFont;
+        style.font = hudFont;
         style.background = tileTexture("line_dark");
 
         Vector2[] position = new Vector2[rows * cols];
@@ -306,9 +311,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     }
 
-    protected void movePiece(int r1, int c1, int r2, int c2) {
 
-        retCode = Human.makeNextWhiteMoves(r1, c1, r2, c2, logicBoard);
+    protected void movePiece(Move move) {
+
+        retCode = Human.makeNextWhiteMoves(move, logicBoard);
 
         if (retCode == ReturnCode.VALID_MOVE) {
 
@@ -321,8 +327,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             selectedPiece.addAction(moveAction);
 
             selectedPiece.setName(selectedTiles.get(0).getName());// = null;
-            selectedTiles.get(0).getStyle().background = tileTexture("blackCell");
+            selectedTiles.get(0).getStyle().background = blackCell;
             selectedTiles.clear();
+            selectedPiece = null;
         }
 
         if (retCode == ReturnCode.MULTIPLE_CAPTURE) {
@@ -336,17 +343,23 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             selectedPiece.addAction(moveAction);
 
             selectedPiece.setName(selectedTiles.get(0).getName());// = null;
-            selectedTiles.get(0).getStyle().background = tileTexture("blackCell");
+            selectedTiles.get(0).getStyle().background = blackCell;
 
             if (selectedTiles.size() != 0)
                 selectedTiles.remove(0);
         }
 
-        if (retCode == ReturnCode.INVALID_MOVE)
+        if (retCode == ReturnCode.INVALID_MOVE) {
+            selectedTiles.clear();
+            selectedPiece = null;
             return;
+        }
 
-        if (retCode == ReturnCode.FORCED_MOVES)
+        if (retCode == ReturnCode.FORCED_MOVES) {
+            selectedTiles.clear();
+            selectedPiece = null;
             return;
+        }
     }
 
     protected Tile getTile(String name) {
@@ -381,8 +394,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
             if (srcTile != null && destTile != null) {
-                srcTile.getStyle().background = tileTexture("selectedBlackCell");
-                destTile.getStyle().background = tileTexture("selectedBlackCell");
+                srcTile.getStyle().background = selectedBlackCell;
+                destTile.getStyle().background = selectedBlackCell;
             }
 
             //find the piece
@@ -407,8 +420,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 }
             }
 
-            srcTile.getStyle().background = tileTexture("blackCell");
-            destTile.getStyle().background = tileTexture("blackCell");
+            srcTile.getStyle().background = blackCell;
+            destTile.getStyle().background = blackCell;
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -430,15 +449,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
             if (logicBoard.CheckGameComplete()) {
+                gameOver = true;
                 UserInteractions.DisplayGreetings(Player.black, logicBoard);
                 logicBoard.Display();
                 return false;
             }
 
 
-        } else
+        } else {
+            gameOver = true;
             return true;
-
+        }
 
         return false;
     }
@@ -591,21 +612,57 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     }
 
-    private void renderScore(SpriteBatch batch, float gameTime) {
-        float x = 0, y = 0;
+    private void renderGui(SpriteBatch batch, float runTime) {
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
 
-        //show score
-        String score = "00/00";
-        uiFont.draw(batch, score, x, y);
+        batch.end();
+    }
+
+
+    private void renderHud(SpriteBatch batch, float gameTime) {
+
+        float y = hudCam.viewportHeight * 0.95f;
 
         float minutes = (float) Math.floor(gameTime / 60.0f);
         float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
 
+        strTime = String.format("%.0fm%.0fs", minutes, seconds);
+
+        /*
         //show time
-        String time = String.format("%s:%s", StringUtils.leftPad(new DecimalFormat("##").format(minutes), 2, "0"),
-                StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));
-        uiFont.draw(batch, time, 15, y);
+        strTime = String.format("%s:%s", StringUtils.leftPad(new DecimalFormat("##").format(minutes), 2, "0"),
+                StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));*/
+
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+        hudFont.draw(batch, strTime, 15, y);
+        batch.end();
     }
 
+    private void renderFPS(SpriteBatch batch) {
+
+        float x = hudCam.viewportWidth - 150;
+        float y = 30;
+
+        int fps = Gdx.graphics.getFramesPerSecond();
+
+        BitmapFont fpsFont = hudFont;
+
+        if (fps >= 45) {
+            // 45 or more FPS show up in green
+            fpsFont.setColor(0, 1, 0, 1);
+        } else if (fps >= 30) {
+            // 30 or more FPS show up in yellow
+            fpsFont.setColor(1, 1, 0, 1);
+        } else {
+            // less than 30 FPS show up in red
+            fpsFont.setColor(1, 0, 0, 1);
+        }
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+        fpsFont.draw(batch, "FPS: " + fps, x, y);
+        batch.end();
+    }
 
 }

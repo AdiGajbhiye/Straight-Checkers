@@ -30,7 +30,7 @@ public class Util {
         //set the font parameters
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) (fontSize * SCALE);
-        parameter.flip = true;
+        parameter.flip = false;
         parameter.color = color;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
         // 12 is the size i want to give for the font on all devices
