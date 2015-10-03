@@ -35,6 +35,7 @@ import com.pennywise.checkers.core.logic.White;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
 import com.pennywise.checkers.core.logic.enums.Owner;
 import com.pennywise.checkers.core.logic.enums.Player;
+import com.pennywise.checkers.core.logic.enums.ReturnCode;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
@@ -77,12 +78,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
-    //private Piece[] pieces;
     private Panel board;
-    private Piece selectePiece;
+    private Piece selectedPiece;
     private Tile selectedTile;
     private static Board logicBoard;
-    private boolean opponentsTurn = false;
+    private ReturnCode retCode;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -143,7 +143,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
             if (actor2 != null && actor2 instanceof Piece) {
-                selectePiece = (Piece) actor2;
+                selectedPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
                     selectedTile = ((Tile) actor);
                     if (selectedTile.getCellEntry() == CellEntry.black)
@@ -153,14 +153,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 }
             } else {
 
-                if (selectePiece != null) {
+                if (selectedPiece != null) {
                     if (actor instanceof Tile) {
                         selectedTile = ((Tile) actor);
                         int position = Integer.parseInt(selectedTile.getName());
                         int dstRow = (width - 1) - (position / width);
                         int dstCol = position % width;
 
-                        position = Integer.parseInt(selectePiece.getName());
+                        position = Integer.parseInt(selectedPiece.getName());
                         int curRow = (width - 1) - (position / width);
                         int curCol = position % width;
                         if (selectedTile.getCellEntry() == CellEntry.black) {
@@ -176,9 +176,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 ex.printStackTrace();
             }
 
-            if (opponentsTurn) {
+            if (retCode == ReturnCode.VALID_MOVE) {
                 playGame();
-                opponentsTurn = false;
+                retCode = ReturnCode.INVALID_MOVE;
             }
 
             updateUI();
@@ -304,7 +304,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void movePiece(int r1, int c1, int r2, int c2) {
 
-        if (Human.makeNextWhiteMoves(r1, c1, r2, c2, logicBoard)) {
+        retCode = Human.makeNextWhiteMoves(r1, c1, r2, c2, logicBoard);
+
+        if (retCode == ReturnCode.VALID_MOVE
+                || retCode == ReturnCode.MULTIPLE_CAPTURE) {
 
             float posX = selectedTile.getX() + (selectedTile.getWidth() / 2);
             float posY = selectedTile.getY() + (selectedTile.getHeight() / 2);
@@ -312,13 +315,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             MoveToAction moveAction = new MoveToAction();
             moveAction.setPosition(posX, posY, Align.center);
             moveAction.setDuration(0.5f);
-            selectePiece.addAction(moveAction);
+            selectedPiece.addAction(moveAction);
 
-            selectePiece.setName(selectedTile.getName());// = null;
+            selectedPiece.setName(selectedTile.getName());// = null;
             selectedTile.getStyle().background = tileTexture("blackCell");
-            opponentsTurn = true;
-
         }
+
+        if(retCode == ReturnCode.INVALID_MOVE)
+           return;
+
+        if(retCode == ReturnCode.FORCED_MOVES)
+            return;
     }
 
     protected Tile getTile(String name) {
