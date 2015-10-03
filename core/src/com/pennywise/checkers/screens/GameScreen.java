@@ -146,26 +146,29 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             if (actor2 != null && actor2 instanceof Piece) {
                 selectedPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
-                    selectedTile = ((Tile) actor);
-                    if (selectedTile.getCellEntry() == CellEntry.black)
-                        selectedTile.getStyle().background = tileTexture("validDarkCell");
+                    Tile tile = (((Tile) actor));
+                    if (tile.getCellEntry() == CellEntry.black)
+                        tile.getStyle().background = tileTexture("validDarkCell");
                     else
-                        selectedTile.getStyle().background = tileTexture("validCell");
+                        tile.getStyle().background = tileTexture("validCell");
                 }
             } else {
 
                 if (selectedPiece != null) {
                     if (actor instanceof Tile) {
-                        selectedTile = ((Tile) actor);
-                        int position = Integer.parseInt(selectedTile.getName());
+                        selectedTiles.add(((Tile) actor));
+                        int position = Integer.parseInt(selectedTiles.get(0).getName());
                         int dstRow = (width - 1) - (position / width);
                         int dstCol = position % width;
 
                         position = Integer.parseInt(selectedPiece.getName());
                         int curRow = (width - 1) - (position / width);
                         int curCol = position % width;
-                        if (selectedTile.getCellEntry() == CellEntry.black) {
+                        if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
                             movePiece(curRow, curCol, dstRow, dstCol);
+                        } else {
+                            if (selectedTiles.size() != 0)
+                                selectedTiles.remove(0);
                         }
                     }
                 }
@@ -307,25 +310,42 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         retCode = Human.makeNextWhiteMoves(r1, c1, r2, c2, logicBoard);
 
-        if (retCode == ReturnCode.VALID_MOVE
-                || retCode == ReturnCode.MULTIPLE_CAPTURE) {
+        if (retCode == ReturnCode.VALID_MOVE) {
 
-            float posX = selectedTile.getX() + (selectedTile.getWidth() / 2);
-            float posY = selectedTile.getY() + (selectedTile.getHeight() / 2);
+            float posX = selectedTiles.get(0).getX() + (selectedTiles.get(0).getWidth() / 2);
+            float posY = selectedTiles.get(0).getY() + (selectedTiles.get(0).getHeight() / 2);
 
             MoveToAction moveAction = new MoveToAction();
             moveAction.setPosition(posX, posY, Align.center);
             moveAction.setDuration(0.5f);
             selectedPiece.addAction(moveAction);
 
-            selectedPiece.setName(selectedTile.getName());// = null;
-            selectedTile.getStyle().background = tileTexture("blackCell");
+            selectedPiece.setName(selectedTiles.get(0).getName());// = null;
+            selectedTiles.get(0).getStyle().background = tileTexture("blackCell");
+            selectedTiles.clear();
         }
 
-        if(retCode == ReturnCode.INVALID_MOVE)
-           return;
+        if (retCode == ReturnCode.MULTIPLE_CAPTURE) {
 
-        if(retCode == ReturnCode.FORCED_MOVES)
+            float posX = selectedTiles.get(0).getX() + (selectedTiles.get(0).getWidth() / 2);
+            float posY = selectedTiles.get(0).getY() + (selectedTiles.get(0).getHeight() / 2);
+
+            MoveToAction moveAction = new MoveToAction();
+            moveAction.setPosition(posX, posY, Align.center);
+            moveAction.setDuration(0.5f);
+            selectedPiece.addAction(moveAction);
+
+            selectedPiece.setName(selectedTiles.get(0).getName());// = null;
+            selectedTiles.get(0).getStyle().background = tileTexture("blackCell");
+
+            if (selectedTiles.size() != 0)
+                selectedTiles.remove(0);
+        }
+
+        if (retCode == ReturnCode.INVALID_MOVE)
+            return;
+
+        if (retCode == ReturnCode.FORCED_MOVES)
             return;
     }
 

@@ -82,7 +82,7 @@ public class Human {
                 if (furtherCapture.isEmpty()) {
                     return ReturnCode.VALID_MOVE;
                 } else
-                    return ReturnCode.FORCED_MOVES;
+                    return ReturnCode.MULTIPLE_CAPTURE;
             } else {
                 UserInteractions.PrintSeparator('-');
                 System.out.println("Check!!!Wrong Move....Try Again.");
