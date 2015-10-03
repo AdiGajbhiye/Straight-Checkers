@@ -80,7 +80,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Tile[] backgroundTiles;
     private Panel board;
     private Piece selectedPiece;
-    private Tile selectedTile;
+    private List<Tile> selectedTiles;
     private static Board logicBoard;
     private ReturnCode retCode;
 
@@ -105,6 +105,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         words = new LinkedList<String>();
         foundWords = new LinkedList<String>();
         color = random.nextInt(6) + 1;
+        selectedTiles = new LinkedList<Tile>();
         gameUI = new TextureAtlas("images/ui-pack.atlas");
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
     }
