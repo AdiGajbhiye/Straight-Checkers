@@ -17,10 +17,12 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -665,4 +667,37 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         batch.end();
     }
 
+/*
+    public void gameOverDialog(String winner){
+
+        Label label = new Label(winner + "wins!", stage.uiSkin);
+        label.setWrap(true);
+        label.setFontScale(.8f);
+        label.setAlignment(Align.center);
+
+        Dialog dialog =
+                new Dialog("", stage.uiSkin, "dialog") {
+                    protected void result (Object object) {
+                        System.out.println("Chosen: " + object);
+                    }
+                };
+
+        dialog.padTop(50).padBottom(50);
+        dialog.getContentTable().add(label).width(850).row();
+        dialog.getButtonTable().padTop(50);
+
+        TextButton dbutton = new TextButton("Yes", stage.uiSkin, "dialog");
+        dialog.button(dbutton, true);
+
+        dbutton = new TextButton("No", stage.uiSkin, "dialog");
+        dialog.button(dbutton, false);
+        dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
+        dialog.invalidateHierarchy();
+        dialog.invalidate();
+        dialog.layout();
+        dialog.show(stage);
+
+
+    }
+*/
 }
