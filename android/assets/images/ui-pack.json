@@ -20,9 +20,9 @@
       transparent: { }
     },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
-      default: { up: button, down: button-down, checked: button-down, disabled: button-disabled, font: normaltext, fontColor: white }
+      default: { up: button-blue, down: button-bluedown, checked: button-bluedown, disabled: button-greydown, font: normaltext, fontColor: white }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
-      default: { background: panel-beigeLight, titleFont: fx35, titleFontColor: red }
+      default: { background: panel-beigeLight, titleFont: normaltext, titleFontColor: red }
     }
 }

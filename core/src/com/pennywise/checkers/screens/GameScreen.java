@@ -688,7 +688,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void gameOverDialog(String winner) {
 
-        Skin skin = new Skin(Gdx.files.internal("ui-pack.json"), gameUI);
+        Skin skin = new Skin(Gdx.files.internal("images/ui-pack.json"), gameUI);
 
         Label label = new Label(winner + "wins!", skin);
         label.setWrap(true);
@@ -696,14 +696,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         label.setAlignment(Align.center);
 
         Dialog dialog =
-                new Dialog("", skin, "dialog") {
+                new Dialog("Game Over", skin) {
                     protected void result(Object object) {
                         System.out.println("Chosen: " + object);
                     }
                 };
 
         dialog.padTop(50).padBottom(50);
-        dialog.getContentTable().add(label).width(850).row();
+        dialog.getContentTable().add(label).width(150).row();
         dialog.getButtonTable().padTop(50);
 
         TextButton dbutton = new TextButton("Yes", skin);
