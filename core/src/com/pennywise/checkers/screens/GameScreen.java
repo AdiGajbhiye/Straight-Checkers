@@ -16,10 +16,12 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -44,15 +46,19 @@ import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.removeActor;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 
 /**
@@ -88,6 +94,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private final SpriteDrawable blackCell;
     private final SpriteDrawable selectedBlackCell;
     private Image pauseButton;
+    private boolean updateUi = false;
 
 
     public GameScreen(Checkers game) {
@@ -145,12 +152,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         renderHud(batch, delta);
         renderFPS(batch);
 
-        stage.act();
-        stage.draw();
-
-        boardStage.act();
-        boardStage.draw();
-
         if (Gdx.input.isTouched()) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
@@ -191,10 +192,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 playGame();
                 retCode = ReturnCode.INVALID_MOVE;
             }
-
-            updateUI();
-
         }
+
+        stage.act();
+        stage.draw();
+
+        boardStage.act();
+        boardStage.draw();
+
+
     }
 
     @Override
@@ -375,24 +381,32 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     }
 
     protected void moveOpponentPiece(Vector<Move> moves) {
+        Piece piece;
+        Tile srcTile;
+        String srcName;
+        Tile destTile = null;
+        String destName = "";
+        SequenceAction sequenceAction = new SequenceAction();
+
+        //get source name
+
+        int row = moves.get(0).getInitialRow();
+        int col = moves.get(0).getInitialCol();
+
+        int index = col + (((width - 1) - row) * width);
+
+        srcTile = getTile(index + "");
+        srcName = srcTile.getName();
 
         for (Move m : moves) {
 
-            int iR = m.getInitialRow();
-            int iC = m.getInitialCol();
+            row = m.getFinalRow();
+            col = m.getFinalCol();
 
-            int fR = m.getFinalRow();
-            int fC = m.getFinalCol();
+            index = col + (((width - 1) - row) * width);
 
-            int index = iC + (((width - 1) - iR) * width);
-
-            Tile srcTile = getTile(index + "");
-            String srcName = srcTile.getName();
-
-            index = fC + (((width - 1) - fR) * width);
-
-            Tile destTile = getTile(index + "");
-            String destName = destTile.getName();
+            destTile = getTile(index + "");
+            destName = destTile.getName();
 
 
             if (srcTile != null && destTile != null) {
@@ -400,38 +414,42 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 destTile.getStyle().background = selectedBlackCell;
             }
 
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren())
-                        if (actor instanceof Piece) {
-                            if (actor.getName().equalsIgnoreCase(srcName)) {
-                                Piece p = (Piece) actor;
-                                //update name
-                                actor.setName(destName);
-                                float posX = destTile.getX() + (destTile.getWidth() / 2);
-                                float posY = destTile.getY() + (destTile.getHeight() / 2);
+            float posX = destTile.getX();
+            float posY = destTile.getY();
 
-                                MoveToAction moveAction = new MoveToAction();
-                                moveAction.setPosition(posX, posY, Align.center);
-                                moveAction.setDuration(0.5f);
-                                p.addAction(moveAction);
-                                break;
-                            }
-                        }
-                }
+
+            sequenceAction.addAction(delay(0.5f));
+            sequenceAction.addAction(moveTo(posX, posY, 0.5f));
+        }
+
+        sequenceAction.addAction(run(new Runnable() {
+            public void run() {
+                updateUI();
             }
+        }));
 
-            srcTile.getStyle().background = blackCell;
-            destTile.getStyle().background = blackCell;
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        //find the piece
+        for (Actor a : boardStage.getActors()) {
+            if (a instanceof Group) {
+                for (Actor actor : ((Group) a).getChildren())
+                    if (actor instanceof Piece) {
+                        if (actor.getName().equalsIgnoreCase(srcName)) {
+                            piece = (Piece) actor;
+                            //update name
+                            piece.setName(destName);
+                            piece.addAction(sequenceAction);
+                            break;
+                        }
+                    }
             }
         }
+
+        if (srcTile != null && destTile != null) {
+            srcTile.getStyle().background = blackCell;
+            destTile.getStyle().background = blackCell;
+        }
     }
+
 
     public boolean playGame() {
 
@@ -449,9 +467,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             logicBoard.Display();
 
-
             if (logicBoard.CheckGameComplete()) {
                 gameOver = true;
+                gameOverDialog("Black");
                 UserInteractions.DisplayGreetings(Player.black, logicBoard);
                 logicBoard.Display();
                 return false;
@@ -459,6 +477,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
         } else {
+            gameOverDialog("Black");
             gameOver = true;
             return true;
         }
@@ -471,11 +490,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         for (int r = 0; r < height; r++) {
             int c = (r % 2 == 0) ? 0 : 1;
             for (; c < width; c += 2) {
-
                 updatePieces(r, c);
-
             }
         }
+
     }
 
     protected void updatePieces(int row, int col) {
@@ -490,7 +508,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if (actor instanceof Piece) {
                         if (actor.getName().equalsIgnoreCase(targetName)) {
                             if (logicBoard.getCell()[row][col].equals(CellEntry.empty)) {
-                                ((Group) a).removeActor(actor);
+                                actor.addAction(sequence(fadeOut(0.15f), removeActor()));
                             }
                             if (logicBoard.getCell()[row][col].equals(CellEntry.blackKing)) {
                                 ((Piece) actor).setDrawable(tileTexture("blackKing"));
@@ -667,17 +685,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         batch.end();
     }
 
-/*
-    public void gameOverDialog(String winner){
 
-        Label label = new Label(winner + "wins!", stage.uiSkin);
+    public void gameOverDialog(String winner) {
+
+        Skin skin = new Skin(Gdx.files.internal("ui-pack.json"), gameUI);
+
+        Label label = new Label(winner + "wins!", skin);
         label.setWrap(true);
         label.setFontScale(.8f);
         label.setAlignment(Align.center);
 
         Dialog dialog =
-                new Dialog("", stage.uiSkin, "dialog") {
-                    protected void result (Object object) {
+                new Dialog("", skin, "dialog") {
+                    protected void result(Object object) {
                         System.out.println("Chosen: " + object);
                     }
                 };
@@ -686,12 +706,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialog.getContentTable().add(label).width(850).row();
         dialog.getButtonTable().padTop(50);
 
-        TextButton dbutton = new TextButton("Yes", stage.uiSkin, "dialog");
+        TextButton dbutton = new TextButton("Yes", skin);
         dialog.button(dbutton, true);
 
-        dbutton = new TextButton("No", stage.uiSkin, "dialog");
+        dbutton = new TextButton("No", skin);
         dialog.button(dbutton, false);
-        dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
         dialog.invalidateHierarchy();
         dialog.invalidate();
         dialog.layout();
@@ -699,5 +718,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
     }
-*/
+
+
 }

@@ -16,7 +16,7 @@
       title-text: { font: titletext, fontColor: red }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
-      default: { up: button, down: button-down, checked: button-down, disabled: button-disabled },
+      default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
       transparent: { }
     },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
