@@ -94,8 +94,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private final SpriteDrawable blackCell;
     private final SpriteDrawable selectedBlackCell;
     private Image pauseButton;
-    private boolean updateUi = false;
-
 
     public GameScreen(Checkers game) {
         super(game);
