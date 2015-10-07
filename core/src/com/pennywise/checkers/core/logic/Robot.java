@@ -4,20 +4,56 @@ import java.util.Vector;
 
 import com.pennywise.checkers.core.logic.enums.Player;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
+import com.pennywise.checkers.core.logic.enums.ReturnCode;
 
 /**
  * @author apurv
  */
 public class Robot {
 
-    static Oracle oracle = new Oracle();
-    static int MAX_DEPTH = 2;
+    private Oracle oracle = new Oracle();
+    private final int max_depth;
 
-    public static void makeNextWhiteMoves(Board board) {
+    final CellEntry playerPawn;
+    final CellEntry playerKing;
+    final CellEntry opponentPawn;
+    final CellEntry opponentKing;
+    final Player player;
+    final Board board;
+
+    public Robot(Player player, Board board, int max_depth) {
+
+        this.player = player;
+        this.board = board;
+        //player pieces
+        playerPawn = player.equals(Player.black) ? CellEntry.black : CellEntry.white;
+        playerKing = player.equals(Player.black) ? CellEntry.blackKing : CellEntry.whiteKing;
+        //opponent pieces
+        opponentPawn = player.equals(Player.black) ? CellEntry.white : CellEntry.black;
+        opponentKing = player.equals(Player.black) ? CellEntry.whiteKing : CellEntry.blackKing;
+
+        this.max_depth = max_depth;
+    }
+
+    public void Move() {
+
+        UserInteractions.PrintSeparator('-');
+        System.out.println("\t\t" + player.name() + "'s TURN");
+        UserInteractions.PrintSeparator('-');
+
+
+        if (player == Player.black)
+            makeNextBlackMoves();
+        else
+            makeNextWhiteMoves();
+
+    }
+
+    protected Vector<Move> makeNextWhiteMoves() {
 
         Vector<Move> resultantMoveSeq = new Vector<Move>();
 
-        alphaBeta(board, Player.white, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
+        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
 
         //Apply the move to the game board.
         for (Move m : resultantMoveSeq) {
@@ -27,14 +63,16 @@ public class Robot {
         System.out.print("Robot's Move was ");
         UserInteractions.DisplayMoveSeq(resultantMoveSeq);
         System.out.println();
+
+        return resultantMoveSeq;
     }
 
 
-    public static Vector<Move> makeNextBlackMoves(Board board) {
+    public Vector<Move> makeNextBlackMoves() {
 
         Vector<Move> resultantMoveSeq = new Vector<Move>();
 
-        alphaBeta(board, Player.black, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
+        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
 
         //Apply the move to the game board.
         for (Move m : resultantMoveSeq) {
@@ -45,7 +83,7 @@ public class Robot {
         UserInteractions.DisplayMoveSeq(resultantMoveSeq);
         System.out.println();
 
-       return resultantMoveSeq;
+        return resultantMoveSeq;
     }
 
     /**
@@ -57,7 +95,7 @@ public class Robot {
      * <p/>
      * if(alpha>beta) break
      */
-    private static int alphaBeta(Board board, Player player, int depth, int alpha, int beta, Vector<Move> resultMoveSeq) {
+    private int alphaBeta(Board board, Player player, int depth, int alpha, int beta, Vector<Move> resultMoveSeq) {
 
         if (!canExploreFurther(board, player, depth)) {
             int value = oracle.evaluateBoard(board, player);
@@ -120,17 +158,17 @@ public class Robot {
         }
     }
 
-    public static Vector<Vector<Move>> expandMoves(Board board, Player player) {
+    public Vector<Vector<Move>> expandMoves(Board board, Player player) {
 
         Vector<Vector<Move>> outerVector = new Vector<Vector<Move>>();
 
         if (player == Player.black) {
 
             Vector<Move> moves = null;
-            moves = Black.CalculateAllForcedMovesForBlack(board);
+            moves = Black.CalculateAllForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
 
             if (moves.isEmpty()) {
-                moves = Black.CalculateAllNonForcedMovesForBlack(board);
+                moves = Black.CalculateAllNonForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
 
                 for (Move m : moves) {
                     Vector<Move> innerVector = new Vector<Move>();
@@ -160,9 +198,9 @@ public class Robot {
 
             Vector<Move> moves = null;
 
-            moves = White.CalculateAllForcedMovesForWhite(board);
+            moves = White.CalculateAllForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
             if (moves.isEmpty()) {
-                moves = White.CalculateAllNonForcedMovesForWhite(board);
+                moves = White.CalculateAllNonForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
                 for (Move m : moves) {
                     Vector<Move> innerVector = new Vector<Move>();
                     innerVector.add(m);
@@ -190,9 +228,9 @@ public class Robot {
         return outerVector;
     }
 
-    private static void expandMoveRecursivelyForWhite(Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
+    private void expandMoveRecursivelyForWhite(Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
 
-        Vector<Move> forcedMoves = White.ObtainForcedMovesForWhite(r, c, board);
+        Vector<Move> forcedMoves = White.ObtainForcedMovesForWhite(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
 
         if (forcedMoves.isEmpty()) {
             Vector<Move> innerCopy = (Vector<Move>) innerVector.clone();
@@ -215,9 +253,9 @@ public class Robot {
 
     }
 
-    private static void expandMoveRecursivelyForBlack(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
+    private void expandMoveRecursivelyForBlack(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
 
-        Vector<Move> forcedMoves = Black.ObtainForcedMovesForBlack(r, c, board);
+        Vector<Move> forcedMoves = Black.ObtainForcedMovesForBlack(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
 
         if (forcedMoves.isEmpty()) {
             Vector<Move> innerCopy = (Vector<Move>) innerVector.clone();
@@ -239,20 +277,20 @@ public class Robot {
     }
 
 
-    private static boolean canExploreFurther(com.pennywise.checkers.core.logic.Board board, Player player, int depth) {
+    private boolean canExploreFurther(Board board, Player player, int depth) {
         boolean res = true;
         if (board.CheckGameComplete() || board.CheckGameDraw(player)) {
             res = false;
         }
-        if (depth == MAX_DEPTH) {
+        if (depth == max_depth) {
             res = false;
         }
         return res;
     }
 
 
-    public static Vector<Board> getPossibleBoardConf(Board board, Vector<Vector<Move>> possibleMoveSeq, Player player) {
-        Vector<Board> possibleBoardConf = new Vector<com.pennywise.checkers.core.logic.Board>();
+    public Vector<Board> getPossibleBoardConf(Board board, Vector<Vector<Move>> possibleMoveSeq, Player player) {
+        Vector<Board> possibleBoardConf = new Vector<Board>();
 
         for (Vector<Move> moveSeq : possibleMoveSeq) {
             Board boardCopy = board.duplicate();

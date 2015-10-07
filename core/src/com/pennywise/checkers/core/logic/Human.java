@@ -6,6 +6,7 @@ package com.pennywise.checkers.core.logic;
 
 
 import com.pennywise.checkers.core.logic.enums.CellEntry;
+import com.pennywise.checkers.core.logic.enums.Owner;
 import com.pennywise.checkers.core.logic.enums.Player;
 import com.pennywise.checkers.core.logic.enums.ReturnCode;
 
@@ -16,40 +17,53 @@ import java.util.Vector;
  */
 public class Human {
 
-    public static void makeNextWhiteMoves(Board board) {
-        boolean incorrectOption = true;
-        while (incorrectOption) {
-            Move move = UserInteractions.getNextMove(Player.white, board);
-            if (CheckValidMoveForWhiteHuman(move.initialRow, move.initialCol,
-                    move.finalRow, move.finalCol, board) != ReturnCode.VALID_MOVE) {
-                incorrectOption = false;
-            }
-        }
+    final CellEntry playerPawn;
+    final CellEntry playerKing;
+    final CellEntry opponentPawn;
+    final CellEntry opponentKing;
+    final Player player;
+    final Board board;
+
+    public Human(Player player, Board board) {
+
+        this.player = player;
+        this.board = board;
+        //player pieces
+        playerPawn = player.equals(Player.black) ? CellEntry.black : CellEntry.white;
+        playerKing = player.equals(Player.black) ? CellEntry.blackKing : CellEntry.whiteKing;
+        //opponent pieces
+        opponentPawn = player.equals(Player.black) ? CellEntry.white : CellEntry.black;
+        opponentKing = player.equals(Player.black) ? CellEntry.whiteKing : CellEntry.blackKing;
 
     }
 
-    public static ReturnCode makeNextWhiteMoves(Move move, Board board) {
-        return CheckValidMoveForWhiteHuman(move.initialRow, move.initialCol, move.finalRow, move.finalCol, board);
-    }
+    public ReturnCode Move(int r1, int c1, int r2, int c2, Board board) {
 
-    public static void makeNextBlackMoves(Board board) {
-        boolean incorrectOption = true;
-        while (incorrectOption) {
-            Move move = UserInteractions.getNextMove(Player.black, board);
-            if (CheckValidMoveForBlackHuman(move.initialRow, move.initialCol,
-                    move.finalRow, move.finalCol, board)) {
-                incorrectOption = false;
-            }
-        }
+        UserInteractions.PrintSeparator('-');
+        System.out.println("\t\t" + player.name() + "'s TURN");
+        UserInteractions.PrintSeparator('-');
 
-    }
-
-    public static boolean makeNextBlackMoves(int r1, int c1, int r2, int c2, Board board) {
+        ReturnCode returnCode = ReturnCode.INVALID_MOVE;
         Move move = new Move(r1, c1, r2, c2);
-        return CheckValidMoveForBlackHuman(move.initialRow, move.initialCol, move.finalRow, move.finalCol, board);
+
+        if (player == Player.black)
+            returnCode = makeNextBlackMoves(move);
+        else
+            returnCode = makeNextWhiteMoves(move);
+
+        return returnCode;
     }
 
-    private static ReturnCode CheckValidMoveForWhiteHuman(int r1, int c1, int r2, int c2, Board board) {
+    public ReturnCode makeNextWhiteMoves(Move move) {
+        return CheckValidMoveForWhiteHuman(move.initialRow, move.initialCol,
+                move.finalRow, move.finalCol);
+    }
+
+    public ReturnCode makeNextBlackMoves(Move move) {
+        return CheckValidMoveForBlackHuman(move.initialRow, move.initialCol, move.finalRow, move.finalCol);
+    }
+
+    private ReturnCode CheckValidMoveForWhiteHuman(int r1, int c1, int r2, int c2) {
         // Select Right Piece and Right Move
         if (board.cell[r1][c1].equals(CellEntry.inValid)
                 || !(board.cell[r1][c1].equals(CellEntry.white) ||
@@ -62,7 +76,7 @@ public class Human {
         }
 
         // Caution: Calculate forced moves at (r1,c1)-------------------------------------------
-        Vector<Move> forcedMovesAtR1C1 = White.ObtainForcedMovesForWhite(r1, c1, board);
+        Vector<Move> forcedMovesAtR1C1 = White.ObtainForcedMovesForWhite(r1, c1, board, playerPawn, playerKing, opponentPawn, opponentKing);
 
         // If Forced Move exists at (r1, c1)
         if (!forcedMovesAtR1C1.isEmpty()) {
@@ -76,7 +90,8 @@ public class Human {
                 r1 = r2;
                 c1 = c2;
                 // Calculate further capture at (r1,c1)
-                Vector<Move> furtherCapture = White.ObtainForcedMovesForWhite(r1, c1, board);
+                Vector<Move> furtherCapture = White.ObtainForcedMovesForWhite(r1, c1, board, playerPawn,
+                        playerKing, opponentPawn, opponentKing);
                 // No further capture
                 if (furtherCapture.isEmpty()) {
                     return ReturnCode.VALID_MOVE;
@@ -100,7 +115,7 @@ public class Human {
         // If no forced move exists at (r1,c1)
         if (forcedMovesAtR1C1.isEmpty()) {
             // Caution: Calculate all forced moves for white at this state of the board-------------------
-            Vector<Move> forcedMoves = White.CalculateAllForcedMovesForWhite(board);
+            Vector<Move> forcedMoves = White.CalculateAllForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
 
             // No forced move exists at this state of the board for white
             if (forcedMoves.isEmpty()) {
@@ -143,7 +158,7 @@ public class Human {
         return ReturnCode.INVALID_MOVE;
     }
 
-    private static boolean CheckValidMoveForBlackHuman(int r1, int c1, int r2, int c2, Board board) {
+    private ReturnCode CheckValidMoveForBlackHuman(int r1, int c1, int r2, int c2) {
         // Select Right Piece and Right Move
         if (
                 board.cell[r1][c1].equals(CellEntry.inValid)
@@ -154,11 +169,12 @@ public class Human {
             UserInteractions.PrintSeparator('-');
             System.out.println("Check !!! White/Invalid Piece Selected or Invalid Move..... Try Again.");
             UserInteractions.PrintSeparator('-');
-            return false;
+            return ReturnCode.INVALID_MOVE;
         }
 
         // Caution: Calculate forced moves at (r1,c1)-------------------------------------------
-        Vector<Move> forcedMovesAtR1C1 = Black.ObtainForcedMovesForBlack(r1, c1, board);
+        Vector<Move> forcedMovesAtR1C1 = Black.ObtainForcedMovesForBlack(r1, c1, board, playerPawn
+                , playerKing, opponentPawn, opponentKing);
 
         // If Forced Move exists at (r1, c1)
         if (!forcedMovesAtR1C1.isEmpty()) {
@@ -167,49 +183,23 @@ public class Human {
             // Caution: if the current move is a forced move -------------------------------------------
             if (move.ExistsInVector(forcedMovesAtR1C1)) {
                 // Check if  further capture is possible
-                while (true) {
-                    // Capture White Piece
-                    board.CaptureWhitePiece(r1, c1, r2, c2);
 
-                    // Update r1 to r2 and c1 to c2
-                    r1 = r2;
-                    c1 = c2;
+                // Capture White Piece
+                board.CaptureWhitePiece(r1, c1, r2, c2);
 
-                    // Calculate further capture at (r1,c1)
-                    Vector<Move> furtherCapture = Black.ObtainForcedMovesForBlack(r1, c1, board);
+                // Update r1 to r2 and c1 to c2
+                r1 = r2;
+                c1 = c2;
 
-                    // Caution: No further capture--------------------------------------------
-                    if (furtherCapture.isEmpty()) {
-                        break;
-                    }
+                // Calculate further capture at (r1,c1)
+                Vector<Move> furtherCapture = Black.ObtainForcedMovesForBlack(r1, c1, board, playerPawn
+                        , playerKing, opponentPawn, opponentKing);
 
-                    // Caution: Further capture exists ----> Make sure owner gives correct input
-                    boolean incorrectOption = true;
-                    while (incorrectOption) {
-                        UserInteractions.PrintSeparator('-');
-                        System.out.println("Further capture exists!!!!!");
-                        System.out.println("You have the following moves at: (r1: " + r1 + ", c1: " + c1 + ")");
-                        for (int i = 0; i < furtherCapture.size(); i++) {
-                            System.out.print("Option " + (i + 1) + " : ");
-                            System.out.print("------>(r2: " + furtherCapture.elementAt(i).finalRow + ", ");
-                            System.out.println("c2: " + furtherCapture.elementAt(i).finalCol + ")");
-                        }
-                        UserInteractions.PrintSeparator('-');
-
-                        // Take input from owner
-                        Move furtherMove = UserInteractions.TakeUserInput(r1, c1, board);
-
-                        // Caution: Valid owner input -----------------------------------------------------
-                        if (furtherMove.ExistsInVector(furtherCapture)) {
-                            // Update r2 and c2 and set the incorrect flag to be false
-                            r2 = furtherMove.finalRow;
-                            c2 = furtherMove.finalCol;
-                            incorrectOption = false;
-                        }
-                    }
-                }
-
-                return true;
+                // Caution: No further capture--------------------------------------------
+                if (furtherCapture.isEmpty()) {
+                    return ReturnCode.VALID_MOVE;
+                } else
+                    return ReturnCode.MULTIPLE_CAPTURE;
             } else {
                 UserInteractions.PrintSeparator('-');
 
@@ -222,34 +212,35 @@ public class Human {
                 }
 
                 UserInteractions.PrintSeparator('-');
-                return false;
+                return ReturnCode.FORCED_MOVES;
             }
         }
 
         // If no forced move exists at (r1,c1)
         if (forcedMovesAtR1C1.isEmpty()) {
             // Caution: Calculate all forced moves for black at this state of the board-------------------
-            Vector<Move> forcedMoves = Black.CalculateAllForcedMovesForBlack(board);
+            Vector<Move> forcedMoves = Black.CalculateAllForcedMovesForBlack(board, playerPawn,
+                    playerKing, opponentPawn, opponentKing);
 
             // No forced move exists at this state of the board for black
             if (forcedMoves.isEmpty()) {
                 // Forward Move for Black
                 if (r2 - r1 == -1 && Math.abs(c2 - c1) == 1) {
                     board.MakeMove(r1, c1, r2, c2);
-                    return true;
+                    return ReturnCode.VALID_MOVE;
                 }
 
                 // Backward Move For BlackKing
                 else if (board.cell[r1][c1].equals(CellEntry.blackKing)) {
                     if (r2 - r1 == 1 && Math.abs(c2 - c1) == 1) {
                         board.MakeMove(r1, c1, r2, c2);
-                        return true;
+                        return ReturnCode.VALID_MOVE;
                     }
                 } else {
                     UserInteractions.PrintSeparator('-');
                     System.out.println("Check!!!Only Unit Step Move Allowed.......Try Again.");
                     UserInteractions.PrintSeparator('-');
-                    return false;
+                    return ReturnCode.INVALID_MOVE;
                 }
             } else {
                 UserInteractions.PrintSeparator('-');
@@ -264,10 +255,10 @@ public class Human {
                 }
 
                 UserInteractions.PrintSeparator('-');
-                return false;
+                return ReturnCode.FORCED_MOVES;
             }
         }
 
-        return false;
+        return ReturnCode.INVALID_MOVE;
     }
 }

@@ -4,10 +4,10 @@
  */
 package com.pennywise.checkers.core.logic;
 
-import java.util.Vector;
-
-import com.pennywise.checkers.core.logic.enums.Owner;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
+import com.pennywise.checkers.core.logic.enums.Owner;
+
+import java.util.Vector;
 
 /**
  * @author ASHISH
@@ -15,45 +15,30 @@ import com.pennywise.checkers.core.logic.enums.CellEntry;
 public class White {
     public static Owner owner;
 
-    public static void Move(Board board) {
-        UserInteractions.PrintSeparator('-');
-        System.out.println("\t\tWHITE's TURN");
-        UserInteractions.PrintSeparator('-');
 
-        if (owner.equals(Owner.HUMAN)) {
-
-            Human.makeNextWhiteMoves(board);
-
-        } else {
-
-            assert (owner.equals(Owner.ROBOT));
-            Robot.makeNextWhiteMoves(board);
-
-        }
-    }
-
-
-    public static Vector<Move> ObtainForcedMovesForWhite(int r, int c, Board board) {
+    public static Vector<Move> ObtainForcedMovesForWhite(int r, int c, Board board, CellEntry playerPawn, CellEntry playerKing,
+                                                         CellEntry opponentPawn, CellEntry opponentKing) {
         Vector<Move> furtherCaptures = new Vector<Move>();
 
-        if (board.cell[r][c].equals(CellEntry.white) || board.cell[r][c].equals(CellEntry.whiteKing)) {
-            if (ForwardLeftCaptureForWhite(r, c, board) != null)
-                furtherCaptures.add(ForwardLeftCaptureForWhite(r, c, board));
-            if (ForwardRightCaptureForWhite(r, c, board) != null)
-                furtherCaptures.add(ForwardRightCaptureForWhite(r, c, board));
+        if (board.cell[r][c].equals(playerPawn) || board.cell[r][c].equals(playerKing)) {
+            if (ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                furtherCaptures.add(ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing));
+            if (ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                furtherCaptures.add(ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing));
         }
 
-        if (board.cell[r][c].equals(CellEntry.whiteKing)) {
-            if (BackwardLeftCaptureForWhite(r, c, board) != null)
-                furtherCaptures.add(BackwardLeftCaptureForWhite(r, c, board));
-            if (BackwardRightCaptureForWhite(r, c, board) != null)
-                furtherCaptures.add(BackwardRightCaptureForWhite(r, c, board));
+        if (board.cell[r][c].equals(playerKing)) {
+            if (BackwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                furtherCaptures.add(BackwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing));
+            if (BackwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                furtherCaptures.add(BackwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing));
         }
 
         return furtherCaptures;
     }
 
-    public static Vector<Move> CalculateAllForcedMovesForWhite(Board board) {
+    public static Vector<Move> CalculateAllForcedMovesForWhite(Board board, CellEntry playerPawn, CellEntry playerKing,
+                                                               CellEntry opponentPawn, CellEntry opponentKing) {
         Vector<Move> forcedMovesForWhite = new Vector<Move>();
 
         // Scan across the board
@@ -65,18 +50,18 @@ public class White {
 
                 // Forward Capture
                 if (
-                        board.cell[r][c].equals(CellEntry.white) ||
-                                board.cell[r][c].equals(CellEntry.whiteKing)
+                        board.cell[r][c].equals(playerPawn) ||
+                                board.cell[r][c].equals(playerKing)
                         ) {
                     // Boundary Condition for forward capture
                     if (r < Board.rows - 2) {
                         // Forward Left Capture
-                        if (ForwardLeftCaptureForWhite(r, c, board) != null)
-                            forcedMovesForWhite.add(ForwardLeftCaptureForWhite(r, c, board));
+                        if (ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                            forcedMovesForWhite.add(ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing));
 
                         // Forward Right Capture
-                        if (ForwardRightCaptureForWhite(r, c, board) != null)
-                            forcedMovesForWhite.add(ForwardRightCaptureForWhite(r, c, board));
+                        if (ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                            forcedMovesForWhite.add(ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing));
                     }
                 }
                 // Backward Capture
@@ -84,12 +69,12 @@ public class White {
                     // Boundary Condition for backward capture
                     if (r >= 2) {
                         // Backward Left Capture
-                        if (BackwardLeftCaptureForWhite(r, c, board) != null)
-                            forcedMovesForWhite.add(BackwardLeftCaptureForWhite(r, c, board));
+                        if (BackwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                            forcedMovesForWhite.add(BackwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing));
 
                         // Backward Right Capture
-                        if (BackwardRightCaptureForWhite(r, c, board) != null)
-                            forcedMovesForWhite.add(BackwardRightCaptureForWhite(r, c, board));
+                        if (BackwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing) != null)
+                            forcedMovesForWhite.add(BackwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing));
                     }
                 }
             }
@@ -105,7 +90,8 @@ public class White {
      * @param board
      * @return
      */
-    public static Vector<Move> CalculateAllNonForcedMovesForWhite(Board board) {
+    public static Vector<Move> CalculateAllNonForcedMovesForWhite(Board board, CellEntry playerPawn, CellEntry playerKing,
+                                                                  CellEntry opponentPawn, CellEntry opponentKing) {
 
         Vector<Move> allNonForcedMovesForWhite = new Vector<Move>();
         // Scan across the board
@@ -116,12 +102,12 @@ public class White {
                 assert (!board.cell[r][c].equals(CellEntry.inValid));
 
                 // Forward Move for normal white piece.
-                if (board.cell[r][c].equals(CellEntry.white)) {
+                if (board.cell[r][c].equals(playerPawn)) {
 
                     Move move = null;
-                    move = ForwardLeftCaptureForWhite(r, c, board);
+                    move = ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
-                    move = ForwardRightCaptureForWhite(r, c, board);
+                    move = ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
 
                     move = ForwardLeftForWhite(r, c, board);
@@ -136,16 +122,16 @@ public class White {
                 }
 
                 //Forward and Backward Move for black king piece.
-                if (board.cell[r][c] == CellEntry.whiteKing) {
+                if (board.cell[r][c] == playerKing) {
                     Move move = null;
-                    move = ForwardLeftCaptureForWhite(r, c, board);
+                    move = ForwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
-                    move = ForwardRightCaptureForWhite(r, c, board);
+                    move = ForwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
 
-                    move = BackwardLeftCaptureForWhite(r, c, board);
+                    move = BackwardLeftCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
-                    move = BackwardRightCaptureForWhite(r, c, board);
+                    move = BackwardRightCaptureForWhite(r, c, board, opponentPawn, opponentKing);
                     assert (move == null);
 
                     move = ForwardLeftForWhite(r, c, board);
@@ -187,7 +173,8 @@ public class White {
      * @return Vector of moves
      */
 
-    public static Vector<Move> CalculateAllNonForcedMovesForWhite(int row, int col, Board board) {
+    public static Vector<Move> CalculateAllNonForcedMovesForWhite(int row, int col, Board board, CellEntry playerPawn, CellEntry playerKing,
+                                                                  CellEntry opponentPawn, CellEntry opponentKing) {
 
         Vector<Move> allNonForcedMovesForWhite = new Vector<Move>();
 
@@ -199,9 +186,9 @@ public class White {
         // Forward Move for normal white piece.
         if (board.cell[row][col].equals(CellEntry.white)) {
             Move move = null;
-            move = ForwardLeftCaptureForWhite(row, col, board);
+            move = ForwardLeftCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
-            move = ForwardRightCaptureForWhite(row, col, board);
+            move = ForwardRightCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
             move = ForwardLeftForWhite(row, col, board);
             if (move != null) {
@@ -217,14 +204,14 @@ public class White {
         //Forward and Backward Move for black king piece.
         if (board.cell[row][col] == CellEntry.whiteKing) {
             Move move = null;
-            move = ForwardLeftCaptureForWhite(row, col, board);
+            move = ForwardLeftCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
-            move = ForwardRightCaptureForWhite(row, col, board);
+            move = ForwardRightCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
 
-            move = BackwardLeftCaptureForWhite(row, col, board);
+            move = BackwardLeftCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
-            move = BackwardRightCaptureForWhite(row, col, board);
+            move = BackwardRightCaptureForWhite(row, col, board, opponentPawn, opponentKing);
             assert (move == null);
 
             move = ForwardLeftForWhite(row, col, board);
@@ -265,13 +252,13 @@ public class White {
     }
 
     // Forward Left Capture for White
-    private static Move ForwardLeftCaptureForWhite(int r, int c, Board board) {
+    private static Move ForwardLeftCaptureForWhite(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
         Move forwardLeftCapture = null;
 
         if (r < Board.rows - 2 && c >= 2 &&
                 (
-                        board.cell[r + 1][c - 1].equals(CellEntry.black)
-                                || board.cell[r + 1][c - 1].equals(CellEntry.blackKing)
+                        board.cell[r + 1][c - 1].equals(opponentPawn)
+                                || board.cell[r + 1][c - 1].equals(opponentKing)
                 )
                 && board.cell[r + 2][c - 2].equals(CellEntry.empty)
                 ) {
@@ -293,13 +280,13 @@ public class White {
     }
 
     // Forward Right Capture for White
-    private static Move ForwardRightCaptureForWhite(int r, int c, Board board) {
+    private static Move ForwardRightCaptureForWhite(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
         Move forwardRightCapture = null;
 
         if (r < Board.rows - 2 && c < Board.cols - 2 &&
                 (
-                        board.cell[r + 1][c + 1].equals(CellEntry.black)
-                                || board.cell[r + 1][c + 1].equals(CellEntry.blackKing)
+                        board.cell[r + 1][c + 1].equals(opponentPawn)
+                                || board.cell[r + 1][c + 1].equals(opponentKing)
                 )
                 && board.cell[r + 2][c + 2].equals(CellEntry.empty)
                 ) {
@@ -321,13 +308,14 @@ public class White {
     }
 
     // Backward Left Capture for White
-    private static Move BackwardLeftCaptureForWhite(int r, int c, Board board) {
+    private static Move BackwardLeftCaptureForWhite(int r, int c, Board board,
+                                                    CellEntry opponentPawn, CellEntry opponentKing) {
 
         Move backwardLeftCapture = null;
 
         if (r >= 2 && c >= 2 && (
-                board.cell[r - 1][c - 1].equals(CellEntry.black)
-                        || board.cell[r - 1][c - 1].equals(CellEntry.blackKing)
+                board.cell[r - 1][c - 1].equals(opponentPawn)
+                        || board.cell[r - 1][c - 1].equals(opponentKing)
         )
                 && board.cell[r - 2][c - 2].equals(CellEntry.empty)
                 ) {
@@ -349,12 +337,13 @@ public class White {
     }
 
     // Backward Right Capture for White
-    private static Move BackwardRightCaptureForWhite(int r, int c, Board board) {
+    private static Move BackwardRightCaptureForWhite(int r, int c, Board board,
+                                                     CellEntry opponentPawn, CellEntry opponentKing) {
         Move backwardRightCapture = null;
 
         if (r >= 2 && c < Board.cols - 2 && (
-                board.cell[r - 1][c + 1].equals(CellEntry.black) ||
-                        board.cell[r - 1][c + 1].equals(CellEntry.blackKing)
+                board.cell[r - 1][c + 1].equals(opponentPawn) ||
+                        board.cell[r - 1][c + 1].equals(opponentKing)
         )
                 && board.cell[r - 2][c + 2].equals(CellEntry.empty)
                 ) {

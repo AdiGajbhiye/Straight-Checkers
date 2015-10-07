@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
-import com.pennywise.checkers.core.Cam;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.logic.Black;
@@ -50,8 +49,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
@@ -69,8 +66,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Stage stage;
     private final Stage boardStage;
-    private final Cam camera;
-    private OrthographicCamera hudCam;
+    private final Stage dialogStage;
+    private final OrthographicCamera camera;
+    private final OrthographicCamera hudCam;
     private final BitmapFont hudFont;
     SpriteBatch batch;
     private float cellsize = 0;
@@ -85,7 +83,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private List<Tile> selectedTiles;
     private static Board logicBoard;
     private ReturnCode retCode;
-    private Executor executor;
     private boolean gameOver = false;
     String strTime = "";
 
@@ -94,19 +91,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private final SpriteDrawable blackCell;
     private final SpriteDrawable selectedBlackCell;
     private Image pauseButton;
-    private boolean updateUi = false;
 
 
     public GameScreen(Checkers game) {
         super(game);
-        camera = Cam.instance;
+
+        //(0,0) is at the bottom-left.
+        camera = new OrthographicCamera();
+        camera.position.set(0, 0, 0);
+        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        camera.update();
 
         hudCam = new OrthographicCamera();
         hudCam.position.set(0, 0, 0);
         hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
         hudCam.update();
 
-        stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
 
         Gdx.input.setInputProcessor(this);
         //load fonts
@@ -118,15 +118,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
         gameUI = new TextureAtlas("images/ui-pack.atlas");
-        executor = Executors.newSingleThreadExecutor();
+
+        //init stages
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+        dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+        stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+
         selectedTiles = new LinkedList<Tile>();
 
         selectedBlackCell = tileTexture("selectedBlackCell");
         blackCell = tileTexture("blackCell");
         validBlackCell = tileTexture("validDarkCell");
         validCell = tileTexture("validCell");
-
     }
 
     private void initialize() {
@@ -200,13 +203,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         boardStage.act();
         boardStage.draw();
 
-
+        dialogStage.act();
+        dialogStage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
         stage.getViewport().setScreenSize(width, height);
         boardStage.getViewport().setScreenSize(width, height);
+        dialogStage.getViewport().setScreenSize(width, height);
     }
 
     @Override
@@ -558,9 +563,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     continue;
                 else {
                     if (row < 3)
-                        pieces[index] = new Piece(tileTexture("blackPiece"));
-                    else if (row >= 5)
                         pieces[index] = new Piece(tileTexture("whitePiece"));
+                    else if (row >= 5)
+                        pieces[index] = new Piece(tileTexture("blackPiece"));
                     else
                         continue;
 
@@ -714,9 +719,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialog.invalidateHierarchy();
         dialog.invalidate();
         dialog.layout();
-        dialog.show(stage);
-
-
+        dialog.show(dialogStage);
     }
 
 
