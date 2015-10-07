@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import com.pennywise.checkers.core.logic.enums.Player;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
-import com.pennywise.checkers.core.logic.enums.ReturnCode;
 
 /**
  * @author apurv
@@ -49,41 +48,41 @@ public class Robot {
 
     }
 
-    protected Vector<Move> makeNextWhiteMoves() {
+    protected Vector<Step> makeNextWhiteMoves() {
 
-        Vector<Move> resultantMoveSeq = new Vector<Move>();
+        Vector<Step> resultantStepSeq = new Vector<Step>();
 
-        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
+        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantStepSeq);
 
         //Apply the move to the game board.
-        for (Move m : resultantMoveSeq) {
+        for (Step m : resultantStepSeq) {
             board.genericMakeWhiteMove(m);
         }
 
-        System.out.print("Robot's Move was ");
-        UserInteractions.DisplayMoveSeq(resultantMoveSeq);
+        System.out.print("Robot's Step was ");
+        UserInteractions.DisplayMoveSeq(resultantStepSeq);
         System.out.println();
 
-        return resultantMoveSeq;
+        return resultantStepSeq;
     }
 
 
-    public Vector<Move> makeNextBlackMoves() {
+    public Vector<Step> makeNextBlackMoves() {
 
-        Vector<Move> resultantMoveSeq = new Vector<Move>();
+        Vector<Step> resultantStepSeq = new Vector<Step>();
 
-        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantMoveSeq);
+        alphaBeta(board, player, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, resultantStepSeq);
 
         //Apply the move to the game board.
-        for (Move m : resultantMoveSeq) {
+        for (Step m : resultantStepSeq) {
             board.genericMakeBlackMove(m);
         }
 
-        System.out.print("Robot's Move was ");
-        UserInteractions.DisplayMoveSeq(resultantMoveSeq);
+        System.out.print("Robot's Step was ");
+        UserInteractions.DisplayMoveSeq(resultantStepSeq);
         System.out.println();
 
-        return resultantMoveSeq;
+        return resultantStepSeq;
     }
 
     /**
@@ -95,39 +94,39 @@ public class Robot {
      * <p/>
      * if(alpha>beta) break
      */
-    private int alphaBeta(Board board, Player player, int depth, int alpha, int beta, Vector<Move> resultMoveSeq) {
+    private int alphaBeta(Board board, Player player, int depth, int alpha, int beta, Vector<Step> resultStepSeq) {
 
         if (!canExploreFurther(board, player, depth)) {
             int value = oracle.evaluateBoard(board, player);
             return value;
         }
 
-        Vector<Vector<Move>> possibleMoveSeq = expandMoves(board, player);
+        Vector<Vector<Step>> possibleMoveSeq = expandMoves(board, player);
         Vector<Board> possibleBoardConf = getPossibleBoardConf(board, possibleMoveSeq, player);
 
-        Vector<Move> bestMoveSeq = null;
+        Vector<Step> bestStepSeq = null;
 
         if (player == Player.white) {
 
             for (int i = 0; i < possibleBoardConf.size(); i++) {
 
                 Board b = possibleBoardConf.get(i);
-                Vector<Move> moveSeq = possibleMoveSeq.get(i);
+                Vector<Step> stepSeq = possibleMoveSeq.get(i);
 
-                int value = alphaBeta(b, Player.black, depth + 1, alpha, beta, resultMoveSeq);
+                int value = alphaBeta(b, Player.black, depth + 1, alpha, beta, resultStepSeq);
 
                 if (value > alpha) {
                     alpha = value;
-                    bestMoveSeq = moveSeq;
+                    bestStepSeq = stepSeq;
                 }
                 if (alpha > beta) {
                     break;
                 }
             }
 
-            //If the depth is 0, copy the bestMoveSeq in the result move seq.
-            if (depth == 0 && bestMoveSeq != null) {
-                resultMoveSeq.addAll(bestMoveSeq);
+            //If the depth is 0, copy the bestStepSeq in the result move seq.
+            if (depth == 0 && bestStepSeq != null) {
+                resultStepSeq.addAll(bestStepSeq);
             }
 
             return alpha;
@@ -138,50 +137,62 @@ public class Robot {
             for (int i = 0; i < possibleBoardConf.size(); i++) {
 
                 Board b = possibleBoardConf.get(i);
-                Vector<Move> moveSeq = possibleMoveSeq.get(i);
+                Vector<Step> stepSeq = possibleMoveSeq.get(i);
 
-                int value = alphaBeta(b, Player.white, depth + 1, alpha, beta, resultMoveSeq);
+                int value = alphaBeta(b, Player.white, depth + 1, alpha, beta, resultStepSeq);
                 if (value < beta) {
-                    bestMoveSeq = moveSeq;
+                    bestStepSeq = stepSeq;
                     beta = value;
                 }
                 if (alpha > beta) {
                     break;
                 }
             }
-            //If the depth is 0, copy the bestMoveSeq in the result move seq.
-            if (depth == 0 && bestMoveSeq != null) {
-                resultMoveSeq.addAll(bestMoveSeq);
+            //If the depth is 0, copy the bestStepSeq in the result move seq.
+            if (depth == 0 && bestStepSeq != null) {
+                resultStepSeq.addAll(bestStepSeq);
             }
 
             return beta;
         }
     }
 
-    public Vector<Vector<Move>> expandMoves(Board board, Player player) {
+    public boolean CheckGameDraw(Player turn) {
 
-        Vector<Vector<Move>> outerVector = new Vector<Vector<Move>>();
+        Vector<Vector<Step>> possibleMoveSeq = expandMoves(board.duplicate(), turn);
+
+        if (possibleMoveSeq.isEmpty()) {
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    public Vector<Vector<Step>> expandMoves(Board board, Player player) {
+
+        Vector<Vector<Step>> outerVector = new Vector<Vector<Step>>();
 
         if (player == Player.black) {
 
-            Vector<Move> moves = null;
-            moves = Black.CalculateAllForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
+            Vector<Step> steps = null;
+            steps = Black.CalculateAllForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
 
-            if (moves.isEmpty()) {
-                moves = Black.CalculateAllNonForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
+            if (steps.isEmpty()) {
+                steps = Black.CalculateAllNonForcedMovesForBlack(board, playerPawn, playerKing, opponentPawn, opponentKing);
 
-                for (Move m : moves) {
-                    Vector<Move> innerVector = new Vector<Move>();
+                for (Step m : steps) {
+                    Vector<Step> innerVector = new Vector<Step>();
                     innerVector.add(m);
                     outerVector.add(innerVector);
                 }
 
             } else {
-                for (Move m : moves) {
+                for (Step m : steps) {
 
                     int r = m.finalRow;
                     int c = m.finalCol;
-                    Vector<Move> innerVector = new Vector<Move>();
+                    Vector<Step> innerVector = new Vector<Step>();
 
                     innerVector.add(m);
 
@@ -196,22 +207,22 @@ public class Robot {
 
         } else if (player == Player.white) {
 
-            Vector<Move> moves = null;
+            Vector<Step> steps = null;
 
-            moves = White.CalculateAllForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
-            if (moves.isEmpty()) {
-                moves = White.CalculateAllNonForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
-                for (Move m : moves) {
-                    Vector<Move> innerVector = new Vector<Move>();
+            steps = White.CalculateAllForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
+            if (steps.isEmpty()) {
+                steps = White.CalculateAllNonForcedMovesForWhite(board, playerPawn, playerKing, opponentPawn, opponentKing);
+                for (Step m : steps) {
+                    Vector<Step> innerVector = new Vector<Step>();
                     innerVector.add(m);
                     outerVector.add(innerVector);
                 }
             } else {
-                for (Move m : moves) {
+                for (Step m : steps) {
 
                     int r = m.finalRow;
                     int c = m.finalCol;
-                    Vector<Move> innerVector = new Vector<Move>();
+                    Vector<Step> innerVector = new Vector<Step>();
 
                     innerVector.add(m);
 
@@ -228,17 +239,17 @@ public class Robot {
         return outerVector;
     }
 
-    private void expandMoveRecursivelyForWhite(Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
+    private void expandMoveRecursivelyForWhite(Board board, Vector<Vector<Step>> outerVector, Vector<Step> innerVector, int r, int c) {
 
-        Vector<Move> forcedMoves = White.ObtainForcedMovesForWhite(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
+        Vector<Step> forcedSteps = White.ObtainForcedMovesForWhite(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
 
-        if (forcedMoves.isEmpty()) {
-            Vector<Move> innerCopy = (Vector<Move>) innerVector.clone();
+        if (forcedSteps.isEmpty()) {
+            Vector<Step> innerCopy = (Vector<Step>) innerVector.clone();
             outerVector.add(innerCopy);
             return;
 
         } else {
-            for (Move m : forcedMoves) {
+            for (Step m : forcedSteps) {
 
                 com.pennywise.checkers.core.logic.Board boardCopy = board.duplicate();
                 boardCopy.genericMakeWhiteMove(m);
@@ -253,17 +264,17 @@ public class Robot {
 
     }
 
-    private void expandMoveRecursivelyForBlack(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
+    private void expandMoveRecursivelyForBlack(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Step>> outerVector, Vector<Step> innerVector, int r, int c) {
 
-        Vector<Move> forcedMoves = Black.ObtainForcedMovesForBlack(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
+        Vector<Step> forcedSteps = Black.ObtainForcedMovesForBlack(r, c, board, playerPawn, playerKing, opponentPawn, opponentKing);
 
-        if (forcedMoves.isEmpty()) {
-            Vector<Move> innerCopy = (Vector<Move>) innerVector.clone();
+        if (forcedSteps.isEmpty()) {
+            Vector<Step> innerCopy = (Vector<Step>) innerVector.clone();
             outerVector.add(innerCopy);
             return;
 
         } else {
-            for (Move m : forcedMoves) {
+            for (Step m : forcedSteps) {
 
                 Board boardCopy = board.duplicate();
                 boardCopy.genericMakeBlackMove(m);
@@ -279,7 +290,7 @@ public class Robot {
 
     private boolean canExploreFurther(Board board, Player player, int depth) {
         boolean res = true;
-        if (board.CheckGameComplete() || board.CheckGameDraw(player)) {
+        if (board.CheckGameComplete() || CheckGameDraw(player)) {
             res = false;
         }
         if (depth == max_depth) {
@@ -289,17 +300,17 @@ public class Robot {
     }
 
 
-    public Vector<Board> getPossibleBoardConf(Board board, Vector<Vector<Move>> possibleMoveSeq, Player player) {
+    public Vector<Board> getPossibleBoardConf(Board board, Vector<Vector<Step>> possibleMoveSeq, Player player) {
         Vector<Board> possibleBoardConf = new Vector<Board>();
 
-        for (Vector<Move> moveSeq : possibleMoveSeq) {
+        for (Vector<Step> stepSeq : possibleMoveSeq) {
             Board boardCopy = board.duplicate();
-            for (Move move : moveSeq) {
+            for (Step step : stepSeq) {
                 if (player == Player.black) {
-                    boardCopy.genericMakeBlackMove(move);
+                    boardCopy.genericMakeBlackMove(step);
 
                 } else {
-                    boardCopy.genericMakeWhiteMove(move);
+                    boardCopy.genericMakeWhiteMove(step);
                 }
             }
             possibleBoardConf.add(boardCopy);

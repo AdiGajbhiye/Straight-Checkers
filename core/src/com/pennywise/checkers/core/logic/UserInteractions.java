@@ -48,19 +48,19 @@ public class UserInteractions {
         return choice;
     }
 
-    public static Move getNextMove(Player player, Board board) {
+    public static Step getNextMove(Player player, Board board) {
         return TakeUserInput(-1, -1, board);
     }
 
     // Pass r1 to be -1 and c1 to be -1 if we want to take r1 and c1 as an input from user
-    public static Move TakeUserInput(int r1, int c1, Board board) {
+    public static Step TakeUserInput(int r1, int c1, Board board) {
         // Display the game board        
         board.Display();
         PrintSeparator('-');
 
         // Ask for user input
-        System.out.println("Enter your Move.");
-        System.out.println("Piece To Move:");
+        System.out.println("Enter your Step.");
+        System.out.println("Piece To Step:");
 
         System.out.print("\tRow(0-7): ");
         if (r1 == -1) {
@@ -77,14 +77,14 @@ public class UserInteractions {
         }
 
 
-        System.out.println("Where To Move:");
+        System.out.println("Where To Step:");
         System.out.print("\tRow(0-7): ");
         int r2 = TakeInput();
 
         System.out.print("\tCol(0-7): ");
         int c2 = TakeInput();
 
-        return new Move(r1, c1, r2, c2);
+        return new Step(r1, c1, r2, c2);
     }
 
     private static int TakeInput() {
@@ -134,8 +134,8 @@ public class UserInteractions {
         }
     }
 
-    public static void DisplayMoveSeq(Vector<Move> moveSeq) {
-        for (Move m : moveSeq) {
+    public static void DisplayMoveSeq(Vector<Step> stepSeq) {
+        for (Step m : stepSeq) {
             m.display();
             System.out.print(", ");
         }

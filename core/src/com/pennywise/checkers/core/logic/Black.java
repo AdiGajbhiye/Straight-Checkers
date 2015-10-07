@@ -6,18 +6,16 @@ package com.pennywise.checkers.core.logic;
 
 import java.util.Vector;
 
-import com.pennywise.checkers.core.logic.enums.Owner;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
-import com.pennywise.checkers.core.logic.enums.Player;
 
 /**
  * @author ASHISH
  */
-public class Black {
+public class Black implements Move{
 
-    public static Vector<Move> ObtainForcedMovesForBlack(int r, int c, Board board, CellEntry playerPawn, CellEntry playerKing,
+    public static Vector<Step> ObtainForcedMovesForBlack(int r, int c, Board board, CellEntry playerPawn, CellEntry playerKing,
                                                          CellEntry opponentPawn, CellEntry opponentKing) {
-        Vector<Move> furtherCaptures = new Vector<Move>();
+        Vector<Step> furtherCaptures = new Vector<Step>();
 
         if (board.cell[r][c].equals(playerPawn) || board.cell[r][c].equals(playerKing)) {
             if (blackForwardLeftCapture(r, c, board, opponentPawn, opponentKing) != null)
@@ -36,9 +34,9 @@ public class Black {
         return furtherCaptures;
     }
 
-    public static Vector<Move> CalculateAllForcedMovesForBlack(Board board, CellEntry playerPawn, CellEntry playerKing,
+    public static Vector<Step> CalculateAllForcedMovesForBlack(Board board, CellEntry playerPawn, CellEntry playerKing,
                                                                CellEntry opponentPawn, CellEntry opponentKing) {
-        Vector<Move> forcedMovesForBlack = new Vector<Move>();
+        Vector<Step> forcedMovesForBlack = new Vector<Step>();
 
         // Scan across the board
         for (int r = 0; r < Board.rows; r++) {
@@ -83,16 +81,16 @@ public class Black {
     }
 
     /**
-     * Returns a vector of all possible moves which Black can make at the state of the game given by board.
+     * Returns a vector of all possible steps which Black can make at the state of the game given by board.
      * <p/>
-     * Should only be called if no forced moves exist.
+     * Should only be called if no forced steps exist.
      *
      * @param board
      * @return
      */
-    public static Vector<Move> CalculateAllNonForcedMovesForBlack(Board board, CellEntry playerPawn, CellEntry playerKing
+    public static Vector<Step> CalculateAllNonForcedMovesForBlack(Board board, CellEntry playerPawn, CellEntry playerKing
             , CellEntry opponentPawn, CellEntry opponentKing) {
-        Vector<Move> allNonForcedMovesForBlack = new Vector<Move>();
+        Vector<Step> allNonForcedMovesForBlack = new Vector<Step>();
 
         // Scan across the board
         for (int r = 0; r < Board.rows; r++) {
@@ -101,56 +99,56 @@ public class Black {
             for (; c < Board.cols; c += 2) {
                 assert (!board.cell[r][c].equals(CellEntry.inValid));
 
-                // Forward Move for normal black piece.
+                // Forward Step for normal black piece.
                 if (board.cell[r][c].equals(playerPawn)) {
 
-                    Move move = null;
-                    move = blackForwardLeftCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
-                    move = blackForwardRightCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
-                    move = blackForwardLeft(r, c, board, playerPawn, playerKing);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    Step step = null;
+                    step = blackForwardLeftCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
+                    step = blackForwardRightCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
+                    step = blackForwardLeft(r, c, board, playerPawn, playerKing);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
 
-                    move = blackForwardRight(r, c, board);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    step = blackForwardRight(r, c, board);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
                 }
 
-                //Forward and Backward Move for black king piece.
+                //Forward and Backward Step for black king piece.
                 if (board.cell[r][c] == playerKing) {
-                    Move move = null;
-                    move = blackForwardLeftCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
-                    move = blackForwardRightCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
+                    Step step = null;
+                    step = blackForwardLeftCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
+                    step = blackForwardRightCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
 
-                    move = blackBackwardLeftCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
-                    move = blackBackwardRightCapture(r, c, board, opponentPawn, opponentKing);
-                    assert (move == null);
+                    step = blackBackwardLeftCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
+                    step = blackBackwardRightCapture(r, c, board, opponentPawn, opponentKing);
+                    assert (step == null);
 
-                    move = blackForwardLeft(r, c, board, playerPawn, playerKing);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    step = blackForwardLeft(r, c, board, playerPawn, playerKing);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
 
-                    move = blackForwardRight(r, c, board);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    step = blackForwardRight(r, c, board);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
 
-                    move = blackBackwardLeft(r, c, board, playerPawn);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    step = blackBackwardLeft(r, c, board, playerPawn);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
 
-                    move = blackBackwardRight(r, c, board, playerKing);
-                    if (move != null) {
-                        allNonForcedMovesForBlack.add(move);
+                    step = blackBackwardRight(r, c, board, playerKing);
+                    if (step != null) {
+                        allNonForcedMovesForBlack.add(step);
                     }
 
                 }
@@ -163,8 +161,8 @@ public class Black {
     }
 
 
-    private static Move blackForwardLeft(int r, int c, Board board, CellEntry playerPawn, CellEntry playerKing) {
-        Move forwardLeft = null;
+    private static Step blackForwardLeft(int r, int c, Board board, CellEntry playerPawn, CellEntry playerKing) {
+        Step forwardLeft = null;
 
         assert (board.cell[r][c] == playerPawn || board.cell[r][c] == playerKing);
 
@@ -172,14 +170,14 @@ public class Black {
                 board.cell[r - 1][c + 1] == CellEntry.empty
 
                 ) {
-            forwardLeft = new Move(r, c, r - 1, c + 1);
+            forwardLeft = new Step(r, c, r - 1, c + 1);
         }
         return forwardLeft;
     }
 
     // Forward Left Capture for Black
-    private static Move blackForwardLeftCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
-        Move forwardLeftCapture = null;
+    private static Step blackForwardLeftCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
+        Step forwardLeftCapture = null;
 
         if (r >= 2 && c < Board.cols - 2 &&
                 (
@@ -188,7 +186,7 @@ public class Black {
                 )
                 && board.cell[r - 2][c + 2].equals(CellEntry.empty)
                 ) {
-            forwardLeftCapture = new Move(r, c, r - 2, c + 2);
+            forwardLeftCapture = new Step(r, c, r - 2, c + 2);
         }
 
         return forwardLeftCapture;
@@ -196,20 +194,20 @@ public class Black {
 
 
     //Forward Right for Black
-    private static Move blackForwardRight(int r, int c, Board board) {
-        Move forwardRight = null;
+    private static Step blackForwardRight(int r, int c, Board board) {
+        Step forwardRight = null;
         if (r >= 1 && c >= 1 &&
                 board.cell[r - 1][c - 1] == CellEntry.empty
                 ) {
-            forwardRight = new Move(r, c, r - 1, c - 1);
+            forwardRight = new Step(r, c, r - 1, c - 1);
         }
         return forwardRight;
     }
 
     // Forward Right Capture for White
-    private static Move blackForwardRightCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
+    private static Step blackForwardRightCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
 
-        Move forwardRightCapture = null;
+        Step forwardRightCapture = null;
 
         if (r >= 2 && c >= 2 && (
                 board.cell[r - 1][c - 1].equals(opponentPawn)
@@ -217,30 +215,30 @@ public class Black {
         )
                 && board.cell[r - 2][c - 2].equals(CellEntry.empty)
                 ) {
-            forwardRightCapture = new Move(r, c, r - 2, c - 2);
+            forwardRightCapture = new Step(r, c, r - 2, c - 2);
 
         }
 
         return forwardRightCapture;
     }
 
-    private static Move blackBackwardLeft(int r, int c, Board board, CellEntry playerPawn) {
-        Move backwardLeft = null;
+    private static Step blackBackwardLeft(int r, int c, Board board, CellEntry playerPawn) {
+        Step backwardLeft = null;
 
         assert (board.cell[r][c].equals(playerPawn));
         if (r < Board.rows - 1 && c < Board.cols - 1 &&
                 board.cell[r + 1][c + 1] == CellEntry.empty
                 ) {
-            backwardLeft = new Move(r, c, r + 1, c + 1);
+            backwardLeft = new Step(r, c, r + 1, c + 1);
         }
 
         return backwardLeft;
     }
 
     // Backward Left Capture for Black
-    private static Move blackBackwardLeftCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
+    private static Step blackBackwardLeftCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
 
-        Move backwardLeftCapture = null;
+        Step backwardLeftCapture = null;
 
         if (r < Board.rows - 2 && c < Board.cols - 2 && (
                 board.cell[r + 1][c + 1].equals(opponentPawn)
@@ -248,31 +246,28 @@ public class Black {
         )
                 && board.cell[r + 2][c + 2].equals(CellEntry.empty)
                 ) {
-            backwardLeftCapture = new Move(r, c, r + 2, c + 2);
+            backwardLeftCapture = new Step(r, c, r + 2, c + 2);
 
         }
 
         return backwardLeftCapture;
     }
 
-
-    private static Move blackBackwardRight(int r, int c, Board board, CellEntry playerKing) {
-        Move backwardRight = null;
+    private static Step blackBackwardRight(int r, int c, Board board, CellEntry playerKing) {
+        Step backwardRight = null;
 
 
         if (r < Board.rows - 1 && c >= 1 &&
                 board.cell[r + 1][c - 1].equals(CellEntry.empty)
                 ) {
-            backwardRight = new Move(r, c, r + 1, c - 1);
+            backwardRight = new Step(r, c, r + 1, c - 1);
         }
         return backwardRight;
     }
-
-
     // Backward Right Capture for Black
-    private static Move blackBackwardRightCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
+    private static Step blackBackwardRightCapture(int r, int c, Board board, CellEntry opponentPawn, CellEntry opponentKing) {
 
-        Move backwardRightCapture = null;
+        Step backwardRightCapture = null;
 
         if (r < Board.rows - 2 && c >= 2 && (
                 board.cell[r + 1][c - 1].equals(opponentPawn) ||
@@ -280,7 +275,7 @@ public class Black {
         )
                 && board.cell[r + 2][c - 2].equals(CellEntry.empty)
                 ) {
-            backwardRightCapture = new Move(r, c, r + 2, c - 2);
+            backwardRightCapture = new Step(r, c, r + 2, c - 2);
         }
 
         return backwardRightCapture;

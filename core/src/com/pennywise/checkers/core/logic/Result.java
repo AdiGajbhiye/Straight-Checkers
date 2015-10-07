@@ -10,11 +10,11 @@ import java.util.Vector;
 public class Result {
     ReturnCode retCode;
     String message;
-    Vector<Move> moves;
+    Vector<Step> steps;
 
-    public Result(ReturnCode retCode, String message, Vector<Move> moves) {
+    public Result(ReturnCode retCode, String message, Vector<Step> steps) {
         this.retCode = retCode;
         this.message = message;
-        this.moves = moves;
+        this.steps = steps;
     }
 }

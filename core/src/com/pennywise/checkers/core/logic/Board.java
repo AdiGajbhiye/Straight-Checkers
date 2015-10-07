@@ -1,8 +1,5 @@
 package com.pennywise.checkers.core.logic;
 
-import java.util.Vector;
-
-import com.pennywise.checkers.core.logic.enums.Player;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
 import com.pennywise.checkers.core.logic.enums.MoveDir;
 
@@ -55,7 +52,7 @@ public class Board {
         }
     }
 
-    // Capture Black Piece and Move
+    // Capture Black Piece and Step
     public void CaptureBlackPiece(int r1, int c1, int r2, int c2) {
         // Check Valid Capture
         assert (Math.abs(r2 - r1) == 2 && Math.abs(c2 - c1) == 2);
@@ -88,7 +85,7 @@ public class Board {
         //return dir;
     }
 
-    // Capture White Piece and Move
+    // Capture White Piece and Step
     public void CaptureWhitePiece(int r1, int c1, int r2, int c2) {
         // Check Valid Capture
         assert (Math.abs(r2 - r1) == 2 && Math.abs(c2 - c1) == 2);
@@ -122,15 +119,15 @@ public class Board {
     }
 
     /**
-     * Makes all kinds of valid moves of a white player.
+     * Makes all kinds of valid steps of a white player.
      *
-     * @param move
+     * @param step
      */
-    public void genericMakeWhiteMove(Move move) {
-        int r1 = move.initialRow;
-        int c1 = move.initialCol;
-        int r2 = move.finalRow;
-        int c2 = move.finalCol;
+    public void genericMakeWhiteMove(Step step) {
+        int r1 = step.initialRow;
+        int c1 = step.initialCol;
+        int r2 = step.finalRow;
+        int c2 = step.finalCol;
 
         if ((Math.abs(r2 - r1) == 2 && Math.abs(c2 - c1) == 2)) {
             CaptureBlackPiece(r1, c1, r2, c2);
@@ -141,13 +138,13 @@ public class Board {
     }
 
     /**
-     * Makes all kinds of valid moves of a black player.
+     * Makes all kinds of valid steps of a black player.
      */
-    public void genericMakeBlackMove(Move move) {
-        int r1 = move.initialRow;
-        int c1 = move.initialCol;
-        int r2 = move.finalRow;
-        int c2 = move.finalCol;
+    public void genericMakeBlackMove(Step step) {
+        int r1 = step.initialRow;
+        int c1 = step.initialCol;
+        int r2 = step.finalRow;
+        int c2 = step.finalCol;
 
         if (Math.abs(r2 - r1) == 2 && Math.abs(c2 - c1) == 2) {
             CaptureWhitePiece(r1, c1, r2, c2);
@@ -233,19 +230,6 @@ public class Board {
 
     public boolean CheckGameComplete() {
         return (this.blackPieces == 0 || this.whitePieces == 0) ? true : false;
-    }
-
-
-    public boolean CheckGameDraw(Player turn) {
-
-        Vector<Vector<Move>> possibleMoveSeq = Robot.expandMoves(this.duplicate(), turn);
-
-        if (possibleMoveSeq.isEmpty()) {
-            return true;
-
-        } else {
-            return false;
-        }
     }
 
     public boolean isWhiteWinner() {

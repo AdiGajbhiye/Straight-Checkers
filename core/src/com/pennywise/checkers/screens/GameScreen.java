@@ -34,7 +34,7 @@ import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.logic.Black;
 import com.pennywise.checkers.core.logic.Board;
 import com.pennywise.checkers.core.logic.Human;
-import com.pennywise.checkers.core.logic.Move;
+import com.pennywise.checkers.core.logic.Step;
 import com.pennywise.checkers.core.logic.UserInteractions;
 import com.pennywise.checkers.core.logic.White;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
@@ -182,7 +182,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         int curRow = (width - 1) - (position / width);
                         int curCol = position % width;
                         if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
-                            movePiece(new Move(curRow, curCol, dstRow, dstCol));
+                            movePiece(new Step(curRow, curCol, dstRow, dstCol));
                         } else {
                             selectedPiece = null;
                             selectedTiles.clear();
@@ -325,9 +325,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     }
 
 
-    protected void movePiece(Move move) {
+    protected void movePiece(Step step) {
 
-        retCode = Human.makeNextWhiteMoves(move, logicBoard);
+        retCode = Human.makeNextWhiteMoves(step, logicBoard);
 
         if (retCode == ReturnCode.VALID_MOVE) {
 
@@ -385,7 +385,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return null;
     }
 
-    protected void moveOpponentPiece(Vector<Move> moves) {
+    protected void moveOpponentPiece(Vector<Step> steps) {
         Piece piece;
         Tile srcTile;
         String srcName;
@@ -395,15 +395,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         //get source name
 
-        int row = moves.get(0).getInitialRow();
-        int col = moves.get(0).getInitialCol();
+        int row = steps.get(0).getInitialRow();
+        int col = steps.get(0).getInitialCol();
 
         int index = col + (((width - 1) - row) * width);
 
         srcTile = getTile(index + "");
         srcName = srcTile.getName();
 
-        for (Move m : moves) {
+        for (Step m : steps) {
 
             row = m.getFinalRow();
             col = m.getFinalCol();
@@ -466,9 +466,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             logicBoard.CheckGameDraw(Player.black);
             logicBoard.Display();
 
-            Vector<Move> moves = Black.Move(logicBoard);
+            Vector<Step> steps = Black.Move(logicBoard);
 
-            moveOpponentPiece(moves);
+            moveOpponentPiece(steps);
 
             logicBoard.Display();
 
