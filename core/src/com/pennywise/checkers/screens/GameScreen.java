@@ -85,10 +85,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private List<Tile> selectedTiles;
     private static Board logicBoard;
     private ReturnCode retCode;
-    private Executor executor;
     private boolean gameOver = false;
     String strTime = "";
-
     private final SpriteDrawable validBlackCell;
     private final SpriteDrawable validCell;
     private final SpriteDrawable blackCell;
@@ -116,7 +114,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
         gameUI = new TextureAtlas("images/ui-pack.atlas");
-        executor = Executors.newSingleThreadExecutor();
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         selectedTiles = new LinkedList<Tile>();
 
