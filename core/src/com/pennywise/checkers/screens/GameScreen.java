@@ -142,6 +142,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Vector2 stageCoords = new Vector2();
 
+    private int getRow(int index, int boardCol) {
+        return (int) Math.floor((((index - 2) - boardCol) / boardCol));
+    }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -156,7 +160,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
             if (actor2 != null && actor2 instanceof Piece) {
-                selectedTiles.add(((Tile) actor));
                 selectedPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
@@ -170,13 +173,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (selectedPiece != null) {
                     if (actor instanceof Tile) {
                         selectedTiles.add(((Tile) actor));
-                        int dstposition = Integer.parseInt(selectedTiles.get(1).getName());
-                        int dstRow = (width - 1) - (position / width);
-                        int dstCol = position % width;
+                        int index = Integer.parseInt(selectedTiles.get(0).getName());
+                        int dstCol = index % width;
+                        int dstRow = index / 8;//getRow(index, dstCol);
 
-                        position = Integer.parseInt(selectedPiece.getName());
-                        int curRow = width - (position % width);
-                        int curCol = position % width;
+                        index = Integer.parseInt(selectedPiece.getName());
+                        int curCol = index % width;
+                        int curRow = index / 8;//, curCol);
+
                         if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
                             movePiece(new Move(curRow, curCol, dstRow, dstCol));
                         } else {
@@ -397,7 +401,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int row = moves.get(0).getInitialRow();
         int col = moves.get(0).getInitialCol();
 
-        int index = col + (((width - 1) - row) * width);
+        int index = col + (row * width);
 
         srcTile = getTile(index + "");
         srcName = srcTile.getName();
@@ -407,7 +411,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             row = m.getFinalRow();
             col = m.getFinalCol();
 
-            index = col + (((width - 1) - row) * width);
+            index = col + (row * width);
 
             destTile = getTile(index + "");
             destName = destTile.getName();
@@ -448,10 +452,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             }
         }
 
-        if (srcTile != null && destTile != null) {
-            srcTile.getStyle().background = blackCell;
-            destTile.getStyle().background = blackCell;
-        }
+        // if (srcTile != null && destTile != null) {
+        //     srcTile.getStyle().background = blackCell;
+        //     destTile.getStyle().background = blackCell;
+        // }
     }
 
 
@@ -502,7 +506,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void updatePieces(int row, int col) {
 
-        int index = col + (((width - 1) - row) * width);
+        int index = col + (row* width);
         String targetName = index + "";
 
         //find the piece
@@ -584,7 +588,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public SpriteDrawable tileTexture(String name) {
         Sprite sprite = gameUI.createSprite(name);
-        sprite.setFlip(false, true);
+        //sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
     }
