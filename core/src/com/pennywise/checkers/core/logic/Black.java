@@ -25,7 +25,6 @@ public class Black {
         if (owner.equals(Owner.HUMAN)) {
             Human.makeNextBlackMoves(board);
         } else {
-            assert (owner.equals(Owner.ROBOT));
             return Robot.makeNextBlackMoves(board);
         }
 
@@ -308,10 +307,7 @@ public class Black {
 
         Move backwardRightCapture = null;
 
-        if (r < Board.rows - 2 && c >= 2 && (
-                board.cell[r + 1][c - 1].equals(CellEntry.white) ||
-                        board.cell[r + 1][c - 1].equals(CellEntry.whiteKing)
-        )
+        if (r < Board.rows - 2 && c >= 2 && (board.cell[r + 1][c - 1].equals(CellEntry.white) || board.cell[r + 1][c - 1].equals(CellEntry.whiteKing))
                 && board.cell[r + 2][c - 2].equals(CellEntry.empty)
                 ) {
             backwardRightCapture = new Move(r, c, r + 2, c - 2);
@@ -319,4 +315,5 @@ public class Black {
 
         return backwardRightCapture;
     }
+
 }

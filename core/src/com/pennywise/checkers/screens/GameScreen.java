@@ -69,7 +69,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Stage stage;
     private final Stage boardStage;
-    private final Cam camera;
+    private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
     private final BitmapFont hudFont;
     SpriteBatch batch;
@@ -95,7 +95,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public GameScreen(Checkers game) {
         super(game);
-        camera = Cam.instance;
+
+
+        camera = new OrthographicCamera();
+        camera.position.set(0, 0, 0);
+        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        camera.update();
 
         hudCam = new OrthographicCamera();
         hudCam.position.set(0, 0, 0);
@@ -133,8 +138,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     @Override
     public void show() {
-        setupScreen();
         initialize();
+        setupScreen();
+
     }
 
     private final Vector2 stageCoords = new Vector2();
@@ -232,6 +238,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+        stack.add(backGround());
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
@@ -261,6 +268,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Group board(int rows, int cols) {
 
+
         board = new Panel(gameUI.createPatch("panel_brown"));
         board.setTouchable(Touchable.childrenOnly);
 
@@ -277,7 +285,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int index, y, x = 0;
 
 
-        float posY = (float) (0.15 * Constants.GAME_HEIGHT);
+        float posY = (float) (0.25 * Constants.GAME_HEIGHT);
 
         board.setOrigin(0, posY);
         board.setWidth(Constants.GAME_WIDTH);
@@ -287,8 +295,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
-                position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.15f)));
+
+                /*position[index] = new Vector2((col * cellsize) + padding,
+                        ((Constants.GAME_HEIGHT * 0.85f) - (row * (cellsize))) - padding);*/
+               position[index] = new Vector2((col * cellsize) + padding,
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
                 x = col * 22;
                 y = row * 22;
@@ -529,22 +540,26 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Piece[] pieces = new Piece[rows * cols];
 
         cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
-        float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
-        int index, y, x = 0;
 
-        float posY = (float) (0.15 * Constants.GAME_HEIGHT);
+        float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
+
+        int index, x, y = 0;
+
+        float posY = (float) (0.85 * Constants.GAME_HEIGHT);
 
         board.setOrigin(0, posY);
         board.setWidth(Constants.GAME_WIDTH);
         float bHeight = (cellsize * rows) + (padding * 2);
         board.setHeight(bHeight);
 
+
         //black pieces
+
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
                 position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.15f)));
+                        ((Constants.GAME_HEIGHT * 0.85f) - (row * (cellsize))) - padding);
 
                 x = col * 22;
                 y = row * 22;
@@ -710,9 +725,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialog.invalidate();
         dialog.layout();
         dialog.show(stage);
-
-
     }
-
 
 }
