@@ -156,6 +156,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
             if (actor2 != null && actor2 instanceof Piece) {
+                selectedTiles.add(((Tile) actor));
                 selectedPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
@@ -169,12 +170,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (selectedPiece != null) {
                     if (actor instanceof Tile) {
                         selectedTiles.add(((Tile) actor));
-                        int position = Integer.parseInt(selectedTiles.get(0).getName());
+                        int dstposition = Integer.parseInt(selectedTiles.get(1).getName());
                         int dstRow = (width - 1) - (position / width);
                         int dstCol = position % width;
 
                         position = Integer.parseInt(selectedPiece.getName());
-                        int curRow = (width - 1) - (position / width);
+                        int curRow = width - (position % width);
                         int curCol = position % width;
                         if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
                             movePiece(new Move(curRow, curCol, dstRow, dstCol));
