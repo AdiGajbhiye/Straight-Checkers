@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
-import com.pennywise.checkers.core.Cam;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.logic.Black;
@@ -50,8 +49,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
@@ -298,18 +295,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                 /*position[index] = new Vector2((col * cellsize) + padding,
                         ((Constants.GAME_HEIGHT * 0.85f) - (row * (cellsize))) - padding);*/
-               position[index] = new Vector2((col * cellsize) + padding,
+                position[index] = new Vector2((col * cellsize) + padding,
                         padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
                 x = col * 22;
                 y = row * 22;
 
                 if ((row % 2) == (col % 2)) {
-                    style.background = tileTexture("beigeCell");
-                    backgroundTiles[index] = new Tile(CellEntry.white, new Label.LabelStyle(style));
-                } else {
                     style.background = tileTexture("blackCell");
                     backgroundTiles[index] = new Tile(CellEntry.black, new Label.LabelStyle(style));
+
+                } else {
+                    style.background = tileTexture("beigeCell");
+                    backgroundTiles[index] = new Tile(CellEntry.white, new Label.LabelStyle(style));
                 }
 
                 backgroundTiles[index].setSize(cellsize, cellsize);
@@ -324,7 +322,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
     }
-
 
     protected void movePiece(Move move) {
 
@@ -545,7 +542,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         int index, x, y = 0;
 
-        float posY = (float) (0.85 * Constants.GAME_HEIGHT);
+        float posY = (float) (0.25 * Constants.GAME_HEIGHT);
 
         board.setOrigin(0, posY);
         board.setWidth(Constants.GAME_WIDTH);
@@ -553,33 +550,30 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         board.setHeight(bHeight);
 
 
-        //black pieces
-
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
+
                 position[index] = new Vector2((col * cellsize) + padding,
-                        ((Constants.GAME_HEIGHT * 0.85f) - (row * (cellsize))) - padding);
+                        (posY) + (padding + ((row * (cellsize)))));
 
                 x = col * 22;
                 y = row * 22;
 
-                if ((row % 2) == (col % 2))
-                    continue;
-                else {
-                    if (row < 3)
+                if ((row % 2) == (col % 2)) {
+                    if (row >= 5)
                         pieces[index] = new Piece(tileTexture("blackPiece"));
-                    else if (row >= 5)
+                    else if (row < 3)
                         pieces[index] = new Piece(tileTexture("whitePiece"));
                     else
                         continue;
 
-                }
 
-                pieces[index].setSize(cellsize, cellsize);
-                pieces[index].setPosition(position[index].x, position[index].y);
-                pieces[index].setName(index + "");
-                board.addActor(pieces[index]);
+                    pieces[index].setSize(cellsize, cellsize);
+                    pieces[index].setPosition(position[index].x, position[index].y);
+                    pieces[index].setName(index + "");
+                    board.addActor(pieces[index]);
+                }
             }
         }
 
