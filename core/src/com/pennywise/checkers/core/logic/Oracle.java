@@ -13,10 +13,10 @@ public class Oracle {
     public final int POINT_KING = 2000;
     public final int POINT_NORMAL = 1000;
     public final int POINT_CENTRAL_PIECE = 100;
-    public final int POINT_END_PIECE = 50;
+    public final int POINT_END_PIECE = 5000;
     public final int POINT_DEFENCE = 50;
-    public final int POINT_ATTACK_NORMAL = 30;
-    public final int POINT_ATTACK_KING = 60;
+    public final int POINT_ATTACK_NORMAL = 3000;
+
 
     public int evaluateBoard(Board board, Player player) {
         int boardValue = 0;
@@ -38,7 +38,6 @@ public class Oracle {
             return wValue;
         } else {
             wValue = WhiteBlackPiecesDifferencePoints(board);
-//            wValue += BoardPositionPoints(board);
             wValue /= board.blackPieces;
         }
 
@@ -53,7 +52,6 @@ public class Oracle {
             return bValue;
         } else {
             bValue = WhiteBlackPiecesDifferencePoints(board);
-//            bValue += BoardPositionPoints(board);
             bValue /= board.whitePieces;
         }
 
@@ -132,7 +130,7 @@ public class Oracle {
             if (c > 0) {
                 //Attack Points
                 if ((board.cell[r - 1][c - 1] == CellEntry.white || board.cell[r - 1][c - 1] == CellEntry.whiteKing)
-                        && r < com.pennywise.checkers.core.logic.Board.rows - 1 && c < com.pennywise.checkers.core.logic.Board.cols - 1 && board.cell[r + 1][c + 1] == CellEntry.empty) {
+                        && r < Board.rows - 1 && c < Board.cols - 1 && board.cell[r + 1][c + 1] == CellEntry.empty) {
                     points -= POINT_ATTACK_NORMAL;
                 }
             }
