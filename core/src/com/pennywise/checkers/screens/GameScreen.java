@@ -66,6 +66,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Stage stage;
     private final Stage boardStage;
+    private final Stage dialogStage;
     private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
     private final BitmapFont hudFont;
@@ -105,6 +106,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         hudCam.update();
 
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+        dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+        boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+
 
         Gdx.input.setInputProcessor(this);
         //load fonts
@@ -116,7 +120,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
         gameUI = new TextureAtlas("images/ui-pack.atlas");
-        boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         selectedTiles = new LinkedList<Tile>();
 
         selectedBlackCell = tileTexture("selectedBlackCell");
@@ -142,13 +145,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Vector2 stageCoords = new Vector2();
 
+    private int getRow(int index, int boardCol) {
+        return (int) Math.floor((((index - 2) - boardCol) / boardCol));
+    }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        renderHud(batch, delta);
-        renderFPS(batch);
 
         if (Gdx.input.isTouched()) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
@@ -156,7 +161,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
             if (actor2 != null && actor2 instanceof Piece) {
-                selectedTiles.add(((Tile) actor));
                 selectedPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
@@ -170,13 +174,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (selectedPiece != null) {
                     if (actor instanceof Tile) {
                         selectedTiles.add(((Tile) actor));
-                        int dstposition = Integer.parseInt(selectedTiles.get(1).getName());
-                        int dstRow = (width - 1) - (position / width);
-                        int dstCol = position % width;
+                        int index = Integer.parseInt(selectedTiles.get(0).getName());
+                        int dstCol = index % width;
+                        int dstRow = index / 8;//getRow(index, dstCol);
 
-                        position = Integer.parseInt(selectedPiece.getName());
-                        int curRow = width - (position % width);
-                        int curCol = position % width;
+                        index = Integer.parseInt(selectedPiece.getName());
+                        int curCol = index % width;
+                        int curRow = index / 8;//, curCol);
+
                         if (selectedTiles.get(0).getCellEntry() == CellEntry.black) {
                             movePiece(new Move(curRow, curCol, dstRow, dstCol));
                         } else {
@@ -200,6 +205,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         boardStage.draw();
 
 
+        dialogStage.act();
+        dialogStage.draw();
+
+        renderHud(batch, delta);
+        renderFPS(batch);
     }
 
     @Override
@@ -252,9 +262,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Table hud() {
         Table layer = new Table();
-        layer.bottom();
+        layer.top();
         pauseButton = new Image(gameUI.createSprite("pause_dark"));
-        layer.add(pauseButton).height(40).width(40).bottom().right().expandX().padRight(20).padBottom(30);
+        layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
         return layer;
     }
 
@@ -336,11 +346,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             MoveToAction moveAction = new MoveToAction();
             moveAction.setPosition(posX, posY, Align.center);
             moveAction.setDuration(0.5f);
+            selectedPiece.toFront();
             selectedPiece.addAction(moveAction);
 
             selectedPiece.setName(selectedTiles.get(0).getName());// = null;
             selectedTiles.get(0).getStyle().background = blackCell;
             selectedTiles.clear();
+            selectedPiece.toBack();
             selectedPiece = null;
         }
 
@@ -353,6 +365,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             moveAction.setPosition(posX, posY, Align.center);
             moveAction.setDuration(0.5f);
             selectedPiece.addAction(moveAction);
+            selectedPiece.toFront();
 
             selectedPiece.setName(selectedTiles.get(0).getName());// = null;
             selectedTiles.get(0).getStyle().background = blackCell;
@@ -385,7 +398,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     }
 
     protected void moveOpponentPiece(Vector<Move> moves) {
-        Piece piece;
+        Piece piece = null;
         Tile srcTile;
         String srcName;
         Tile destTile = null;
@@ -397,7 +410,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int row = moves.get(0).getInitialRow();
         int col = moves.get(0).getInitialCol();
 
-        int index = col + (((width - 1) - row) * width);
+        int index = col + (row * width);
 
         srcTile = getTile(index + "");
         srcName = srcTile.getName();
@@ -407,16 +420,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             row = m.getFinalRow();
             col = m.getFinalCol();
 
-            index = col + (((width - 1) - row) * width);
+            index = col + (row * width);
 
             destTile = getTile(index + "");
             destName = destTile.getName();
 
-
-            if (srcTile != null && destTile != null) {
-                srcTile.getStyle().background = selectedBlackCell;
-                destTile.getStyle().background = selectedBlackCell;
-            }
 
             float posX = destTile.getX();
             float posY = destTile.getY();
@@ -440,6 +448,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         if (actor.getName().equalsIgnoreCase(srcName)) {
                             piece = (Piece) actor;
                             //update name
+                            piece.toFront();
                             piece.setName(destName);
                             piece.addAction(sequenceAction);
                             break;
@@ -447,13 +456,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     }
             }
         }
-
-        if (srcTile != null && destTile != null) {
-            srcTile.getStyle().background = blackCell;
-            destTile.getStyle().background = blackCell;
-        }
     }
-
 
     public boolean playGame() {
 
@@ -502,7 +505,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void updatePieces(int row, int col) {
 
-        int index = col + (((width - 1) - row) * width);
+        int index = col + (row * width);
         String targetName = index + "";
 
         //find the piece
@@ -584,7 +587,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public SpriteDrawable tileTexture(String name) {
         Sprite sprite = gameUI.createSprite(name);
-        sprite.setFlip(false, true);
+        //sprite.setFlip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
     }
@@ -647,7 +650,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void renderHud(SpriteBatch batch, float gameTime) {
 
-        float y = hudCam.viewportHeight * 0.95f;
+        float y = Constants.GAME_HEIGHT * 0.95f;
 
         float minutes = (float) Math.floor(gameTime / 60.0f);
         float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
@@ -708,7 +711,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 };
 
         dialog.padTop(50).padBottom(50);
-        dialog.getContentTable().add(label).width(150).row();
+        dialog.getContentTable().add(label).width((Constants.GAME_WIDTH * 0.65f)).row();
         dialog.getButtonTable().padTop(50);
 
         TextButton dbutton = new TextButton("Yes", skin);
@@ -719,7 +722,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialog.invalidateHierarchy();
         dialog.invalidate();
         dialog.layout();
-        dialog.show(stage);
+        dialog.show(dialogStage);
     }
 
 }
