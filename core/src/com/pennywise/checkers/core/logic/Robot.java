@@ -215,7 +215,7 @@ public class Robot {
 
     }
 
-    private static void expandMoveRecursivelyForBlack(com.pennywise.checkers.core.logic.Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
+    private static void expandMoveRecursivelyForBlack(Board board, Vector<Vector<Move>> outerVector, Vector<Move> innerVector, int r, int c) {
 
         Vector<Move> forcedMoves = Black.ObtainForcedMovesForBlack(r, c, board);
 
