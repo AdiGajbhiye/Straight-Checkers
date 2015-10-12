@@ -35,8 +35,6 @@ import com.pennywise.checkers.core.logic.Black;
 import com.pennywise.checkers.core.logic.Board;
 import com.pennywise.checkers.core.logic.Human;
 import com.pennywise.checkers.core.logic.Move;
-import com.pennywise.checkers.core.logic.UserInteractions;
-import com.pennywise.checkers.core.logic.White;
 import com.pennywise.checkers.core.logic.enums.CellEntry;
 import com.pennywise.checkers.core.logic.enums.Owner;
 import com.pennywise.checkers.core.logic.enums.Player;
