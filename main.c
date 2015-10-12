@@ -83,28 +83,10 @@
   mafierz@ibm.net
 
   ----------> choose your platform */
-#undef WIN95
-#undef DOS
-#undef MAC
-#define UNIX
 
-#ifdef WIN95
-#include <windows.h>
+public class Simplech{  
+  
 unsigned int _stklen = 50000;
-#endif
-#ifdef DOS
-#define int long
-unsigned int _stklen = 40000;
-#endif
-#ifdef MAC
-
-#endif
-
-/*----------> includes */
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <ctype.h>
 
 #ifdef UNIX
 #define TICKS CLOCKS_PER_SEC
@@ -2356,4 +2338,4 @@ testcapture (int b[46], int color)
     }
   return (0);
 }
-
+}
