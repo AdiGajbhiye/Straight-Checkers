@@ -1,4 +1,4 @@
-package com.pennywise.checkers.core;//
+package com.pennywise.checkers.core.engine;//
 // Created by CHOXXY on 10/10/2015.
 //
 
@@ -71,22 +71,16 @@ checkers@fierz.ch
 
 public class SimpleEngine {
 
-
     /*----------> definitions */
-    private static final int OCCUPIED = 0;
-    private static final int WHITE = 1;
-    private static final int BLACK = 2;
-    private static final int MAN = 4;
-    private static final int KING = 8;
-    private static final int FREE = 16;
-    private static final int CHANGECOLOR = 3;
+    public static final int OCCUPIED = 0;
+    public static final int WHITE = 1;
+    public static final int BLACK = 2;
+    public static final int MAN = 4;
+    public static final int KING = 8;
+    public static final int FREE = 16;
+    public static final int CHANGECOLOR = 3;
     private static final int MAXDEPTH = 99;
-
-    /*----------> compile options  */
-    private static int MUTE = 1;
-    private static int VERBOSE = 1;
-    private static int STATISTICS = 1;
-
+    private final long CLK_TCK = 1000;
 
     /* return values */
     private static final int DRAW = 0;
@@ -95,37 +89,15 @@ public class SimpleEngine {
     private static final int UNKNOWN = 3;
     private static final int MAXMOVES = 28;
 
+
     int[] value = new int[]{0, 0, 0, 0, 0, 1, 256, 0, 0, 16, 4096, 0, 0, 0, 0, 0, 0};
     boolean play;
 
     /*----------> structure definitions  */
     static class Move2 {
-        short n;
+        int n;
         int[] m = new int[8];
     }
-
-
-    static class Coor             /* coordinate structure for board coordinates */ {
-        int x;
-        int y;
-    }
-
-    static class CBmove                /* all the information you need about a move */ {
-        int ismove;
-        /* kind of superfluous: is 0 if the move is not a valid move */
-        int newpiece;
-        /* what type of piece appears on to */
-        int oldpiece;
-        /* what disappears on from */
-        Coor from, to;
-        /* coordinates of the piece - in 8x8 notation!*/
-        Coor[] path = new Coor[12];
-        /* intermediate path coordinates of the moving piece */
-        Coor[] del = new Coor[12];
-        /* squares whose pieces are deleted after the move */
-        int[] delpiece = new int[12];    /* what is on these squares */
-    }
-
 
 /*----------> function prototypes  */
 /*----------> part I: interface to CheckerBoard: CheckerBoard requires that
@@ -142,28 +114,27 @@ public class SimpleEngine {
     #endif
 */
 
+    /**
+     * getmove is what checkerboard calls. you get 6 parameters:
+     * #param b[8][8] 	is the current position. the values in the array are determined by
+     * the #defined values of BLACK, WHITE, KING, MAN. a black king for
+     * instance is represented by BLACK|KING.
+     * color		    is the side to make a move. BLACK or WHITE.
+     * maxtime	        is the time your program should use to make a move. this is
+     * what you specify as level in checkerboard. so if you exceed
+     * this time it's not too bad - just don't exceed it too much...
+     * str		        is a pointer to the output string of the checkerboard status bar.
+     * you can use sprintf(str,"information"); to print any information you
+     * want into the status bar.
+     * playnow	        is a pointer to the playnow variable of checkerboard. if the user
+     * would like your engine to play immediately, this value is nonzero,
+     * else zero. you should respond to a nonzero value of playnow by
+     * interrupting your search IMMEDIATELY.
+     */
 
-    public int getMove(int[][] b, int color, double maxtime, String str, /*int*playnow*/ boolean playnow, int info, int unused, CBmove move) {
-    /* getmove is what checkerboard calls. you get 6 parameters:
-    b[8][8] 	is the current position. the values in the array are determined by
-    the #defined values of BLACK, WHITE, KING, MAN. a black king for
-    instance is represented by BLACK|KING.
-    color		is the side to make a move. BLACK or WHITE.
-    maxtime	is the time your program should use to make a move. this is
-    what you specify as level in checkerboard. so if you exceed
-    this time it's not too bad - just don't exceed it too much...
-    str		is a pointer to the output string of the checkerboard status bar.
-    you can use sprintf(str,"information"); to print any information you
-    want into the status bar.
-    *playnow	is a pointer to the playnow variable of checkerboard. if the user
-    would like your engine to play immediately, this value is nonzero,
-    else zero. you should respond to a nonzero value of *playnow by
-    interrupting your search IMMEDIATELY.
-    struct CBmove *move
-    is unused here. this parameter would allow engines playing different
-    versions of checkers to return a move to CB. for engines playing
-    english checkers this is not necessary.
-    */
+    public int getMove(int[][] b, int color, double maxtime,
+                       String str, boolean playnow, int info, int unused) {
+
 
         int i;
         int value;
@@ -217,7 +188,8 @@ public class SimpleEngine {
         board[39] = b[5][7];
         board[40] = b[7][7];
         for (i = 5; i <= 40; i++)
-            if (board[i] == 0) board[i] = FREE;
+            if (board[i] == 0)
+                board[i] = FREE;
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
         play = playnow;
@@ -291,7 +263,8 @@ public class SimpleEngine {
         from++;
         to++;
         c = '-';
-        if (move.n > 2) c = 'x';
+        if (move.n > 2)
+            c = 'x';
         str = String.format("%2li%c%2li", from, c, to);
     }
 
@@ -300,7 +273,7 @@ public class SimpleEngine {
 
 
     int checkers(int[] b, int color, double maxtime, String str)
-/*----------> purpose: entry point to checkers. find a move on board b for color
+/*--------> purpose: entry point to checkers. find a move on board b for color
 ---------->          in the time specified by maxtime, write the best move in
 ---------->          board, returns information on the search in str
 ----------> returns 1 if a move is found & executed, 0, if there is no legal
@@ -308,60 +281,49 @@ public class SimpleEngine {
 ----------> version: 1.1
 ----------> date: 9th october 98 */ {
         int i, numberofmoves;
-        clock_t start;
+        long start;
         int eval;
-        Move2 best;
-        Move2 lastbest;
+        Move2 best = null;
+        Move2 lastbest = null;
         Move2[] movelist = new Move2[MAXMOVES];
-        String str2;
+        String str2 = "";
         double secondsused;
-        /*
-        #ifdef STATISTICS
-        alphabetas = 0;
-        generatemovelists = 0;
-        generatecapturelists = 0;
-        evaluations = 0;
-        #endif
-*/
+
     /*--------> check if there is only one move */
         numberofmoves = generatecapturelist(b, movelist, color);
         if (numberofmoves == 1) {
             domove(b, movelist[0]);
-            sprintf(str, "forced capture");
-            return (1);
+            str = "forced capture";
+            return 1;
         } else if (numberofmoves == 0) {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
                 domove(b, movelist[0]);
-                sprintf(str, "only move");
-                return (1);
+                str = "only move";
+                return 1;
             }
             if (numberofmoves == 0) {
-                sprintf(str, "no legal moves in this position");
-                return (0);
+                str = "no legal moves in this position";
+                return 0;
             }
         }
-        start = clock();
-        eval = firstalphabeta(b, 1, -10000, 10000, color, & best);
+        start = System.currentTimeMillis();
+
+        eval = firstalphabeta(b, 1, -10000, 10000, color, best);
 
         for (i = 2; i <= MAXDEPTH; i++) {
             lastbest = best;
-            eval = firstalphabeta(b, i, -10000, 10000, color, & best);
-            secondsused = (double) (clock() - start) / CLK_TCK;
+            eval = firstalphabeta(b, i, -10000, 10000, color, best);
+            secondsused = (double) (System.currentTimeMillis() - start) / CLK_TCK;
             movetonotation(best, str2);
-            /*#ifndef MUTE
-            sprintf(str, "best:%s time %2.2fs, depth %2li, value %4li", str2, secondsused, i, eval);
-            #ifdef STATISTICS
-            sprintf(str2, "  nodes %li, gms %li, gcs %li, evals %li",
-                    alphabetas, generatemovelists, generatecapturelists,
-                    evaluations);
-            strcat(str, str2);
-            #endif
-            #endif*/
-            if (play) break;
-            if (eval == 5000) break;
-            if (eval == -5000) break;
-            if (secondsused > maxtime) break;
+            if (play)
+                break;
+            if (eval == 5000)
+                break;
+            if (eval == -5000)
+                break;
+            if (secondsused > maxtime)
+                break;
         }
         i--;
         if (play)
@@ -369,10 +331,11 @@ public class SimpleEngine {
         else
             movetonotation(best, str2);
 
+        /*
         str = String.format(
                 "best:%s time %2.2f, depth %2li, value %4li  nodes %li, gms %li, gcs %li, evals %li",
                 str2, secondsused, i, eval, alphabetas, generatemovelists, generatecapturelists,
-                evaluations);
+                evaluations);*/
 
         if (play)
             domove(b, lastbest);
@@ -391,11 +354,6 @@ public class SimpleEngine {
         int numberofmoves;
         int capture;
         Move2[] movelist = new Move2[MAXMOVES];
-
-        /*
-        #ifdef STATISTICS
-        alphabetas++;
-        #endif*/
 
         if (play) return 0;
     /*----------> test if captures are possible */
@@ -431,14 +389,14 @@ public class SimpleEngine {
                 if (value >= beta) return (value);
                 if (value > alpha) {
                     alpha = value;
-                    *best = movelist[i];
+                    best = movelist[i];
                 }
             }
             if (color == WHITE) {
                 if (value <= alpha) return (value);
                 if (value < beta) {
                     beta = value;
-                    *best = movelist[i];
+                    best = movelist[i];
                 }
             }
         }
@@ -447,8 +405,8 @@ public class SimpleEngine {
         return (beta);
     }
 
-    int alphabeta(int b[46], int depth, int alpha, int beta, int color)
-/*----------> purpose: search the game tree and find the best move.
+    int alphabeta(int[] b, int depth, int alpha, int beta, int color)
+/*--------> purpose: search the game tree and find the best move.
 ----------> version: 1.0
 ----------> date: 24th october 97 */ {
         int i;
@@ -507,7 +465,7 @@ public class SimpleEngine {
     }
 
     void domove(int[] b, Move2 move)
-/*----------> purpose: execute move on board
+/*--------> purpose: execute move on board
 ----------> version: 1.1
 ----------> date: 25th october 97 */ {
         int square, after;
@@ -521,7 +479,7 @@ public class SimpleEngine {
     }
 
     void undomove(int[] b, Move2 move)
-/*----------> purpose:
+/*--------> purpose:
 ----------> version: 1.1
 ----------> date: 25th october 97 */ {
         int square, before;
@@ -535,7 +493,7 @@ public class SimpleEngine {
     }
 
     int evaluation(int[] b, int color)
-/*----------> purpose:
+/*--------> purpose:
 ----------> version: 1.1
 ----------> date: 18th april 98 */ {
         int i, j;
@@ -628,10 +586,10 @@ public class SimpleEngine {
     /* back rank guard */
 
         code = 0;
-        if (b[5] & MAN) code++;
-        if (b[6] & MAN) code += 2;
-        if (b[7] & MAN) code += 4;
-        if (b[8] & MAN) code += 8;
+        if (b[5] == MAN) code++;
+        if (b[6] == MAN) code += 2;
+        if (b[7] == MAN) code += 4;
+        if (b[8] == MAN) code += 8;
         switch (code) {
             case 0:
                 code = 0;
@@ -686,10 +644,10 @@ public class SimpleEngine {
 
 
         code = 0;
-        if (b[37] & MAN) code += 8;
-        if (b[38] & MAN) code += 4;
-        if (b[39] & MAN) code += 2;
-        if (b[40] & MAN) code++;
+        if (b[37] == MAN) code += 8;
+        if (b[38] == MAN) code += 4;
+        if (b[39] == MAN) code += 2;
+        if (b[40] == MAN) code++;
         switch (code) {
             case 0:
                 code = 0;
@@ -815,10 +773,6 @@ public class SimpleEngine {
             }
         }
 
-
-
-
-
     /* the move */
         if (nwm + nwk - nbk - nbm == 0) {
             if (color == BLACK) {
@@ -866,16 +820,11 @@ public class SimpleEngine {
 /*-------------- PART III: MOVE GENERATION -----------------------------------*/
 
     int generatemovelist(int[] b, Move2[] movelist, int color)
-/*----------> purpose:generates all moves. no captures. returns number of moves
+/*--------> purpose:generates all moves. no captures. returns number of moves
 ----------> version: 1.0
 ----------> date: 25th october 97 */ {
-        int n = 0, m;
+        int n = 0, m = 0;
         int i;
-
-        /*
-        #ifdef STATISTICS
-        generatemovelists++;
-        #endif*/
 
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
@@ -883,8 +832,10 @@ public class SimpleEngine {
                     if ((b[i] & MAN) != 0) {
                         if ((b[i + 4] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | MAN);
+                            if (i >= 32)
+                                m = (BLACK | KING);
+                            else
+                                m = (BLACK | MAN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -900,8 +851,10 @@ public class SimpleEngine {
                         }
                         if ((b[i + 5] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | MAN);
+                            if (i >= 32)
+                                m = (BLACK | KING);
+                            else
+                                m = (BLACK | MAN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -990,8 +943,10 @@ public class SimpleEngine {
                     if ((b[i] & MAN) != 0) {
                         if ((b[i - 4] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i <= 13) m = (WHITE | KING);
-                            else m = (WHITE | MAN);
+                            if (i <= 13)
+                                m = (WHITE | KING);
+                            else
+                                m = (WHITE | MAN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1007,8 +962,10 @@ public class SimpleEngine {
                         }
                         if ((b[i - 5] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i <= 13) m = (WHITE | KING);
-                            else m = (WHITE | MAN);
+                            if (i <= 13)
+                                m = (WHITE | KING);
+                            else
+                                m = (WHITE | MAN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1096,7 +1053,7 @@ public class SimpleEngine {
     }
 
     int generatecapturelist(int[] b, Move2[] movelist, int color)
-/*----------> purpose: generate all possible captures
+/*--------> purpose: generate all possible captures
 ----------> version: 1.0
 ----------> date: 25th october 97 */ {
         int n = 0;
@@ -1104,11 +1061,6 @@ public class SimpleEngine {
         int i;
         int tmp;
 
-        /*
-        #ifdef STATISTICS
-        generatecapturelists++;
-        #endif
-*/
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
@@ -1116,8 +1068,10 @@ public class SimpleEngine {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
                                 movelist[n].n = 3;
-                                if (i >= 28) m = (BLACK | KING);
-                                else m = (BLACK | MAN);
+                                if (i >= 28)
+                                    m = (BLACK | KING);
+                                else
+                                    m = (BLACK | MAN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1141,8 +1095,10 @@ public class SimpleEngine {
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
                                 movelist[n].n = 3;
-                                if (i >= 28) m = (BLACK | KING);
-                                else m = (BLACK | MAN);
+                                if (i >= 28)
+                                    m = (BLACK | KING);
+                                else
+                                    m = (BLACK | MAN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1290,8 +1246,10 @@ public class SimpleEngine {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
                                 movelist[n].n = 3;
-                                if (i <= 17) m = (WHITE | KING);
-                                else m = (WHITE | MAN);
+                                if (i <= 17)
+                                    m = (WHITE | KING);
+                                else
+                                    m = (WHITE | MAN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1315,8 +1273,10 @@ public class SimpleEngine {
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
                                 movelist[n].n = 3;
-                                if (i <= 17) m = (WHITE | KING);
-                                else m = (WHITE | MAN);
+                                if (i <= 17)
+                                    m = (WHITE | KING);
+                                else
+                                    m = (WHITE | MAN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1473,8 +1433,10 @@ public class SimpleEngine {
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
-                if (i >= 28) m = (BLACK | KING);
-                else m = (BLACK | MAN);
+                if (i >= 28)
+                    m = (BLACK | KING);
+                else
+                    m = (BLACK | MAN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1495,8 +1457,10 @@ public class SimpleEngine {
         if ((b[i + 5] & WHITE) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
-                if (i >= 28) m = (BLACK | KING);
-                else m = (BLACK | MAN);
+                if (i >= 28)
+                    m = (BLACK | KING);
+                else
+                    m = (BLACK | MAN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1640,8 +1604,10 @@ public class SimpleEngine {
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
                 move.n++;
-                if (i <= 17) m = (WHITE | KING);
-                else m = (WHITE | MAN);
+                if (i <= 17)
+                    m = (WHITE | KING);
+                else
+                    m = (WHITE | MAN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1662,8 +1628,10 @@ public class SimpleEngine {
         if ((b[i - 5] & BLACK) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
-                if (i <= 17) m = (WHITE | KING);
-                else m = (WHITE | MAN);
+                if (i <= 17)
+                    m = (WHITE | KING);
+                else
+                    m = (WHITE | MAN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
