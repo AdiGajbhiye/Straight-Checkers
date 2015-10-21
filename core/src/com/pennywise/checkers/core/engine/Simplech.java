@@ -14,6 +14,7 @@ public class Simplech {
     public static final int KING = 8;
     public static final int FREE = 16;
 
+
     public static final int WHITEPAWN = (WHITE | PAWN);
     public static final int BLACKPAWN = (BLACK | PAWN);
     public static final int WHITEKING = (WHITE | KING);
@@ -25,10 +26,21 @@ public class Simplech {
     public static final int MAXMOVES = 20;
     public static final double TICKS = 1000;
 
-    public static final int DRAW = 0;
-    public static final int WIN = 1;
-    public static final int LOSS = 2;
-    public static final int UNKNOWN = 3;
+
+    public static final int VALID = 10;
+    public static final int INVALID = 11;
+    public static final int MULTIPLE_CAPTURE = 12;
+
+
+    public static final int DRAW = 20;
+    public static final int WIN = 21;
+    public static final int LOSS = 22;
+
+    public static final int WHITELOSS = (WHITE | LOSS);
+    public static final int BLACKLOSS = (BLACK | LOSS);
+    public static final int WHITEWIN = (WHITE | WIN);
+    public static final int BLACKWIN = (BLACK | WIN);
+
 
     public boolean STATISTICS = false;
     public boolean MUTE = false;
@@ -206,7 +218,7 @@ public class Simplech {
 
 /* end move conversion  */
 
-    void initCheckers(int[] b)
+    public void initCheckers(int[] b)
 /*----------> purpose: initialize the checkerboard
   ----------> version: 1.0
   ----------> date: 24th october 97 */ {
@@ -738,7 +750,7 @@ public class Simplech {
             if (value > 4000) return LOSS;
             if (value < -4000) return WIN;
         }
-        return UNKNOWN;
+        return VALID;
     }
 
     int[] moveNotation(Move move) {
@@ -810,8 +822,8 @@ public class Simplech {
         String str2 = "";
         String str = "";
 
-        for(int j = 0; j< MAXMOVES;j++)
-            movelist[j] =  new Move();
+        for (int j = 0; j < MAXMOVES; j++)
+            movelist[j] = new Move();
 
         if (STATISTICS) {
             alphabetas = 0;
@@ -893,7 +905,7 @@ public class Simplech {
         boolean capture;
         Move[] movelist = new Move[MAXMOVES];
 
-        for(int j = 0; j < MAXMOVES; j++)
+        for (int j = 0; j < MAXMOVES; j++)
             movelist[j] = new Move();
 
         if (STATISTICS)
@@ -959,8 +971,8 @@ public class Simplech {
         int numberofmoves;
         Move[] movelist = new Move[MAXMOVES];
 
-        for(int j = 0; j < MAXMOVES;j++)
-            movelist[j] =  new Move();
+        for (int j = 0; j < MAXMOVES; j++)
+            movelist[j] = new Move();
 
         if (STATISTICS)
             alphabetas++;
