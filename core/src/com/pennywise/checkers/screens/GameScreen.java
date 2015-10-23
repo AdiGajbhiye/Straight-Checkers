@@ -70,6 +70,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private final SpriteDrawable selectedBlackCell;
     private Image pauseButton;
     private Simplech engine;
+    // Screen second counter (1 second tick)
+    private long startTime = System.nanoTime();
+    private long secondsTime = 0L;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -126,6 +129,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (System.nanoTime() - startTime >= 1000000000) {
+            secondsTime++;
+            startTime = System.nanoTime();
+        }
 
 /*
         if (Gdx.input.isTouched()) {
@@ -278,14 +286,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int count = 1;
 
         if (inverted) {
-            for (int row = 7; row >=0; row--) {
-                for (int col = 0; col <cols ; col++) {
+            for (int row = 7; row >= 0; row--) {
+                for (int col = 0; col < cols; col++) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
                     if ((row % 2) == (col % 2)) {
-                        text =  (count+= 2) / 2;
+                        text = (count += 2) / 2;
                         style.background = tileTexture("blackCell");
                         backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
 
@@ -311,7 +319,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
                     if ((row % 2) == (col % 2)) {
-                        text =  (count+= 2) / 2;
+                        text = (count += 2) / 2;
                         style.background = tileTexture("blackCell");
                         backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
 
@@ -649,6 +657,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         batch.end();
     }
 
+    /**
+     * Get screen time from start in format of HH:MM:SS. It is calculated from
+     * "secondsTime" parameter, reset that to get resetted time.
+     */
+    public String getScreenTime() {
+        int seconds = (int) (secondsTime % 60);
+        int minutes = (int) ((secondsTime / 60) % 60);
+        int hours = (int) ((secondsTime / 3600) % 24);
+        String secondsStr = (seconds < 10 ? "0" : "") + seconds;
+        String minutesStr = (minutes < 10 ? "0" : "") + minutes;
+        String hoursStr = (hours < 10 ? "0" : "") + hours;
+        return new String(hoursStr + ":" + minutesStr + ":" + secondsStr);
+    }
+
 
     private void renderHud(SpriteBatch batch, float gameTime) {
 
@@ -657,12 +679,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         float minutes = (float) Math.floor(gameTime / 60.0f);
         float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
 
-        strTime = String.format("%.0fm%.0fs", minutes, seconds);
-
-        /*
-        //show time
-        strTime = String.format("%s:%s", StringUtils.leftPad(new DecimalFormat("##").format(minutes), 2, "0"),
-                StringUtils.leftPad(new DecimalFormat("##").format(seconds), 2, "0"));*/
+        strTime = getScreenTime();
 
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
