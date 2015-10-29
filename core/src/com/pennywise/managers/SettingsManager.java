@@ -20,7 +20,7 @@ package com.pennywise.managers;
 
         import com.badlogic.gdx.Gdx;
         import com.badlogic.gdx.Preferences;
-        import com.moribitotech.mtx.settings.MtxLogger;
+
 
 public class SettingsManager {
     //
@@ -167,12 +167,10 @@ public class SettingsManager {
     public static void setFirstLaunchDone(boolean isFirstLaunchDone) {
         if (isFirstLaunchDone) {
             setBooleanPrefValue(KEY_FIRST_LAUNCH_DONE, true);
-            MtxLogger.log(logActive, true, logTag, "SETTED AS FIRST LAUNCH");
+
         } else {
             setBooleanPrefValue(KEY_FIRST_LAUNCH_DONE, false);
-            MtxLogger
-                    .log(logActive, true, logTag,
-                            "REMOVED FIRST LAUNCH (Probably overridden the previous first launch)");
+
         }
     }
 
@@ -188,11 +186,10 @@ public class SettingsManager {
         boolean isFirstLaunchDone = getBooleanPrefValue(KEY_FIRST_LAUNCH_DONE,
                 false);
         if (isFirstLaunchDone) {
-            MtxLogger.log(logActive, true, logTag,
-                    "NOT FIRST LAUNCH OF THE APP (First launch set before)");
+
             return true;
         } else {
-            MtxLogger.log(logActive, true, logTag, "FIRST LAUNCH OF THE APP");
+
             return false;
         }
     }
@@ -202,8 +199,7 @@ public class SettingsManager {
      * */
     public static String getStringPrefValue(String key, String defValue) {
         String value = prefs.getString(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
-                + value);
+
         return value;
 
     }
@@ -213,8 +209,7 @@ public class SettingsManager {
      * */
     public static Boolean getBooleanPrefValue(String key, boolean defValue) {
         boolean value = prefs.getBoolean(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
-                + value);
+
         return value;
     }
 
@@ -223,8 +218,7 @@ public class SettingsManager {
      * */
     public static int getIntegerPrefValue(String key, int defValue) {
         int value = prefs.getInteger(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
-                + value);
+
         return value;
     }
 
