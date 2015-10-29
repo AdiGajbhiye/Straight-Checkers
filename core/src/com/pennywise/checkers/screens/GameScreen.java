@@ -3,7 +3,6 @@ package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -25,9 +24,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
-import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
@@ -49,7 +48,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private final Stage dialogStage;
     private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
-    private final BitmapFont hudFont;
+
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
@@ -64,15 +63,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
-    private final SpriteDrawable validBlackCell;
-    private final SpriteDrawable validCell;
-    private final SpriteDrawable blackCell;
-    private final SpriteDrawable selectedBlackCell;
+
     private Image pauseButton;
     private Simplech engine;
     // Screen second counter (1 second tick)
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
+    private BitmapFont hudFont;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -94,8 +91,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
 
         Gdx.input.setInputProcessor(this);
-        //load fonts
-        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
+
+        hudFont =  Assets.font;
 
         width = 8;
         height = 8;
@@ -252,7 +249,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Table buildBoard() {
         Table layer = new Table();
-        layer.addActor(board(height, width, true));
+        layer.addActor(board(height, width, false));
         return layer;
     }
 
@@ -595,12 +592,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return board;
     }
 
-    public SpriteDrawable tileTexture(String name) {
-        Sprite sprite = gameUI.createSprite(name);
-        //sprite.setFlip(false, true);
-        SpriteDrawable drawable = new SpriteDrawable(sprite);
-        return drawable;
-    }
+
 
     @Override
     public boolean keyDown(int keycode) {

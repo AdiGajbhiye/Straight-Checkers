@@ -2,13 +2,13 @@ package com.pennywise.managers;
 
 /*******************************************************************************
  * Copyright 2012-Present, MoribitoTech
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,20 +17,17 @@ package com.pennywise.managers;
  ******************************************************************************/
 
 
-
-        import com.badlogic.gdx.Gdx;
-        import com.badlogic.gdx.Preferences;
-        import com.moribitotech.mtx.settings.MtxLogger;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 
 public class SettingsManager {
     //
-    private static final String logTag = "MtxSettingsManagerLog";
+    private static final String logTag = "SettingsManager";
     public static boolean logActive = true;
 
     // Public values
-    public static final String PREFS_FILE_NAME = "MyPreferences";
-    public static final Preferences prefs = Gdx.app
-            .getPreferences(PREFS_FILE_NAME);
+    public static final String PREFS_FILE_NAME = "CheckersPreferences";
+    public static final Preferences prefs = Gdx.app.getPreferences(PREFS_FILE_NAME);
 
     // Sound, Music, Vibration
     private static boolean isSoundOn = false;
@@ -44,6 +41,7 @@ public class SettingsManager {
     private static final String KEY_MUSIC = "musicSetting";
     private static final String KEY_SOUND = "soundEffectSetting";
     private static final String KEY_VIBRATION = "vibrationSetting";
+    private static final String PREF_VOLUME = "volume";
 
     /**
      * Set music on/off, it sets to android preferences and isMusicOn in
@@ -167,12 +165,11 @@ public class SettingsManager {
     public static void setFirstLaunchDone(boolean isFirstLaunchDone) {
         if (isFirstLaunchDone) {
             setBooleanPrefValue(KEY_FIRST_LAUNCH_DONE, true);
-            MtxLogger.log(logActive, true, logTag, "SETTED AS FIRST LAUNCH");
+            Gdx.app.debug(logTag, "SETTED AS FIRST LAUNCH");
         } else {
             setBooleanPrefValue(KEY_FIRST_LAUNCH_DONE, false);
-            MtxLogger
-                    .log(logActive, true, logTag,
-                            "REMOVED FIRST LAUNCH (Probably overridden the previous first launch)");
+            Gdx.app.debug(logTag,
+                    "REMOVED FIRST LAUNCH (Probably overridden the previous first launch)");
         }
     }
 
@@ -188,11 +185,11 @@ public class SettingsManager {
         boolean isFirstLaunchDone = getBooleanPrefValue(KEY_FIRST_LAUNCH_DONE,
                 false);
         if (isFirstLaunchDone) {
-            MtxLogger.log(logActive, true, logTag,
+            Gdx.app.debug(logTag,
                     "NOT FIRST LAUNCH OF THE APP (First launch set before)");
             return true;
         } else {
-            MtxLogger.log(logActive, true, logTag, "FIRST LAUNCH OF THE APP");
+            Gdx.app.debug(logTag, "FIRST LAUNCH OF THE APP");
             return false;
         }
     }
@@ -202,7 +199,7 @@ public class SettingsManager {
      * */
     public static String getStringPrefValue(String key, String defValue) {
         String value = prefs.getString(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
+        Gdx.app.debug(logTag, "Pref (Key: " + key + "): "
                 + value);
         return value;
 
@@ -213,7 +210,7 @@ public class SettingsManager {
      * */
     public static Boolean getBooleanPrefValue(String key, boolean defValue) {
         boolean value = prefs.getBoolean(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
+        Gdx.app.debug(logTag, "Pref (Key: " + key + "): "
                 + value);
         return value;
     }
@@ -223,7 +220,7 @@ public class SettingsManager {
      * */
     public static int getIntegerPrefValue(String key, int defValue) {
         int value = prefs.getInteger(key, defValue);
-        MtxLogger.log(logActive, true, logTag, "Pref (Key: " + key + "): "
+        Gdx.app.debug(logTag, "Pref (Key: " + key + "): "
                 + value);
         return value;
     }
@@ -249,6 +246,18 @@ public class SettingsManager {
      * */
     public static void setIntegerPrefValue(String key, int value) {
         prefs.putInteger(key, value);
+        prefs.flush();
+    }
+
+    public float getVolume()
+    {
+        return prefs.getFloat(PREF_VOLUME, 0.5f);
+    }
+
+    public void setVolume(
+            float volume )
+    {
+        prefs.putFloat(PREF_VOLUME, volume);
         prefs.flush();
     }
 }

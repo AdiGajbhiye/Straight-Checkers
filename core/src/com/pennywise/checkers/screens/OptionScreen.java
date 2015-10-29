@@ -9,10 +9,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
@@ -23,82 +28,127 @@ import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 /**
  * Created by CHOXXY on 10/21/2015.
  */
-public class OptionScreen extends AbstractScreen implements InputProcessor {
+public class OptionScreen  extends AbstractScreen
+{
+    private Label volumeValue;
 
-
-    private final Stage stage;
-    private final OrthographicCamera camera;
-    private OrthographicCamera hudCam;
-    private final BitmapFont hudFont;
-    SpriteBatch batch;
-    private float cellsize = 0;
-    private float gridHeight = 0;
-    private TextureAtlas gameUI;
-    private Button pause;
-    private boolean isBusy = false;
-    private int width, height;
-    private Tile[] backgroundTiles;
-    private Panel board;
-    private Piece selectedPiece;
-    private final SpriteDrawable validBlackCell;
-    private final SpriteDrawable validCell;
-    private final SpriteDrawable blackCell;
-    private final SpriteDrawable selectedBlackCell;
-    private Image pauseButton;
-
-    public OptionScreen(Checkers game) {
-        super(game);
-
-
-        camera = new OrthographicCamera();
-        camera.position.set(0, 0, 0);
-        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
-        camera.update();
-
-        stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
-        Gdx.input.setInputProcessor(this);
-
-        //load fonts
-        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
-
-
-        batch = new SpriteBatch();
-        gameUI = new TextureAtlas("images/ui-pack.atlas");
-
-        selectedBlackCell = tileTexture("selectedBlackCell");
-        blackCell = tileTexture("blackCell");
-        validBlackCell = tileTexture("validDarkCell");
-        validCell = tileTexture("validCell");
-
+    public OptionScreen(
+            Checkers game )
+    {
+        super( game );
     }
-
 
     @Override
-    public void show() {
-        setupScreen();
+    public void show()
+    {
+        super.show();
 
+        // retrieve the default table actor
+        Table table = super.getTable();
+        table.defaults().spaceBottom( 30 );
+        table.columnDefaults( 0 ).padRight( 20 );
+        table.add( "Options" ).colspan( 3 );
+
+        // create the labels widgets
+        final CheckBox soundEffectsCheckbox = new CheckBox( "", getSkin() );
+        soundEffectsCheckbox.setChecked( game.getPreferencesManager().isSoundEnabled() );
+        soundEffectsCheckbox.addListener( new ChangeListener() {
+            @Override
+            public void changed(
+                    ChangeEvent event,
+                    Actor actor )
+            {
+                boolean enabled = soundEffectsCheckbox.isChecked();
+                game.getPreferencesManager().setSoundEnabled( enabled );
+                game.getSoundManager().setEnabled( enabled );
+                game.getSoundManager().play( TyrianSound.CLICK );
+            }
+        } );
+        table.row();
+        table.add( "Sound Effects" );
+        table.add( soundEffectsCheckbox ).colspan( 2 ).left();
+
+        final CheckBox musicCheckbox = new CheckBox( "", getSkin() );
+        musicCheckbox.setChecked( game.getPreferencesManager().isMusicEnabled() );
+        musicCheckbox.addListener( new ChangeListener() {
+            @Override
+            public void changed(
+                    ChangeListener.ChangeEvent event,
+                    Actor actor )
+            {
+                boolean enabled = musicCheckbox.isChecked();
+                game.getPreferencesManager().setMusicEnabled( enabled );
+                game.getMusicManager().setEnabled( enabled );
+                game.getSoundManager().play( TyrianSound.CLICK );
+
+                // if the music is now enabled, start playing the menu music
+                if( enabled ) game.getMusicManager().play( TyrianMusic.MENU );
+            }
+        } );
+        table.row();
+        table.add( "Music" );
+        table.add( musicCheckbox ).colspan( 2 ).left();
+
+        // range is [0.0,1.0]; step is 0.1f
+        Slider volumeSlider = new Slider( 0f, 1f, 0.1f, getSkin() );
+        volumeSlider.setValue( game.getPreferencesManager().getVolume() );
+        volumeSlider.addListener( new ChangeListener() {
+            @Override
+            public void changed(
+                    ChangeEvent event,
+                    Actor actor )
+            {
+                float value = ( (Slider) actor ).getValue();
+                game.getPreferencesManager().setVolume( value );
+                game.getMusicManager().setVolume( value );
+                game.getSoundManager().setVolume( value );
+                updateVolumeLabel();
+            }
+        } );
+
+        // create the volume label
+        volumeValue = new Label( "", getSkin() );
+        updateVolumeLabel();
+
+        // add the volume row
+        table.row();
+        table.add( "Volume" );
+        table.add( volumeSlider );
+        table.add( volumeValue ).width( 40 );
+
+        // register the back button
+        TextButton backButton = new TextButton( "Back to main menu", getSkin() );
+        backButton.addListener( new DefaultActorListener() {
+            @Override
+            public void touchUp(
+                    ActorEvent event,
+                    float x,
+                    float y,
+                    int pointer,
+                    int button )
+            {
+                super.touchUp( event, x, y, pointer, button );
+                game.getSoundManager().play( TyrianSound.CLICK );
+                game.setScreen( new MenuScreen( game ) );
+            }
+        } );
+        table.row();
+        table.add( backButton ).size( 250, 60 ).colspan( 3 );
     }
-
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-
-        if (Gdx.input.isTouched()) {
-
-        }
 
     }
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().setScreenSize(width, height);
+
     }
 
     @Override
@@ -121,101 +171,12 @@ public class OptionScreen extends AbstractScreen implements InputProcessor {
 
     }
 
-
-    private void setupScreen() {
-
+    /**
+     * Updates the volume label next to the slider.
+     */
+    private void updateVolumeLabel()
+    {
+        float volume = ( game.getPreferencesManager().getVolume() * 100 );
+        volumeValue.setText( String.format( Locale.US, "%1.0f%%", volume ) );
     }
-
-    private Table backGround() {
-        Table layer = new Table();
-        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
-        layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
-        return layer;
-    }
-
-    private Table hud() {
-        Table layer = new Table();
-        layer.top();
-        pauseButton = new Image(gameUI.createSprite("pause_dark"));
-        layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
-        return layer;
-    }
-
-
-
-
-    protected Tile getTile(String name) {
-
-        for (Tile t : backgroundTiles) {
-            if (t.getName().equalsIgnoreCase(name))
-                return t;
-        }
-
-        return null;
-    }
-
-    public SpriteDrawable tileTexture(String name) {
-        Sprite sprite = gameUI.createSprite(name);
-        //sprite.setFlip(false, true);
-        SpriteDrawable drawable = new SpriteDrawable(sprite);
-        return drawable;
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
-    }
-
-    class LengthComparator implements Comparator<String> {
-        @Override
-        public int compare(String str1, String str2) {
-            return str2.length() - str1.length();
-        }
-
-    }
-
-    private void renderGui(SpriteBatch batch, float runTime) {
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-
-        batch.end();
-    }
-
-
-
 }

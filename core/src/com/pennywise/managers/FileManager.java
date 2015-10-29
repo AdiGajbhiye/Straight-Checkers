@@ -19,7 +19,6 @@ package com.pennywise.managers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.moribitotech.mtx.settings.MtxLogger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -57,16 +56,15 @@ public class FileManager {
         try {
             while ((currentLine = reader.readLine()) != null) {
                 if (counter == lineNumber) {
-                    MtxLogger.log(logActive, true, logTag, "READ LINE: "
-                            + currentLine);
+                    Gdx.app.debug(logTag, "READ LINE: " + currentLine);
                     break;
                 }
                 counter++;
             }
             reader.close();
         } catch (IOException e) {
-            MtxLogger.log(logActive, true, logTag, "CANT READ LINE: File: "
-                    + strFile + ", Line Number: " + lineNumber);
+            Gdx.app.debug(logTag, "CANT READ LINE: File: "
+                   + strFile + ", Line Number: " + lineNumber);
             e.printStackTrace();
         }
         return currentLine;
@@ -87,10 +85,10 @@ public class FileManager {
             bw.write(value);
             bw.newLine();
             bw.close();
-            MtxLogger.log(logActive, true, logTag, "Write New Line: File: "
+            Gdx.app.debug(logTag, "Write New Line: File: "
                     + strFile + ", value: " + value);
         } catch (IOException e) {
-            MtxLogger.log(logActive, true, logTag, "CANT WRITE LINE: File: "
+            Gdx.app.debug(logTag, "CANT WRITE LINE: File: "
                     + strFile);
             e.printStackTrace();
         }
@@ -120,7 +118,7 @@ public class FileManager {
             }
             bw.close();
         } catch (IOException e) {
-            MtxLogger.log(logActive, true, logTag, "CANT WRITE LINE: File: "
+            Gdx.app.debug(logTag, "CANT WRITE LINE: File: "
                     + strFile + ", Line Number: " + lineNumber);
             e.printStackTrace();
         }
@@ -137,7 +135,7 @@ public class FileManager {
         try {
             while ((currentLine = reader.readLine()) != null) {
                 if (counter == lineNumber) {
-                    MtxLogger.log(logActive, true, logTag,
+                    Gdx.app.debug(logTag,
                             "WRITE EXISTING LINE: OLD: " + currentLine
                                     + " - NEW: " + newValue);
                     lineByLineTextList.add(newValue);
@@ -225,21 +223,21 @@ public class FileManager {
             try {
                 file = Gdx.files.internal(strFile);
             } catch (Exception e) {
-                MtxLogger.log(logActive, true, logTag,
+                Gdx.app.debug(logTag,
                         "!!! FILE IS NOT INTERNAL OR NOT EXIST: " + strFile);
             }
         } else if (fileType == FileType.LOCAL_FILE) {
             try {
                 file = Gdx.files.local(strFile);
             } catch (Exception e) {
-                MtxLogger.log(logActive, true, logTag,
+                Gdx.app.debug(logTag,
                         "!!! FILE IS NOT LOCAL OR NOT EXIST: " + strFile);
             }
         } else if (fileType == FileType.EXTERNAL_FILE) {
             try {
                 file = Gdx.files.external(strFile);
             } catch (Exception e) {
-                MtxLogger.log(logActive, true, logTag,
+                Gdx.app.debug(logTag,
                         "!!! FILE IS NOT EXTERNAL OR NOT EXIST: " + strFile);
             }
         }
