@@ -303,66 +303,20 @@ public class Simplech {
 
     ////////////////////////////////////
 
-    CBMove isLegal(int[][] b, int color, int from, int to) {
+    public boolean isLegal(int[] board, int color, int from, int to) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
        the move the user wants to make with from&to */
         int n = 0;
         int i = 0;
         boolean found = false;
-        int Lfrom = 0;
-        int Lto = 0;
         Move[] movelist = new Move[MAXMOVES];
-        int[] board = new int[46];
         CBMove cbMove = null;
         int capture = 0;
-        String Lstr;
 
-	/* initialize board */
-        for (i = 0; i < 46; i++)
-            board[i] = OCCUPIED;
-        for (i = 5; i <= 40; i++)
-            board[i] = FREE;
-        board[5] = b[0][0];
-        board[6] = b[2][0];
-        board[7] = b[4][0];
-        board[8] = b[6][0];
-        board[10] = b[1][1];
-        board[11] = b[3][1];
-        board[12] = b[5][1];
-        board[13] = b[7][1];
-        board[14] = b[0][2];
-        board[15] = b[2][2];
-        board[16] = b[4][2];
-        board[17] = b[6][2];
-        board[19] = b[1][3];
-        board[20] = b[3][3];
-        board[21] = b[5][3];
-        board[22] = b[7][3];
-        board[23] = b[0][4];
-        board[24] = b[2][4];
-        board[25] = b[4][4];
-        board[26] = b[6][4];
-        board[28] = b[1][5];
-        board[29] = b[3][5];
-        board[30] = b[5][5];
-        board[31] = b[7][5];
-        board[32] = b[0][6];
-        board[33] = b[2][6];
-        board[34] = b[4][6];
-        board[35] = b[6][6];
-        board[37] = b[1][7];
-        board[38] = b[3][7];
-        board[39] = b[5][7];
-        board[40] = b[7][7];
-
-        for (i = 5; i <= 40; i++)
-            if (board[i] == 0) board[i] = FREE;
-
-        for (i = 9; i <= 36; i += 9)
-            board[i] = OCCUPIED;
-
-        /* board initialized */
+        /* array initialized */
+        for (int j = 0; j < MAXMOVES; j++)
+            movelist[j] = new Move();
 
         n = generatecapturelist(board, movelist, color);
         capture = n;
@@ -370,7 +324,7 @@ public class Simplech {
         if (n == 0)
             n = generatemovelist(board, movelist, color);
         if (n == 0)
-            return cbMove;
+            return found;
 
 	/* now we have a movelist - check if from and to are the same */
         for (i = 0; i < n; i++) {
@@ -385,7 +339,7 @@ public class Simplech {
         /* sets GCBmove to movelist[i] */
             cbMove = setbestmove(movelist[i]);
 
-        return cbMove;
+        return found;
     }
 
     private CBMove setbestmove(Move move) {
@@ -1022,7 +976,7 @@ public class Simplech {
         return (beta);
     }
 
-    void domove(int[] b, Move move)
+    public void domove(int[] b, Move move)
 /*----------> purpose: execute move on board
   ----------> version: 1.1
   ----------> date: 25th october 97 */ {

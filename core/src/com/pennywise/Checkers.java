@@ -7,6 +7,7 @@ public class Checkers extends Game {
 
     @Override
     public void create() {
+        Assets.loadAll();
         setScreen(new GameScreen(this));
     }
 

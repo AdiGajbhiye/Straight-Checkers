@@ -5,9 +5,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.pennywise.checkers.core.Util;
@@ -26,10 +26,7 @@ public class Assets {
     public static BitmapFont font;
 
     //
-    public static SpriteDrawable img_board_bg_1;
-    public static SpriteDrawable img_board_bg_2;
     public static SpriteDrawable img_bg_1;
-    public static SpriteDrawable img_bg_2;
     public static SpriteDrawable img_obj_btn_play;
     public static SpriteDrawable img_obj_btn_scores;
     public static SpriteDrawable img_obj_btn_settings;
@@ -40,15 +37,12 @@ public class Assets {
     public static SpriteDrawable img_king_white;
     public static SpriteDrawable img_pawn_black;
     public static SpriteDrawable img_king_black;
-    public static SpriteDrawable img_obj_social_google;
-    public static TextureRegion img_obj_social_twitter;
-    public static TextureRegion img_obj_sound_off;
-    public static TextureRegion img_obj_sound_on;
-    public static TextureRegion img_obj_swipe_down_menu;
-    public static TextureRegion img_obj_swipe_up_instructions;
-    public static TextureRegion img_obj_text_junglegamemenu;
-    private static SpriteDrawable img_selected_cell_dark;
-    private static SpriteDrawable img_selected_cell_lite;
+    public static NinePatch img_background;
+    public static NinePatch img_board_bg;
+    public static SpriteDrawable img_selected_cell_dark;
+    public static SpriteDrawable img_selected_cell_lite;
+    public static SpriteDrawable img_dark_outline;
+    public static SpriteDrawable img_btn_pause;
 
     public static Texture loadTexture(String file) {
         return new Texture(Gdx.files.internal(file));
@@ -83,7 +77,7 @@ public class Assets {
         imageAtlas = null;
     }
 
-    public static SpriteDrawable getDrawable(String name) {
+    private static SpriteDrawable getDrawable(String name) {
         Sprite sprite = getAtlas().createSprite(name);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
@@ -95,20 +89,23 @@ public class Assets {
         img_obj_btn_scores = getDrawable("img_obj_btn_scores");
         img_obj_btn_settings = getDrawable("img_obj_btn_settings");
         img_obj_circle = getDrawable("img_obj_circle");
-        img_board_bg_1 = ;
-        img_board_bg_2 = ;
+        img_background = getAtlas().createPatch("panelInset_beigeLight");
+        img_board_bg = getAtlas().createPatch("panel_brown");
         img_selected_cell_dark = getDrawable("selecteddarkcell");
         img_selected_cell_lite = getDrawable("selectedlitecell");
-        img_cell_dark=getDrawable("darkcell");
-        img_cell_light= getDrawable("litecell");
-        img_pawn_black= getDrawable("blackpawn");
-        img_pawn_white= getDrawable("whitepawn");
-        img_king_black= getDrawable("blackking");
-        img_king_white= getDrawable("whiteking");
+        img_cell_dark = getDrawable("darkcell");
+        img_cell_light = getDrawable("litecell");
+        img_pawn_black = getDrawable("blackpawn");
+        img_pawn_white = getDrawable("whitepawn");
+        img_king_black = getDrawable("blackking");
+        img_king_white = getDrawable("whiteking");
+        img_dark_outline = getDrawable("line_dark");
+
     }
 
     public static void loadButtons() {
 
+        img_btn_pause = getDrawable("pause_dark");
     }
 
     public static void loadFonts() {

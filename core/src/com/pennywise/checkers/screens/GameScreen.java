@@ -10,9 +10,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -27,14 +29,15 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
+
+import com.pennywise.checkers.core.Util;
+import com.pennywise.checkers.core.engine.Move;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -52,14 +55,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
-    private TextureAtlas gameUI;
     private Button pause;
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel panel;
     private Piece selectedPiece;
-    private List<Tile> selectedTiles;
+    private Tile selectedTile;
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
@@ -70,6 +72,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
     private BitmapFont hudFont;
+    private Move move = new Move();
 
     public GameScreen(Checkers game) {
         super(game);
@@ -85,6 +88,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
         hudCam.update();
 
+
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
@@ -92,21 +96,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Gdx.input.setInputProcessor(this);
 
-        hudFont =  Assets.font;
+        hudFont = Assets.font;
 
         width = 8;
         height = 8;
         gridHeight = ((com.pennywise.checkers.core.Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
-        gameUI = new TextureAtlas("images/ui-pack.atlas");
-        selectedTiles = new LinkedList<Tile>();
 
-        selectedBlackCell = tileTexture("selectedBlackCell");
-        blackCell = tileTexture("blackCell");
-        validBlackCell = tileTexture("validDarkCell");
-        validCell = tileTexture("validCell");
-
+        engine = new Simplech();
+        engine.initCheckers(board);
     }
 
 
@@ -132,7 +131,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             startTime = System.nanoTime();
         }
 
-/*
+
         if (Gdx.input.isTouched()) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
@@ -143,39 +142,32 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == Simplech.BLACK)
-                        tile.getStyle().background = validBlackCell;
+                        tile.getStyle().background = Assets.img_selected_cell_dark;
                     else
-                        tile.getStyle().background = validCell;
+                        tile.getStyle().background = Assets.img_selected_cell_lite;
                 }
             } else {
 
                 if (selectedPiece != null) {
                     if (actor instanceof Tile) {
-                        selectedTiles.add(((Tile) actor));
-                        int index = Integer.parseInt(selectedTiles.get(0).getName());
-                        int dstCol = index % width;
-                        int dstRow = index / 8;//getRow(index, dstCol);
+                        selectedTile = ((Tile) actor);
 
-                        index = Integer.parseInt(selectedPiece.getName());
-                        int curCol = index % width;
-                        int curRow = index / 8;//, curCol);
-
-                        if (selectedTiles.get(0).getCellEntry() == Simplech.BLACK) {
-                            movePiece(new Move(curRow, curCol, dstRow, dstCol));
+                        if (selectedTile.getCellEntry() == Simplech.BLACK) {
+                            movePiece();
                         } else {
                             selectedPiece = null;
-                            selectedTiles.clear();
+                            selectedTile = null;
                         }
                     }
                 }
             }
 
-
+/*
             if (retCode == ReturnCode.VALID_MOVE) {
                 playGame();
                 retCode = ReturnCode.INVALID_MOVE;
-            }
-        }*/
+            }*/
+        }
 
         stage.act();
         stage.draw();
@@ -229,12 +221,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
-        //boardStage.addActor(drawPieces(height, width));
+        boardStage.addActor(drawPieces(height, width, false));
     }
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(gameUI.createPatch("panelInset_beigeLight"));
+        Image bg = new Image(Assets.img_background);
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
@@ -242,7 +234,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Table hud() {
         Table layer = new Table();
         layer.top();
-        pauseButton = new Image(gameUI.createSprite("pause_dark"));
+        pauseButton = new Image(Assets.img_btn_pause);
         layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
         return layer;
     }
@@ -253,15 +245,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return layer;
     }
 
-
     private Group board(int rows, int cols, boolean inverted) {
 
-        panel = new Panel(gameUI.createPatch("panel_brown"));
+        panel = new Panel(Assets.img_board_bg);
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = hudFont;
-        style.background = tileTexture("line_dark");
+        style.background = Assets.img_dark_outline;
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -291,12 +282,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
-                        style.background = tileTexture("blackCell");
+                        style.background = Assets.img_cell_dark;
                         backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
-                        style.background = tileTexture("beigeCell");
+                        style.background = Assets.img_cell_light;
                         backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
                     }
 
@@ -304,7 +295,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     backgroundTiles[index].setAlignment(Align.center);
                     backgroundTiles[index].setPosition(position[index].x, position[index].y);
                     backgroundTiles[index].setName(text + "");
-                    backgroundTiles[index].setText(text + "");
                     panel.addActor(backgroundTiles[index]);
                 }
             }
@@ -317,12 +307,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
-                        style.background = tileTexture("blackCell");
+                        style.background = Assets.img_cell_dark;
                         backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
-                        style.background = tileTexture("beigeCell");
+                        style.background = Assets.img_cell_light;
                         backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
                     }
 
@@ -330,7 +320,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     backgroundTiles[index].setAlignment(Align.center);
                     backgroundTiles[index].setPosition(position[index].x, position[index].y);
                     backgroundTiles[index].setName(text + "");
-                    backgroundTiles[index].setText(text + "");
                     panel.addActor(backgroundTiles[index]);
                 }
             }
@@ -340,11 +329,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     }
 
-    /*
-    protected void movePiece(Move move) {
+    protected void movePiece() {
 
-        retCode = Human.makeNextWhiteMoves(move, logicBoard);
+        int from = Integer.parseInt(selectedPiece.getName());
+        int to = Integer.parseInt(selectedTile.getName());
 
+        move.n = 1;
+        move.m = new int[]{from, to};
+
+        if (engine.isLegal(board, selectedPiece.getPlayer(), from, to))
+            engine.domove(board, move);
+        else
+            return;
+/*
         if (retCode == ReturnCode.VALID_MOVE) {
 
             float posX = selectedTiles.get(0).getX() + (selectedTiles.get(0).getWidth() / 2);
@@ -391,8 +388,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             selectedTiles.clear();
             selectedPiece = null;
             return;
-        }
-    }*/
+        }*/
+    }
 
     protected Tile getTile(String name) {
 
@@ -538,7 +535,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         }
 
     */
-    protected Group drawPieces(int rows, int cols) {
+    protected Group drawPieces(int rows, int cols, boolean inverted) {
 
         Group board = new Group();
         board.setTouchable(Touchable.childrenOnly);
@@ -551,7 +548,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
 
-        int index, x, y = 0;
+        int index, text = 0;
+        int count = 1;
 
         float posY = (float) (0.25 * Constants.GAME_HEIGHT);
 
@@ -560,30 +558,53 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         float bHeight = (cellsize * rows) + (padding * 2);
         board.setHeight(bHeight);
 
+        if (inverted) {
+            for (int row = 7; row >= 0; row--) {
+                for (int col = 0; col < cols; col++) {
+                    index = col + (row * cols);
+                    position[index] = new Vector2((col * cellsize) + padding,
+                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                index = col + (row * cols);
+                    if ((row % 2) == (col % 2)) {
+                        text = (count += 2) / 2;
+                        if (row >= 5)
+                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
+                        else if (row < 3)
+                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
+                        Gdx.app.error("Text", text + "");
+                        Gdx.app.error("Index", index + "");
 
-                position[index] = new Vector2((col * cellsize) + padding,
-                        (posY) + (padding + ((row * (cellsize)))));
+                        if (pieces[index] == null)
+                            continue;
 
-                x = col * 22;
-                y = row * 22;
+                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setPosition(position[index].x, position[index].y);
+                        pieces[index].setName(index + "");
+                        board.addActor(pieces[index]);
+                    }
+                }
+            }
+        } else {
+            for (int row = 0; row < rows; row++) {
+                for (int col = 7; col >= 0; col--) {
+                    index = col + (row * cols);
+                    position[index] = new Vector2((col * cellsize) + padding,
+                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                if ((row % 2) == (col % 2)) {
-                    if (row >= 5)
-                        pieces[index] = new Piece(tileTexture("blackPiece"));
-                    else if (row < 3)
-                        pieces[index] = new Piece(tileTexture("whitePiece"));
-                    else
-                        continue;
+                    if ((row % 2) == (col % 2)) {
+                        text = (count += 2) / 2;
+                        if (row >= 5)
+                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
+                        else if (row < 3)
+                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
 
-
-                    pieces[index].setSize(cellsize, cellsize);
-                    pieces[index].setPosition(position[index].x, position[index].y);
-                    pieces[index].setName(index + "");
-                    board.addActor(pieces[index]);
+                        if (pieces[index] == null)
+                            continue;
+                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setPosition(position[index].x, position[index].y);
+                        pieces[index].setName(text + "");
+                        board.addActor(pieces[index]);
+                    }
                 }
             }
         }
@@ -591,7 +612,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         return board;
     }
-
 
 
     @Override
@@ -634,13 +654,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return false;
     }
 
-    class LengthComparator implements Comparator<String> {
-        @Override
-        public int compare(String str1, String str2) {
-            return str2.length() - str1.length();
-        }
-
-    }
 
     private void renderGui(SpriteBatch batch, float runTime) {
         batch.setProjectionMatrix(hudCam.combined);
@@ -707,7 +720,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void gameOverDialog(String winner) {
 
-        Skin skin = new Skin(Gdx.files.internal("images/ui-pack.json"), gameUI);
+        Skin skin = new Skin(Gdx.files.internal("images/ui-pack.json"), Assets.getAtlas());
 
         Label label = new Label(winner + "wins!", skin);
         label.setWrap(true);

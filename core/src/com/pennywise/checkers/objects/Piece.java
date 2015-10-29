@@ -9,10 +9,20 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 public class Piece extends Image {
 
     private  boolean captured;
+    private  int player;
 
-    public Piece(SpriteDrawable img) {
+    public Piece(SpriteDrawable img, int player) {
         super(img);
         captured = false;
+        this.player = player;
+    }
+
+    public int getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(int player) {
+        this.player = player;
     }
 
     public boolean isCaptured() {
