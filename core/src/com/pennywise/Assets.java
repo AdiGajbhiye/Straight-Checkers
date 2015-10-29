@@ -84,11 +84,6 @@ public class Assets {
     }
 
     public static void loadImages() {
-        img_bg_1 = getDrawable("img_bg_1_");
-        img_obj_btn_play = getDrawable("img_obj_btn_play");
-        img_obj_btn_scores = getDrawable("img_obj_btn_scores");
-        img_obj_btn_settings = getDrawable("img_obj_btn_settings");
-        img_obj_circle = getDrawable("img_obj_circle");
         img_background = getAtlas().createPatch("panelInset_beigeLight");
         img_board_bg = getAtlas().createPatch("panel_brown");
         img_selected_cell_dark = getDrawable("selecteddarkcell");

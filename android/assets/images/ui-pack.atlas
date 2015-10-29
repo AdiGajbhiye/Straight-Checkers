@@ -1,61 +1,89 @@
 
 ui-pack.png
-size: 1024,512
+size: 1024,1024
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-beigeCell
-  rotate: false
-  xy: 933, 462
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
 beige_plain
   rotate: false
-  xy: 543, 135
+  xy: 2, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 beige_tile
   rotate: false
-  xy: 383, 44
+  xy: 601, 691
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
-blackCell
+blackking
   rotate: false
-  xy: 933, 412
-  size: 48, 48
-  orig: 48, 48
-  offset: 0, 0
-  index: -1
-blackKing
-  rotate: false
-  xy: 2, 318
+  xy: 2, 444
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
   index: -1
-blackPiece
+blackpawn
   rotate: false
-  xy: 2, 124
+  xy: 388, 830
   size: 192, 192
   orig: 192, 192
+  offset: 0, 0
+  index: -1
+blue_boxCheckmark
+  rotate: false
+  xy: 104, 130
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+blue_boxCross
+  rotate: false
+  xy: 144, 130
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+blue_boxTick
+  rotate: false
+  xy: 858, 844
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+blue_checkmark
+  rotate: false
+  xy: 358, 512
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+blue_cross
+  rotate: false
+  xy: 384, 557
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+blue_tick
+  rotate: false
+  xy: 204, 126
+  size: 17, 17
+  orig: 17, 17
   offset: 0, 0
   index: -1
 brown_tile
   rotate: false
-  xy: 634, 271
+  xy: 236, 149
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 button-blue
   rotate: false
-  xy: 552, 185
+  xy: 645, 732
   size: 49, 45
   split: 21, 26, 22, 21
   orig: 49, 45
@@ -63,7 +91,7 @@ button-blue
   index: -1
 button-bluedown
   rotate: false
-  xy: 390, 137
+  xy: 973, 973
   size: 49, 49
   split: 16, 32, 21, 27
   orig: 49, 49
@@ -71,7 +99,7 @@ button-bluedown
   index: -1
 button-green
   rotate: false
-  xy: 831, 461
+  xy: 973, 922
   size: 49, 49
   split: 11, 37, 23, 24
   orig: 49, 49
@@ -79,7 +107,7 @@ button-green
   index: -1
 button-greendown
   rotate: false
-  xy: 831, 414
+  xy: 196, 245
   size: 49, 45
   split: 18, 30, 22, 22
   orig: 49, 45
@@ -87,7 +115,7 @@ button-greendown
   index: -1
 button-grey
   rotate: false
-  xy: 441, 137
+  xy: 298, 425
   size: 49, 49
   split: 12, 36, 18, 29
   orig: 49, 49
@@ -95,7 +123,7 @@ button-grey
   index: -1
 button-greydown
   rotate: false
-  xy: 882, 414
+  xy: 644, 685
   size: 49, 45
   split: 22, 26, 15, 28
   orig: 49, 45
@@ -103,7 +131,7 @@ button-greydown
   index: -1
 button-orange
   rotate: false
-  xy: 882, 461
+  xy: 550, 683
   size: 49, 49
   split: 18, 29, 31, 16
   orig: 49, 49
@@ -111,7 +139,7 @@ button-orange
   index: -1
 button-orangedown
   rotate: false
-  xy: 603, 185
+  xy: 695, 683
   size: 49, 45
   split: 24, 23, 22, 21
   orig: 49, 45
@@ -119,7 +147,7 @@ button-orangedown
   index: -1
 button-yellow
   rotate: false
-  xy: 492, 137
+  xy: 645, 779
   size: 49, 49
   split: 25, 23, 21, 26
   orig: 49, 49
@@ -127,7 +155,7 @@ button-yellow
   index: -1
 button-yellowdown
   rotate: false
-  xy: 749, 383
+  xy: 388, 621
   size: 49, 45
   split: 21, 26, 20, 23
   orig: 49, 45
@@ -135,161 +163,266 @@ button-yellowdown
   index: -1
 buttonRound_beige
   rotate: false
-  xy: 301, 2
+  xy: 97, 52
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_blue
   rotate: false
-  xy: 338, 2
+  xy: 102, 12
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_brown
   rotate: false
-  xy: 375, 2
+  xy: 139, 14
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
 buttonRound_grey
   rotate: false
-  xy: 983, 472
+  xy: 858, 882
   size: 35, 38
   orig: 35, 38
   offset: 0, 0
   index: -1
+darkcell
+  rotate: false
+  xy: 52, 2
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 dotBlue
   rotate: false
-  xy: 206, 2
+  xy: 358, 612
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotGreen
   rotate: false
-  xy: 232, 2
+  xy: 936, 864
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotRed
   rotate: false
-  xy: 258, 2
+  xy: 358, 586
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotWhite
   rotate: false
-  xy: 983, 446
+  xy: 358, 560
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotYellow
   rotate: false
-  xy: 800, 404
+  xy: 358, 534
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
+green_boxCheckmark
+  rotate: false
+  xy: 97, 92
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+green_boxCross
+  rotate: false
+  xy: 137, 92
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+green_boxTick
+  rotate: false
+  xy: 935, 890
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+green_checkmark
+  rotate: false
+  xy: 358, 490
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+green_cross
+  rotate: false
+  xy: 407, 579
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+green_tick
+  rotate: false
+  xy: 297, 279
+  size: 17, 17
+  orig: 17, 17
+  offset: 0, 0
+  index: -1
+grey_boxCheckmark
+  rotate: false
+  xy: 134, 54
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+grey_boxCross
+  rotate: false
+  xy: 895, 890
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+grey_boxTick
+  rotate: false
+  xy: 278, 336
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+grey_checkmarkGrey
+  rotate: false
+  xy: 384, 599
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+grey_crossGrey
+  rotate: false
+  xy: 384, 537
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+grey_tickGrey
+  rotate: false
+  xy: 316, 280
+  size: 17, 17
+  orig: 17, 17
+  offset: 0, 0
+  index: -1
 lineDark03
   rotate: false
-  xy: 390, 350
+  xy: 196, 476
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark06
   rotate: false
-  xy: 390, 188
+  xy: 388, 668
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark08
   rotate: false
-  xy: 593, 135
+  xy: 298, 375
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark12
   rotate: false
-  xy: 390, 87
+  xy: 696, 780
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark17
   rotate: false
-  xy: 440, 87
+  xy: 696, 730
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark18
   rotate: false
-  xy: 490, 87
+  xy: 186, 195
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark27
   rotate: false
-  xy: 540, 85
+  xy: 439, 618
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark29
   rotate: false
-  xy: 590, 85
+  xy: 489, 618
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark30
   rotate: false
-  xy: 426, 37
+  xy: 746, 780
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark40
   rotate: false
-  xy: 552, 232
+  xy: 104, 168
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 lineDark41
   rotate: false
-  xy: 749, 430
+  xy: 776, 840
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 lineDark42
   rotate: false
-  xy: 301, 42
+  xy: 196, 292
   size: 80, 80
   orig: 80, 80
   offset: 0, 0
   index: -1
 line_dark
   rotate: false
-  xy: 476, 37
+  xy: 746, 730
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+litecell
+  rotate: false
+  xy: 746, 680
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+logo
+  rotate: false
+  xy: 2, 638
+  size: 384, 384
+  orig: 384, 384
+  offset: 0, 0
+  index: -1
 panel-beigeLight
   rotate: false
-  xy: 2, 22
+  xy: 2, 148
   size: 100, 100
   split: 40, 55, 57, 37
   orig: 100, 100
@@ -297,14 +430,14 @@ panel-beigeLight
   index: -1
 panelInset_beige
   rotate: false
-  xy: 552, 314
+  xy: 550, 734
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panelInset_beigeLight
   rotate: false
-  xy: 654, 416
+  xy: 2, 52
   size: 93, 94
   split: 70, 14, 40, 46
   orig: 93, 94
@@ -312,21 +445,21 @@ panelInset_beigeLight
   index: -1
 panelInset_brown
   rotate: false
-  xy: 206, 28
+  xy: 878, 928
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panel_beige
   rotate: false
-  xy: 552, 410
+  xy: 776, 922
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel_brown
   rotate: false
-  xy: 104, 22
+  xy: 196, 374
   size: 100, 100
   split: 79, 12, 44, 46
   orig: 100, 100
@@ -334,57 +467,141 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 526, 35
+  xy: 796, 790
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-selectedBlackCell
+red_boxCheckmark
   rotate: false
-  xy: 576, 35
+  xy: 973, 884
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+red_boxCross
+  rotate: false
+  xy: 896, 852
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+red_boxTick
+  rotate: false
+  xy: 278, 298
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+red_checkmark
+  rotate: false
+  xy: 384, 577
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+red_cross
+  rotate: false
+  xy: 358, 470
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+red_tick
+  rotate: false
+  xy: 297, 260
+  size: 17, 17
+  orig: 17, 17
+  offset: 0, 0
+  index: -1
+selecteddarkcell
+  rotate: false
+  xy: 796, 740
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-selectedCell
+selectedlitecell
   rotate: false
-  xy: 626, 35
+  xy: 796, 690
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 validCell
   rotate: false
-  xy: 640, 85
+  xy: 247, 242
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-validDarkCell
+validdarkcell
   rotate: false
-  xy: 643, 135
+  xy: 236, 192
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 whiteCell
   rotate: false
-  xy: 676, 35
+  xy: 186, 145
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-whiteKing
+whiteking
   rotate: false
-  xy: 196, 318
+  xy: 2, 250
   size: 192, 192
   orig: 192, 192
   offset: 0, 0
   index: -1
-whitePiece
+whitepawn
   rotate: false
-  xy: 196, 124
+  xy: 582, 830
   size: 192, 192
   orig: 192, 192
+  offset: 0, 0
+  index: -1
+yellow_boxCheckmark
+  rotate: false
+  xy: 316, 337
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+yellow_boxCross
+  rotate: false
+  xy: 316, 299
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
+yellow_boxTick
+  rotate: false
+  xy: 550, 645
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
+yellow_checkmark
+  rotate: false
+  xy: 407, 599
+  size: 21, 20
+  orig: 21, 20
+  offset: 0, 0
+  index: -1
+yellow_cross
+  rotate: false
+  xy: 184, 125
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+yellow_tick
+  rotate: false
+  xy: 316, 261
+  size: 17, 17
+  orig: 17, 17
   offset: 0, 0
   index: -1
