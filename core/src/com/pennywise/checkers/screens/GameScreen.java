@@ -334,12 +334,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(selectedPiece.getName());
         int to = Integer.parseInt(selectedTile.getName());
 
-        move.n = 1;
-        move.m = new int[]{from, to};
+        Move move = engine.isLegal(board, selectedPiece.getPlayer(), from, to);
 
-        if (engine.isLegal(board, selectedPiece.getPlayer(), from, to))
-            engine.domove(board, move);
-        else
+        if (move != null) {
+            engine.doMove(board, move);
+            engine.printBoard(board);
+            int player = selectedPiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
+            engine.getMove(board, player, 5, false, move);
+            engine.printBoard(board);
+        } else
             return;
 /*
         if (retCode == ReturnCode.VALID_MOVE) {
@@ -351,7 +354,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             moveAction.setPosition(posX, posY, Align.center);
             moveAction.setDuration(0.5f);
             selectedPiece.toFront();
-            selectedPiece.addAction(moveAction);
+            se2lectedPiece.addAction(moveAction);
 
             selectedPiece.setName(selectedTiles.get(0).getName());// = null;
             selectedTiles.get(0).getStyle().background = blackCell;

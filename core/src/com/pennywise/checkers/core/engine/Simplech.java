@@ -1,5 +1,7 @@
 package com.pennywise.checkers.core.engine;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -65,158 +67,6 @@ public class Simplech {
 
     ///////////////////////////////////
 
-    public void main()
-/*----------> purpose: provide a simple interface to checkers.
-  ----------> version: 1.0
-  ----------> date: 24th october 97 */
-/*----------> modified for xcheckers, pch,
-  ----------> 99-02-09 */ {
-        String str;
-        byte[] buf = new byte[240];
-        boolean askme = true;
-        int huPAWN = BLACK;
-        int program = WHITE;
-        int len;
-        int[] b = new int[46];
-        int choice;
-        String in;
-        Move[] movelist = new Move[MAXMOVES];
-        double maxtime;
-        Scanner reader = new Scanner(System.in);  // Reading from System.in
-        System.out.println("Enter a number: ");
-
-        System.out.println("simple checkers version 1.11pl5");
-        System.out.println("8th october 98, 27th november 99");
-        System.out.println("by martin fierz");
-
-        for (int i = 0; i < MAXMOVES; i++)
-            movelist[i] = new Move();
-
-        do {
-            System.out.println(" ");
-            maxtime = 0.5;
-            askme = true;
-
-            while (true) {
-                System.out.println("Type b/w to play black/white: ");
-                in = reader.next();
-                if (in.equalsIgnoreCase("W")) {
-                    huPAWN = WHITE;
-                    program = BLACK;
-                    break;
-                } else if (in.equalsIgnoreCase("b")) {
-                    huPAWN = BLACK;
-                    program = WHITE;
-                    break;
-                } else if (in.equalsIgnoreCase("q")) {
-                    askme = false;
-                    break;
-                }
-            }
-
-            if (!askme)
-                break;
-
-            int n = 0;
-
-            while (true) {
-                System.out.println("set program strength (1-9): ");
-                in = reader.next();
-                if (Character.isDigit(in.charAt(0))) {
-                    n = Integer.parseInt(in);
-                    if (n < 10 && n > 0) {
-                        n *= n;
-                        maxtime *= n;
-                        break;
-                    }
-                } else if (n == 'q') {
-                    askme = false;
-                    break;
-                }
-            }
-
-            if (!askme)
-                break;
-
-            initCheckers(b);
-
-            if (program == BLACK) {
-                printBoard(b);
-                checkers(b, program, maxtime);
-            }
-
-            do {
-                len = 0;
-                choice = 0;
-                printBoard(b);
-                if (testcapture(b, huPAWN))
-                    n = generatecapturelist(b, movelist, huPAWN);
-                else
-                    n = generatemovelist(b, movelist, huPAWN);
-                if (n <= 0) {
-                    System.out.println("program wins");
-                    break;
-                }
-                for (int i = 0; i < n; i++) {
-                    if ((i % 6) == 0)
-                        System.out.println("\n");
-                    str = movetonotation(movelist[i]);
-                    System.out.print(String.format("%c: %s   ", i + 97, str));
-
-                }
-                System.out.println(String.format("your move? (t tests, z leaves)  "));
-                str = reader.next();
-                if (str.equalsIgnoreCase("new")) {
-                    askme = true;
-                    break;
-                }
-                if (str.equalsIgnoreCase("quit")) {
-                    askme = false;
-                    break;
-                }
-                if (Character.isLetter(str.charAt(0)))
-                    choice = str.charAt(0) - 96;
-                else
-                    choice = 0;
-                if (choice == 20) {
-                    System.out.println("testing, please be patient");
-                    continue;
-                }
-                if (choice == 26) {
-                    break;
-                }
-                if (choice <= 0 || choice > n) {
-                    System.out.println("invalid move!");
-                    continue;
-                }
-
-                domove(b, movelist[choice - 1]);
-
-                printBoard(b);
-
-                if (checkers(b, program, maxtime) == 0) {
-                    System.out.println("you win!");
-                    break;
-                }
-            } while (askme);
-
-            while (askme) {
-                System.out.println("\nq quits, p to play again: ");
-                in = reader.next();
-                if (in.equalsIgnoreCase("q"))
-                    askme = false;
-                else if (n == 'p' || n == 'n')
-                    askme = false;
-            }
-        } while (askme);
-
-        System.out.println("simple checkers version 1.11pl5");
-        System.out.println("8th october 98, 27th november 99");
-        System.out.println("by martin fierz");
-        System.out.println("");
-    }
-
-/* end move conversion  */
 
     public void initCheckers(int[] b)
 /*----------> purpose: initialize the checkerboard
@@ -303,15 +153,13 @@ public class Simplech {
 
     ////////////////////////////////////
 
-    public boolean isLegal(int[] board, int color, int from, int to) {
+    public Move isLegal(int[] board, int color, int from, int to) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
        the move the user wants to make with from&to */
         int n = 0;
-        int i = 0;
-        boolean found = false;
         Move[] movelist = new Move[MAXMOVES];
-        CBMove cbMove = null;
+        Move move = null;
         int capture = 0;
 
         /* array initialized */
@@ -324,329 +172,38 @@ public class Simplech {
         if (n == 0)
             n = generatemovelist(board, movelist, color);
         if (n == 0)
-            return found;
+            return move;
 
 	/* now we have a movelist - check if from and to are the same */
-        for (i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             int[] iMove = moveNotation(movelist[i]);
 
             if (from == iMove[0] && to == iMove[1]) {
-                found = true;
+                move = movelist[i];
                 break;
             }
         }
-        if (found)
-        /* sets GCBmove to movelist[i] */
-            cbMove = setbestmove(movelist[i]);
 
-        return found;
+        return move;
     }
 
-    private CBMove setbestmove(Move move) {
-        int i;
-        int jumps;
-        int from, to;
-        Coord c1, c2;
-        CBMove cbMove = new CBMove();
-
-        jumps = move.n - 2;
-
-        from = move.m[0] % 256;
-        to = move.m[1] % 256;
-
-        cbMove.from = numbertoCoord(from);
-        cbMove.to = numbertoCoord(to);
-        cbMove.ismove = jumps;
-        cbMove.newpiece = ((move.m[1] >> 16) % 256);
-        cbMove.oldpiece = ((move.m[0] >> 8) % 256);
-        for (i = 2; i < move.n; i++) {
-            cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
-            cbMove.del[i - 2] = numbertoCoord(move.m[i] % 256);
-        }
-        if (jumps > 1)
-        /* more than one jump - need to calculate intermediate squares*/ {
-        /* set square where we start to c1 */
-            c1 = numbertoCoord(from);
-            for (i = 2; i < move.n; i++) {
-                c2 = numbertoCoord(move.m[i] % 256);
-            /* c2 is the piece we jump */
-            /* => we land on the next square?! */
-                if (c2.x > c1.x) c2.x++;
-                else c2.x--;
-                if (c2.y > c1.y) c2.y++;
-                else c2.y--;
-            /* now c2 holds the square after the jumped piece - this is our path square */
-                cbMove.path[i - 1] = c2;
-                c1 = c2;
-            }
-        } else {
-            cbMove.path[1] = numbertoCoord(to);
-        }
-
-        return cbMove;
-    }
-
-
-    Coord numbertoCoord(int n) {
-    /* turns square number n into a coordinate for checkerboard */
-   /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-        Coord c = new Coord();
-        switch (n) {
-            case 5:
-                c.x = 0;
-                c.y = 0;
-                break;
-            case 6:
-                c.x = 2;
-                c.y = 0;
-                break;
-            case 7:
-                c.x = 4;
-                c.y = 0;
-                break;
-            case 8:
-                c.x = 6;
-                c.y = 0;
-                break;
-            case 10:
-                c.x = 1;
-                c.y = 1;
-                break;
-            case 11:
-                c.x = 3;
-                c.y = 1;
-                break;
-            case 12:
-                c.x = 5;
-                c.y = 1;
-                break;
-            case 13:
-                c.x = 7;
-                c.y = 1;
-                break;
-           /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-            case 14:
-                c.x = 0;
-                c.y = 2;
-                break;
-            case 15:
-                c.x = 2;
-                c.y = 2;
-                break;
-            case 16:
-                c.x = 4;
-                c.y = 2;
-                break;
-            case 17:
-                c.x = 6;
-                c.y = 2;
-                break;
-            case 19:
-                c.x = 1;
-                c.y = 3;
-                break;
-            case 20:
-                c.x = 3;
-                c.y = 3;
-                break;
-            case 21:
-                c.x = 5;
-                c.y = 3;
-                break;
-            case 22:
-                c.x = 7;
-                c.y = 3;
-                break;
-           /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-            case 23:
-                c.x = 0;
-                c.y = 4;
-                break;
-            case 24:
-                c.x = 2;
-                c.y = 4;
-                break;
-            case 25:
-                c.x = 4;
-                c.y = 4;
-                break;
-            case 26:
-                c.x = 6;
-                c.y = 4;
-                break;
-            case 28:
-                c.x = 1;
-                c.y = 5;
-                break;
-            case 29:
-                c.x = 3;
-                c.y = 5;
-                break;
-            case 30:
-                c.x = 5;
-                c.y = 5;
-                break;
-            case 31:
-                c.x = 7;
-                c.y = 5;
-                break;
-           /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-            case 32:
-                c.x = 0;
-                c.y = 6;
-                break;
-            case 33:
-                c.x = 2;
-                c.y = 6;
-                break;
-            case 34:
-                c.x = 4;
-                c.y = 6;
-                break;
-            case 35:
-                c.x = 6;
-                c.y = 6;
-                break;
-            case 37:
-                c.x = 1;
-                c.y = 7;
-                break;
-            case 38:
-                c.x = 3;
-                c.y = 7;
-                break;
-            case 39:
-                c.x = 5;
-                c.y = 7;
-                break;
-            case 40:
-                c.x = 7;
-                c.y = 7;
-                break;
-        }
-           /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-
-        return c;
-    }
-
-    int getMove(int[][] b, int color, long maxtime, String str, boolean playNow) {
+    public int getMove(int[] board, int color, long maxtime, boolean playNow, Move move) {
    /* getmove is what checkerboard calls. you get 6 parameters:
-   b[8][8] 	is the current position. the values in the array are determined by
+   board 	is the current position. the values in the array are determined by
    			the #defined values of BLACK, WHITE, KING, PAWN. a black king for
             instance is represented by BLACK|KING.
    color		is the side to make a move. BLACK or WHITE.
    maxtime	is the time your program should use to make a move. this is
    		   what you specify as level in checkerboard. so if you exceed
             this time it's not too bad - just don't exceed it too much...
-   str		is a pointer to the output string of the checkerboard status bar.
-   			you can use sprintf(str,"information"); to print any information you
-            want into the status bar.
-   *playnow	is a pointer to the playnow variable of checkerboard. if the user
+   playnow	is a pointer to the playnow variable of checkerboard. if the user
    			would like your engine to play immediately, this value is nonzero,
             else zero. you should respond to a nonzero value of *playnow by
             interrupting your search IMMEDIATELY.
-   struct CBmove *move
-   			is unused here. this parameter would allow engines playing different
-            versions of checkers to return a move to CB. for engines playing
-            english checkers this is not necessary.
             */
 
         int i;
         int value;
-        int[] board = new int[46];
-
-   /* initialize board */
-        for (i = 0; i < 46; i++)
-            board[i] = OCCUPIED;
-        for (i = 5; i <= 40; i++)
-            board[i] = FREE;
-   /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-        board[5] = b[0][0];
-        board[6] = b[2][0];
-        board[7] = b[4][0];
-        board[8] = b[6][0];
-        board[10] = b[1][1];
-        board[11] = b[3][1];
-        board[12] = b[5][1];
-        board[13] = b[7][1];
-        board[14] = b[0][2];
-        board[15] = b[2][2];
-        board[16] = b[4][2];
-        board[17] = b[6][2];
-        board[19] = b[1][3];
-        board[20] = b[3][3];
-        board[21] = b[5][3];
-        board[22] = b[7][3];
-        board[23] = b[0][4];
-        board[24] = b[2][4];
-        board[25] = b[4][4];
-        board[26] = b[6][4];
-        board[28] = b[1][5];
-        board[29] = b[3][5];
-        board[30] = b[5][5];
-        board[31] = b[7][5];
-        board[32] = b[0][6];
-        board[33] = b[2][6];
-        board[34] = b[4][6];
-        board[35] = b[6][6];
-        board[37] = b[1][7];
-        board[38] = b[3][7];
-        board[39] = b[5][7];
-        board[40] = b[7][7];
 
         for (i = 5; i <= 40; i++)
             if (board[i] == 0)
@@ -657,44 +214,10 @@ public class Simplech {
 
         this.play = playNow;
 
-        value = checkers(board, color, maxtime);
+        value = computeMove(board, color, maxtime, move);
 
         for (i = 5; i <= 40; i++)
             if (board[i] == FREE) board[i] = 0;
-
-        /* return the board */
-        b[0][0] = board[5];
-        b[2][0] = board[6];
-        b[4][0] = board[7];
-        b[6][0] = board[8];
-        b[1][1] = board[10];
-        b[3][1] = board[11];
-        b[5][1] = board[12];
-        b[7][1] = board[13];
-        b[0][2] = board[14];
-        b[2][2] = board[15];
-        b[4][2] = board[16];
-        b[6][2] = board[17];
-        b[1][3] = board[19];
-        b[3][3] = board[20];
-        b[5][3] = board[21];
-        b[7][3] = board[22];
-        b[0][4] = board[23];
-        b[2][4] = board[24];
-        b[4][4] = board[25];
-        b[6][4] = board[26];
-        b[1][5] = board[28];
-        b[3][5] = board[29];
-        b[5][5] = board[30];
-        b[7][5] = board[31];
-        b[0][6] = board[32];
-        b[2][6] = board[33];
-        b[4][6] = board[34];
-        b[6][6] = board[35];
-        b[1][7] = board[37];
-        b[3][7] = board[38];
-        b[5][7] = board[39];
-        b[7][7] = board[40];
 
         if (color == BLACK) {
             if (value > 4000) return WIN;
@@ -760,7 +283,7 @@ public class Simplech {
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
 
-    int checkers(int[] b, int color, double maxtime)
+    int computeMove(int[] b, int color, double maxtime, Move move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -790,16 +313,14 @@ public class Simplech {
         numberofmoves = generatecapturelist(b, movelist, color);
 
         if (numberofmoves == 1) {
-            domove(b, movelist[0]);
+            doMove(b, movelist[0]);
             str = "forced capture";
-            setbestmove(movelist[0]);
             return (1);
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
-                domove(b, movelist[0]);
+                doMove(b, movelist[0]);
                 str = "only move";
-                setbestmove(movelist[0]);
                 return (1);
             }
             if (numberofmoves == 0) {
@@ -843,9 +364,8 @@ public class Simplech {
 
         if (play)
             bestMove = lastbest;
-        domove(b, bestMove);
-        /* set the CBmove */
-        setbestmove(bestMove);
+        doMove(b, bestMove);
+        move = bestMove;
         return eval;
     }
 
@@ -890,7 +410,7 @@ public class Simplech {
 
 /*----------> for all moves: execute the move, search tree, undo move. */
         for (i = 0; i < numberofmoves; i++) {
-            domove(b, movelist[i]);
+            doMove(b, movelist[i]);
 
             value = alphabeta(b, depth - 1, alpha, beta, (color ^ CHANGECOLOR));
 
@@ -956,7 +476,7 @@ public class Simplech {
 
 /*----------> for all moves: execute the move, search tree, undo move. */
         for (i = 0; i < numberofmoves; i++) {
-            domove(b, movelist[i]);
+            doMove(b, movelist[i]);
 
             value = alphabeta(b, depth - 1, alpha, beta, color ^ CHANGECOLOR);
 
@@ -976,7 +496,7 @@ public class Simplech {
         return (beta);
     }
 
-    public void domove(int[] b, Move move)
+    public void doMove(int[] b, Move move)
 /*----------> purpose: execute move on board
   ----------> version: 1.1
   ----------> date: 25th october 97 */ {
@@ -988,6 +508,7 @@ public class Simplech {
             after = ((move.m[i] >> 16) % 256);
             b[square] = after;
         }
+
     }
 
     void undomove(int[] b, Move move)
@@ -2305,4 +1826,180 @@ public class Simplech {
         return false;
     }
 
+    public Point getBoardPosition(int n) {
+    /* turns square number n into a coordinate for checkerboard */
+   /*         (white)
+  32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+    (black)  */
+        Point p = new Point();
+        switch (n) {
+            case 4:
+                p.col = 0;
+                p.row = 0;
+                break;
+            case 3:
+                p.col = 2;
+                p.row = 0;
+                break;
+            case 2:
+                p.col = 4;
+                p.row = 0;
+                break;
+            case 1:
+                p.col = 6;
+                p.row = 0;
+                break;
+            case 8:
+                p.col = 1;
+                p.row = 1;
+                break;
+            case 7:
+                p.col = 3;
+                p.row = 1;
+                break;
+            case 6:
+                p.col = 5;
+                p.row = 1;
+                break;
+            case 5:
+                p.col = 7;
+                p.row = 1;
+                break;
+		   /*    (white)
+   				  32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 12:
+                p.col = 0;
+                p.row = 2;
+                break;
+            case 11:
+                p.col = 2;
+                p.row = 2;
+                break;
+            case 10:
+                p.col = 4;
+                p.row = 2;
+                break;
+            case 9:
+                p.col = 6;
+                p.row = 2;
+                break;
+            case 16:
+                p.col = 1;
+                p.row = 3;
+                break;
+            case 15:
+                p.col = 3;
+                p.row = 3;
+                break;
+            case 14:
+                p.col = 5;
+                p.row = 3;
+                break;
+            case 13:
+                p.col = 7;
+                p.row = 3;
+                break;
+		   /*    (white)
+   				   32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 20:
+                p.col = 0;
+                p.row = 4;
+                break;
+            case 19:
+                p.col = 2;
+                p.row = 4;
+                break;
+            case 18:
+                p.col = 4;
+                p.row = 4;
+                break;
+            case 17:
+                p.col = 6;
+                p.row = 4;
+                break;
+            case 24:
+                p.col = 1;
+                p.row = 5;
+                break;
+            case 23:
+                p.col = 3;
+                p.row = 5;
+                break;
+            case 22:
+                p.col = 5;
+                p.row = 5;
+                break;
+            case 21:
+                p.col = 7;
+                p.row = 5;
+                break;
+		   /*    (white)
+   				  32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 28:
+                p.col = 0;
+                p.row = 6;
+                break;
+            case 27:
+                p.col = 2;
+                p.row = 6;
+                break;
+            case 26:
+                p.col = 4;
+                p.row = 6;
+                break;
+            case 25:
+                p.col = 6;
+                p.row = 6;
+                break;
+            case 32:
+                p.col = 1;
+                p.row = 7;
+                break;
+            case 31:
+                p.col = 3;
+                p.row = 7;
+                break;
+            case 30:
+                p.col = 5;
+                p.row = 7;
+                break;
+            case 29:
+                p.col = 7;
+                p.row = 7;
+                break;
+        }
+
+        return p;
+    }
 }
