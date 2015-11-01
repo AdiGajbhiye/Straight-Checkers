@@ -230,7 +230,7 @@ public class Simplech {
         return VALID;
     }
 
-    int[] moveNotation(Move move) {
+    public int[] moveNotation(Move move) {
         int j, from, to;
 
         from = move.m[0] % 256;
@@ -365,7 +365,8 @@ public class Simplech {
         if (play)
             bestMove = lastbest;
         doMove(b, bestMove);
-        move = bestMove;
+        move.n = bestMove.n;
+        move.m = bestMove.m;
         return eval;
     }
 
@@ -1872,7 +1873,7 @@ public class Simplech {
                 p.col = 7;
                 p.row = 1;
                 break;
-		   /*    (white)
+           /*    (white)
    				  32  31  30  29
 28  27  26  25
   24  23  22  21
