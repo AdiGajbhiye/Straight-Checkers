@@ -334,11 +334,24 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(selectedPiece.getName());
         int to = Integer.parseInt(selectedTile.getName());
 
-        move.n = 1;
         move.m = new int[]{from, to};
+        move.n = 2;
 
-        if (engine.isLegal(board, selectedPiece.getPlayer(), from, to))
+        if (engine.isLegal(board, selectedPiece.getPlayer(), from, to)) {
+
             engine.domove(board, move);
+
+            engine.printBoard(board);
+
+            int opponent  = selectedPiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
+
+            if (engine.checkers(board, opponent, 3) == 0) {
+                System.out.println("you win!");
+            }
+
+            engine.printBoard(board);
+
+        }
         else
             return;
 /*

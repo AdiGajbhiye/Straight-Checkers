@@ -300,7 +300,6 @@ public class Simplech {
 
         System.out.println("");
     }
-
     ////////////////////////////////////
 
     public boolean isLegal(int[] board, int color, int from, int to) {
@@ -385,7 +384,6 @@ public class Simplech {
 
         return cbMove;
     }
-
 
     Coord numbertoCoord(int n) {
     /* turns square number n into a coordinate for checkerboard */
@@ -574,7 +572,7 @@ public class Simplech {
         return c;
     }
 
-    int getMove(int[][] b, int color, long maxtime, String str, boolean playNow) {
+    int getMove(int[] board, int color, long maxtime, String str, boolean playNow) {
    /* getmove is what checkerboard calls. you get 6 parameters:
    b[8][8] 	is the current position. the values in the array are determined by
    			the #defined values of BLACK, WHITE, KING, PAWN. a black king for
@@ -598,55 +596,6 @@ public class Simplech {
 
         int i;
         int value;
-        int[] board = new int[46];
-
-   /* initialize board */
-        for (i = 0; i < 46; i++)
-            board[i] = OCCUPIED;
-        for (i = 5; i <= 40; i++)
-            board[i] = FREE;
-   /*    (white)
-                    37  38  39  40
-              32  33  34  35
-                28  29  30  31
-              23  24  25  26
-                19  20  21  22
-              14  15  16  17
-                10  11  12  13
-               5   6   7   8
-         (black)   */
-        board[5] = b[0][0];
-        board[6] = b[2][0];
-        board[7] = b[4][0];
-        board[8] = b[6][0];
-        board[10] = b[1][1];
-        board[11] = b[3][1];
-        board[12] = b[5][1];
-        board[13] = b[7][1];
-        board[14] = b[0][2];
-        board[15] = b[2][2];
-        board[16] = b[4][2];
-        board[17] = b[6][2];
-        board[19] = b[1][3];
-        board[20] = b[3][3];
-        board[21] = b[5][3];
-        board[22] = b[7][3];
-        board[23] = b[0][4];
-        board[24] = b[2][4];
-        board[25] = b[4][4];
-        board[26] = b[6][4];
-        board[28] = b[1][5];
-        board[29] = b[3][5];
-        board[30] = b[5][5];
-        board[31] = b[7][5];
-        board[32] = b[0][6];
-        board[33] = b[2][6];
-        board[34] = b[4][6];
-        board[35] = b[6][6];
-        board[37] = b[1][7];
-        board[38] = b[3][7];
-        board[39] = b[5][7];
-        board[40] = b[7][7];
 
         for (i = 5; i <= 40; i++)
             if (board[i] == 0)
@@ -662,39 +611,6 @@ public class Simplech {
         for (i = 5; i <= 40; i++)
             if (board[i] == FREE) board[i] = 0;
 
-        /* return the board */
-        b[0][0] = board[5];
-        b[2][0] = board[6];
-        b[4][0] = board[7];
-        b[6][0] = board[8];
-        b[1][1] = board[10];
-        b[3][1] = board[11];
-        b[5][1] = board[12];
-        b[7][1] = board[13];
-        b[0][2] = board[14];
-        b[2][2] = board[15];
-        b[4][2] = board[16];
-        b[6][2] = board[17];
-        b[1][3] = board[19];
-        b[3][3] = board[20];
-        b[5][3] = board[21];
-        b[7][3] = board[22];
-        b[0][4] = board[23];
-        b[2][4] = board[24];
-        b[4][4] = board[25];
-        b[6][4] = board[26];
-        b[1][5] = board[28];
-        b[3][5] = board[29];
-        b[5][5] = board[30];
-        b[7][5] = board[31];
-        b[0][6] = board[32];
-        b[2][6] = board[33];
-        b[4][6] = board[34];
-        b[6][6] = board[35];
-        b[1][7] = board[37];
-        b[3][7] = board[38];
-        b[5][7] = board[39];
-        b[7][7] = board[40];
 
         if (color == BLACK) {
             if (value > 4000) return WIN;
@@ -760,7 +676,7 @@ public class Simplech {
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
 
-    int checkers(int[] b, int color, double maxtime)
+   public int checkers(int[] b, int color, double maxtime)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
