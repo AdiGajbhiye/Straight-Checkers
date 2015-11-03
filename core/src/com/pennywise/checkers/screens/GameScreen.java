@@ -139,12 +139,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             startTime = System.nanoTime();
         }
 
-        if(opponentMove){
+        if (opponentMove) {
 
             opponentMove = false;
             isBusy = true;
-            new Thread("Opponent"){
-                public void run(){
+            new Thread("Opponent") {
+                public void run() {
                     int opponentPlayer = selectedPiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
                     engine.getMove(board, opponentPlayer, 5, false, move);
                     moveOpponentPiece(move);
@@ -153,9 +153,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     selectedPiece = null;
                 }
             }.start();
-
-
-
 
         }
 
@@ -371,6 +368,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(selectedPiece.getName());
         int to = Integer.parseInt(selectedTile.getName());
 
+
         Move move = engine.isLegal(board, selectedPiece.getPlayer(), from, to);
 
         if (move != null) {
@@ -477,46 +475,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                 return false;
             }
-
-            protected void updateUI() {
-
-                for (int r = 0; r < height; r++) {
-                    int c = (r % 2 == 0) ? 0 : 1;
-                    for (; c < width; c += 2) {
-                        updatePieces(r, c);
-                    }
-                }
-
-            }
-
-            protected void updatePieces(int row, int col) {
-
-                int index = col + (row * width);
-                String targetName = index + "";
-
-                //find the piece
-                for (Actor a : boardStage.getActors()) {
-                    if (a instanceof Group) {
-                        for (Actor actor : ((Group) a).getChildren())
-                            if (actor instanceof Piece) {
-                                if (actor.getName().equalsIgnoreCase(targetName)) {
-                                    if (logicBoard.getCell()[row][col].equals(CellEntry.empty)) {
-                                        actor.addAction(sequence(fadeOut(0.15f), removeActor()));
-                                    }
-                                    if (logicBoard.getCell()[row][col].equals(CellEntry.blackKing)) {
-                                        ((Piece) actor).setDrawable(tileTexture("blackKing"));
-                                    }
-                                    if (logicBoard.getCell()[row][col].equals(CellEntry.whiteKing)) {
-                                        ((Piece) actor).setDrawable(tileTexture("whiteKing"));
-                                    }
-
-                                }
-                            }
-                    }
-                }
-            }
-
-        */
+*/
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
         Group board = new Group();

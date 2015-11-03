@@ -136,11 +136,11 @@ public class Simplech {
                 else if (b[c][r] == BLACKPAWN)
                     System.out.print("B ");
                 else if (b[c][r] == FREE)
-                    System.out.print("  ");
+                    System.out.print("F ");
                 else if (b[c][r] == BLACKKING)
-                    System.out.print("B+ ");
+                    System.out.print("B+");
                 else if (b[c][r] == WHITEKING)
-                    System.out.print("W+ ");
+                    System.out.print("W+");
                 else
                     System.out.print(b[c][r] + " ");
 
@@ -215,9 +215,6 @@ public class Simplech {
         this.play = playNow;
 
         value = computeMove(board, color, maxtime, move);
-
-        for (i = 5; i <= 40; i++)
-            if (board[i] == FREE) board[i] = 0;
 
         if (color == BLACK) {
             if (value > 4000) return WIN;
@@ -1874,7 +1871,7 @@ public class Simplech {
                 p.row = 1;
                 break;
            /*    (white)
-   				  32  31  30  29
+                     32  31  30  29
 28  27  26  25
   24  23  22  21
 20  19  18  17
