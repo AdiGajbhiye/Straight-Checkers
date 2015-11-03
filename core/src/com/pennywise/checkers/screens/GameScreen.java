@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -32,12 +33,18 @@ import com.pennywise.checkers.core.Constants;
 
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Move;
+import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 
 import java.util.Comparator;
+import java.util.Vector;
+
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
 
 
 /**
@@ -73,6 +80,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private Move move = new Move();
+    private boolean opponentMove = false;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -100,7 +108,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         width = 8;
         height = 8;
-        gridHeight = ((com.pennywise.checkers.core.Constants.GAME_HEIGHT * 3) / 4);
+        gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
 
@@ -131,8 +139,28 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             startTime = System.nanoTime();
         }
 
+        if(opponentMove){
 
-        if (Gdx.input.isTouched()) {
+            opponentMove = false;
+            isBusy = true;
+            new Thread("Opponent"){
+                public void run(){
+                    int opponentPlayer = selectedPiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
+                    engine.getMove(board, opponentPlayer, 5, false, move);
+                    moveOpponentPiece(move);
+                    engine.printBoard(board);
+                    isBusy = false;
+                    selectedPiece = null;
+                }
+            }.start();
+
+
+
+
+        }
+
+
+        if (Gdx.input.isTouched() && !isBusy) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
@@ -161,12 +189,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     }
                 }
             }
-
-/*
-            if (retCode == ReturnCode.VALID_MOVE) {
-                playGame();
-                retCode = ReturnCode.INVALID_MOVE;
-            }*/
         }
 
         stage.act();
@@ -174,7 +196,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         boardStage.act();
         boardStage.draw();
-
 
         dialogStage.act();
         dialogStage.draw();
@@ -217,7 +238,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        stack.add(backGround());
+        //stack.add(backGround());
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
@@ -329,79 +350,36 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     }
 
+    protected void move() {
+
+        float posX = selectedTile.getX() + (selectedTile.getWidth() / 2);
+        float posY = selectedTile.getY() + (selectedTile.getHeight() / 2);
+
+        MoveToAction moveAction = new MoveToAction();
+        moveAction.setPosition(posX, posY, Align.center);
+        moveAction.setDuration(0.5f);
+        selectedPiece.toFront();
+        selectedPiece.addAction(moveAction);
+
+        selectedPiece.setName(selectedTile.getName());
+        selectedPiece.toBack();
+
+    }
+
     protected void movePiece() {
 
         int from = Integer.parseInt(selectedPiece.getName());
         int to = Integer.parseInt(selectedTile.getName());
 
-        move.m = new int[]{from, to};
-        move.n = 2;
+        Move move = engine.isLegal(board, selectedPiece.getPlayer(), from, to);
 
-        if (engine.isLegal(board, selectedPiece.getPlayer(), from, to)) {
-
-            engine.domove(board, move);
-
+        if (move != null) {
+            engine.doMove(board, move);
+            move();
             engine.printBoard(board);
-
-            int opponent  = selectedPiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
-
-            if (engine.checkers(board, opponent, 3) == 0) {
-                System.out.println("you win!");
-            }
-
-            engine.printBoard(board);
-
-        }
-        else
+            opponentMove = true;
+        } else
             return;
-/*
-        if (retCode == ReturnCode.VALID_MOVE) {
-
-            float posX = selectedTiles.get(0).getX() + (selectedTiles.get(0).getWidth() / 2);
-            float posY = selectedTiles.get(0).getY() + (selectedTiles.get(0).getHeight() / 2);
-
-            MoveToAction moveAction = new MoveToAction();
-            moveAction.setPosition(posX, posY, Align.center);
-            moveAction.setDuration(0.5f);
-            selectedPiece.toFront();
-            selectedPiece.addAction(moveAction);
-
-            selectedPiece.setName(selectedTiles.get(0).getName());// = null;
-            selectedTiles.get(0).getStyle().background = blackCell;
-            selectedTiles.clear();
-            selectedPiece.toBack();
-            selectedPiece = null;
-        }
-
-        if (retCode == ReturnCode.MULTIPLE_CAPTURE) {
-
-            float posX = selectedTiles.get(0).getX() + (selectedTiles.get(0).getWidth() / 2);
-            float posY = selectedTiles.get(0).getY() + (selectedTiles.get(0).getHeight() / 2);
-
-            MoveToAction moveAction = new MoveToAction();
-            moveAction.setPosition(posX, posY, Align.center);
-            moveAction.setDuration(0.5f);
-            selectedPiece.addAction(moveAction);
-            selectedPiece.toFront();
-
-            selectedPiece.setName(selectedTiles.get(0).getName());// = null;
-            selectedTiles.get(0).getStyle().background = blackCell;
-
-            if (selectedTiles.size() != 0)
-                selectedTiles.remove(0);
-        }
-
-        if (retCode == ReturnCode.INVALID_MOVE) {
-            selectedTiles.clear();
-            selectedPiece = null;
-            return;
-        }
-
-        if (retCode == ReturnCode.FORCED_MOVES) {
-            selectedTiles.clear();
-            selectedPiece = null;
-            return;
-        }*/
     }
 
     protected Tile getTile(String name) {
@@ -414,140 +392,131 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return null;
     }
 
-    /*
-        protected void moveOpponentPiece(Vector<Move> moves) {
-            Piece piece = null;
-            Tile srcTile;
-            String srcName;
-            Tile destTile = null;
-            String destName = "";
-            SequenceAction sequenceAction = new SequenceAction();
+    protected void moveOpponentPiece(Move move) {
+        Piece piece = null;
+        Tile srcTile;
+        String srcName = "";
+        Tile destTile = null;
+        String destName = "";
+        SequenceAction sequenceAction = new SequenceAction();
 
-            //get source name
+        for (int i = 0; i < move.n; i += 2) {
 
-            int row = moves.get(0).getInitialRow();
-            int col = moves.get(0).getInitialCol();
+            int[] steps = engine.moveNotation(move);
 
-            int index = col + (row * width);
-
-            srcTile = getTile(index + "");
+            srcTile = getTile(steps[0] + "");
             srcName = srcTile.getName();
 
-            for (Move m : moves) {
-
-                row = m.getFinalRow();
-                col = m.getFinalCol();
-
-                index = col + (row * width);
-
-                destTile = getTile(index + "");
-                destName = destTile.getName();
+            destTile = getTile(steps[1] + "");
+            destName = destTile.getName();
 
 
-                float posX = destTile.getX();
-                float posY = destTile.getY();
+            float posX = destTile.getX();
+            float posY = destTile.getY();
 
 
-                sequenceAction.addAction(delay(0.5f));
-                sequenceAction.addAction(moveTo(posX, posY, 0.5f));
-            }
-
-            sequenceAction.addAction(run(new Runnable() {
-                public void run() {
-                    updateUI();
-                }
-            }));
-
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren())
-                        if (actor instanceof Piece) {
-                            if (actor.getName().equalsIgnoreCase(srcName)) {
-                                piece = (Piece) actor;
-                                //update name
-                                piece.toFront();
-                                piece.setName(destName);
-                                piece.addAction(sequenceAction);
-                                break;
-                            }
-                        }
-                }
-            }
+            sequenceAction.addAction(delay(0.5f));
+            sequenceAction.addAction(moveTo(posX, posY, 0.5f));
         }
 
-        public boolean playGame() {
+        sequenceAction.addAction(run(new Runnable() {
+            public void run() {
+                //updateUI();
+                ;
+            }
+        }));
 
-            if (!logicBoard.CheckGameComplete()) {
-                if (logicBoard.CheckGameDraw(Player.white)) {
-                    return false;
-                }
+        //find the piece
+        for (Actor a : boardStage.getActors()) {
+            if (a instanceof Group) {
+                for (Actor actor : ((Group) a).getChildren())
+                    if (actor instanceof Piece) {
+                        if (actor.getName().equalsIgnoreCase(srcName)) {
+                            piece = (Piece) actor;
+                            //update name
+                            piece.toFront();
+                            piece.setName(destName);
+                            piece.addAction(sequenceAction);
+                            break;
+                        }
+                    }
+            }
+        }
+    }
 
-                logicBoard.CheckGameDraw(Player.black);
-                logicBoard.Display();
+    /*
+            public boolean playGame() {
 
-                Vector<Move> moves = Black.Move(logicBoard);
+                if (!logicBoard.CheckGameComplete()) {
+                    if (logicBoard.CheckGameDraw(Player.white)) {
+                        return false;
+                    }
 
-                moveOpponentPiece(moves);
-
-                logicBoard.Display();
-
-                if (logicBoard.CheckGameComplete()) {
-                    gameOver = true;
-                    gameOverDialog("Black");
+                    logicBoard.CheckGameDraw(Player.black);
                     logicBoard.Display();
-                    return false;
+
+                    Vector<Move> moves = Black.Move(logicBoard);
+
+                    moveOpponentPiece(moves);
+
+                    logicBoard.Display();
+
+                    if (logicBoard.CheckGameComplete()) {
+                        gameOver = true;
+                        gameOverDialog("Black");
+                        logicBoard.Display();
+                        return false;
+                    }
+
+
+                } else {
+                    gameOverDialog("Black");
+                    gameOver = true;
+                    return true;
                 }
 
-
-            } else {
-                gameOverDialog("Black");
-                gameOver = true;
-                return true;
+                return false;
             }
 
-            return false;
-        }
+            protected void updateUI() {
 
-        protected void updateUI() {
-
-            for (int r = 0; r < height; r++) {
-                int c = (r % 2 == 0) ? 0 : 1;
-                for (; c < width; c += 2) {
-                    updatePieces(r, c);
+                for (int r = 0; r < height; r++) {
+                    int c = (r % 2 == 0) ? 0 : 1;
+                    for (; c < width; c += 2) {
+                        updatePieces(r, c);
+                    }
                 }
+
             }
 
-        }
+            protected void updatePieces(int row, int col) {
 
-        protected void updatePieces(int row, int col) {
+                int index = col + (row * width);
+                String targetName = index + "";
 
-            int index = col + (row * width);
-            String targetName = index + "";
+                //find the piece
+                for (Actor a : boardStage.getActors()) {
+                    if (a instanceof Group) {
+                        for (Actor actor : ((Group) a).getChildren())
+                            if (actor instanceof Piece) {
+                                if (actor.getName().equalsIgnoreCase(targetName)) {
+                                    if (logicBoard.getCell()[row][col].equals(CellEntry.empty)) {
+                                        actor.addAction(sequence(fadeOut(0.15f), removeActor()));
+                                    }
+                                    if (logicBoard.getCell()[row][col].equals(CellEntry.blackKing)) {
+                                        ((Piece) actor).setDrawable(tileTexture("blackKing"));
+                                    }
+                                    if (logicBoard.getCell()[row][col].equals(CellEntry.whiteKing)) {
+                                        ((Piece) actor).setDrawable(tileTexture("whiteKing"));
+                                    }
 
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren())
-                        if (actor instanceof Piece) {
-                            if (actor.getName().equalsIgnoreCase(targetName)) {
-                                if (logicBoard.getCell()[row][col].equals(CellEntry.empty)) {
-                                    actor.addAction(sequence(fadeOut(0.15f), removeActor()));
                                 }
-                                if (logicBoard.getCell()[row][col].equals(CellEntry.blackKing)) {
-                                    ((Piece) actor).setDrawable(tileTexture("blackKing"));
-                                }
-                                if (logicBoard.getCell()[row][col].equals(CellEntry.whiteKing)) {
-                                    ((Piece) actor).setDrawable(tileTexture("whiteKing"));
-                                }
-
                             }
-                        }
+                    }
                 }
             }
-        }
 
-    */
+        */
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
         Group board = new Group();
