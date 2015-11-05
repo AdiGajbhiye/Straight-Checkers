@@ -40,6 +40,7 @@ import java.util.List;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 
 /**
@@ -62,7 +63,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel panel;
-    private Piece activePiece = null;
+    private Piece humanPiece = null;
+    private Piece cpuPiece = null;
     private List<Piece> capturedPieces = null;
     private Tile selectedTile;
     private int[] board = new int[46];
@@ -144,16 +146,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             isBusy = true;
             new Thread("Opponent") {
                 public void run() {
-                    int opponentPlayer = activePiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
-                    engine.getMove(board, opponentPlayer, 1, false, move);
+                    //int opponentPlayer = activePiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
+                    engine.getMove(board, Simplech.WHITE, 1, false, move);
                     moveOpponentPiece(move);
                     engine.printBoard(board);
                     isBusy = false;
                 }
             }.start();
-
         }
-
 
         if (Gdx.input.isTouched() && !isBusy) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
@@ -161,7 +161,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
             if (actor2 != null && actor2 instanceof Piece) {
-                activePiece = (Piece) actor2;
+                humanPiece = (Piece) actor2;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == Simplech.BLACK)
@@ -171,14 +171,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 }
             } else {
 
-                if (activePiece != null) {
+                if (humanPiece != null) {
                     if (actor instanceof Tile) {
                         selectedTile = ((Tile) actor);
 
                         if (selectedTile.getCellEntry() == Simplech.BLACK) {
                             movePiece();
                         } else {
-                            activePiece = null;
+                            humanPiece = null;
                             selectedTile = null;
                         }
                     }
@@ -186,8 +186,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             }
         }
 
-        checkBlackPieceCollision(activePiece);
-        //checkWhitePieceCollision(cpuPiece);
+        checkBlackPieceCollision(humanPiece);
+        checkWhitePieceCollision(cpuPiece);
 
 
         stage.act();
@@ -359,16 +359,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
         moveAction.setDuration(0.5f);
-        activePiece.toFront();
-        activePiece.addAction(moveAction);
-        activePiece.setName(selectedTile.getName());
-        activePiece.toBack();
-
+        humanPiece.toFront();
+        humanPiece.addAction(sequence(moveAction, run(new Runnable() {
+            public void run() {
+                //humanPiece.setName(selectedTile.getName());
+                humanPiece.toBack();
+                //humanPiece= null;
+                opponentMove = true;
+            }
+        })));
     }
 
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece == null )
+        if (piece == null)
             return;
 
         //find the piece
@@ -411,7 +415,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 }
             }
         }
-
     }
 
     protected void removeCapturedPieces() {
@@ -422,18 +425,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void movePiece() {
 
-        int from = Integer.parseInt(activePiece.getName());
+        int from = Integer.parseInt(humanPiece.getName());
         int to = Integer.parseInt(selectedTile.getName());
 
-
-        Move move = engine.isLegal(board, activePiece.getPlayer(), from, to);
+        Move move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
 
         if (move != null) {
             engine.doMove(board, move);
             move();
-
             engine.printBoard(board);
-            opponentMove = true;
         } else
             return;
     }
@@ -478,6 +478,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 //updateUI();
                 ;
+               // cpuPiece = null;
             }
         }));
 
@@ -487,11 +488,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 for (Actor actor : ((Group) a).getChildren()) {
                     if (actor instanceof Piece) {
                         if (actor.getName().equalsIgnoreCase(srcName)) {
-                            activePiece = (Piece) actor;
+                            cpuPiece = (Piece) actor;
                             //update name
-                            activePiece.toFront();
-                            activePiece.setName(destName);
-                            activePiece.addAction(sequenceAction);
+                            cpuPiece.toFront();
+                            //cpuPiece.setName(destName);
+                            cpuPiece.addAction(sequenceAction);
                             break;
                         }
                     }
