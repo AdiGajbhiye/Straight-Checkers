@@ -66,7 +66,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Piece humanPiece = null;
     private Piece cpuPiece = null;
     private List<Piece> capturedPieces = null;
-    private Tile selectedTile;
+    private Tile fromTile;
+    private Tile toTile;
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
@@ -162,6 +163,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             if (actor2 != null && actor2 instanceof Piece) {
                 humanPiece = (Piece) actor2;
+                fromTile = (Tile)actor;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == Simplech.BLACK)
@@ -173,13 +175,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                 if (humanPiece != null) {
                     if (actor instanceof Tile) {
-                        selectedTile = ((Tile) actor);
+                        toTile = ((Tile) actor);
 
-                        if (selectedTile.getCellEntry() == Simplech.BLACK) {
+                        if (toTile.getCellEntry() == Simplech.BLACK) {
                             movePiece();
-                        } else {
-                            humanPiece = null;
-                            selectedTile = null;
                         }
                     }
                 }
@@ -353,8 +352,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void move() {
 
-        float posX = selectedTile.getX() + (selectedTile.getWidth() / 2);
-        float posY = selectedTile.getY() + (selectedTile.getHeight() / 2);
+        float posX = toTile.getX() + (toTile.getWidth() / 2);
+        float posY = toTile.getY() + (toTile.getHeight() / 2);
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
@@ -362,9 +361,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                //humanPiece.setName(selectedTile.getName());
                 humanPiece.toBack();
-                //humanPiece= null;
                 opponentMove = true;
             }
         })));
@@ -425,8 +422,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void movePiece() {
 
-        int from = Integer.parseInt(humanPiece.getName());
-        int to = Integer.parseInt(selectedTile.getName());
+        int from = Integer.parseInt(fromTile.getName());
+        int to = Integer.parseInt(toTile.getName());
 
         Move move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
 
@@ -452,7 +449,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Tile srcTile;
         String srcName = "";
         Tile destTile = null;
-        String destName = "";
         SequenceAction sequenceAction = new SequenceAction();
 
         for (int i = 0; i < move.n; i += 2) {
@@ -538,8 +534,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
                         else if (row < 3)
                             pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
-                        Gdx.app.error("Text", text + "");
-                        Gdx.app.error("Index", index + "");
 
                         if (pieces[index] == null)
                             continue;
