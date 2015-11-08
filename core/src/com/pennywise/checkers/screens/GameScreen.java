@@ -29,6 +29,7 @@ import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Move;
+import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
@@ -163,7 +164,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             if (actor2 != null && actor2 instanceof Piece) {
                 humanPiece = (Piece) actor2;
-                fromTile = (Tile)actor;
+                fromTile = (Tile) actor;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == Simplech.BLACK)
@@ -186,7 +187,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         }
 
         checkBlackPieceCollision(humanPiece);
-        checkWhitePieceCollision(cpuPiece);
+
+        //if (isBusy)
+        //    checkBlackPieceCollision(cpuPiece);
 
 
         stage.act();
@@ -445,26 +448,38 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return null;
     }
 
+    protected Piece getPiece(int n) {
+
+        Point p = engine.getBoardPosition(n);
+        float x = p.col * cellsize;
+        float y = p.row * cellsize;
+
+        Actor a = boardStage.hit(x, y, false);
+        Actor actor = null;
+        if (a instanceof Group) {
+            Group g = ((Group) a);
+            actor = g.findActor(String.valueOf(n));
+        }
+
+        return ((Piece) actor);
+    }
+
     protected void moveOpponentPiece(Move move) {
         Tile srcTile;
         String srcName = "";
         Tile destTile = null;
         SequenceAction sequenceAction = new SequenceAction();
 
-        for (int i = 0; i < move.n; i += 2) {
+        int[] steps = engine.moveNotation(move);
 
-            int[] steps = engine.moveNotation(move);
+        cpuPiece = getPiece(steps[0]);
 
-            srcTile = getTile(steps[0] + "");
-            srcName = srcTile.getName();
+        for (int i = 1; i < move.n; i++) {
 
             destTile = getTile(steps[1] + "");
-            destName = destTile.getName();
-
 
             float posX = destTile.getX();
             float posY = destTile.getY();
-
 
             sequenceAction.addAction(delay(0.5f));
             sequenceAction.addAction(moveTo(posX, posY, 0.5f));
@@ -474,28 +489,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 //updateUI();
                 ;
-               // cpuPiece = null;
+                // cpuPiece = null;
             }
         }));
 
-        //find the piece
-        for (Actor a : boardStage.getActors()) {
-            if (a instanceof Group) {
-                for (Actor actor : ((Group) a).getChildren()) {
-                    if (actor instanceof Piece) {
-                        if (actor.getName().equalsIgnoreCase(srcName)) {
-                            cpuPiece = (Piece) actor;
-                            //update name
-                            cpuPiece.toFront();
-                            //cpuPiece.setName(destName);
-                            cpuPiece.addAction(sequenceAction);
-                            break;
-                        }
-                    }
-                }
-            }
+        //update name
+        cpuPiece.toFront();
+        cpuPiece.addAction(sequenceAction);
 
-        }
     }
 
     protected Group drawPieces(int rows, int cols, boolean inverted) {
