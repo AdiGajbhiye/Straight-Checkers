@@ -250,6 +250,35 @@ public class Simplech {
         return mv;
     }
 
+    public int[] moveNotation2(Move move) {
+        int j = 0, from = 0, to = 0;
+        int[] mv = new int[move.n];
+
+        for(int i = 0; i < (move.n - 1); i++) {
+            from = move.m[i] % 256;
+            to = move.m[i+1] % 256;
+            from = from - (from / 9);
+            to = to - (to / 9);
+            from -= 5;
+            to -= 5;
+            j = from % 4;
+            from -= j;
+            j = 3 - j;
+            from += j;
+            j = to % 4;
+            to -= j;
+            j = 3 - j;
+            to += j;
+            from++;
+            to++;
+            mv[i] = from;
+            mv[i + 1] = to;
+        }
+
+        return mv;
+    }
+
+
     String movetonotation(Move move) {
         int j, from, to;
         char c;

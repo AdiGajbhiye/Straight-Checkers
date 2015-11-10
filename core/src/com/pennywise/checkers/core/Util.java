@@ -72,6 +72,16 @@ public class Util {
     }
 
 
+    public static boolean isActorCollide(Actor subject, Actor test) {
+        Rectangle rect1 = getRectangleOfActor(subject);
+        Rectangle rect2 = getRectangleOfActor(test);
+        if (rect1.overlaps(rect2)) {
+            logCollision(subject, test);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Very precise point detection in a box, think as virtual box in the actual
@@ -118,6 +128,12 @@ public class Util {
                 logTag,
                 "Collision detected on touch point: Actor (Name: "
                         + a1.getName() + ")");
+    }
+
+    private static void logCollision(Actor a1, Actor a2) {
+        Gdx.app.log(logTag,
+                "Collision detected: Actor (Name: " + a1.getName()
+                        + ") overlaps Actor (Name: " + a2.getName() + ")");
     }
 
 
