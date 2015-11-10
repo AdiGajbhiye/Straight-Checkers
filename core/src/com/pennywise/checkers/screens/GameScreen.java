@@ -189,7 +189,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         checkBlackPieceCollision(humanPiece);
 
         //if (isBusy)
-        //    checkBlackPieceCollision(cpuPiece);
+        checkWhitePieceCollision(cpuPiece);
 
 
         stage.act();
@@ -381,7 +381,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 for (Actor actor : ((Group) a).getChildren()) {
                     if (actor instanceof Piece) {
                         Piece p = (Piece) actor;
-                        if ((p.getPlayer() != piece.getPlayer())) {
+                        if ((p.getPlayer() == Simplech.WHITE)) {
                             if (Util.isActorsCollide(piece, p)) {
                                 ((Piece) actor).setCaptured(true);
                                 capturedPieces.add(((Piece) actor));
@@ -391,6 +391,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     }
                 }
             }
+        }
+
+        removeCapturedPieces();
+
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
