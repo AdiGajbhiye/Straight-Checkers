@@ -75,7 +75,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Image pauseButton;
     private Simplech engine;
-    // Screen second counter (1 second tick)
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
     private BitmapFont hudFont;
@@ -144,16 +143,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         }
 
         if (opponentMove) {
-
             opponentMove = false;
-            isBusy = true;
             new Thread("Opponent") {
                 public void run() {
-                    //int opponentPlayer = activePiece.getPlayer() == Simplech.BLACK ? Simplech.WHITE : Simplech.BLACK;
                     engine.getMove(board, Simplech.WHITE, 1, false, move);
                     moveOpponentPiece(move);
                     engine.printBoard(board);
-                    isBusy = false;
                 }
             }.start();
         }
@@ -165,6 +160,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             if (actor2 != null && actor2 instanceof Piece) {
                 humanPiece = (Piece) actor2;
+                humanPiece.setSelected(true);
                 fromTile = (Tile) actor;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
@@ -365,7 +361,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
                 humanPiece.toBack();
-                humanPiece = null;
+                humanPiece.setSelected(false);
                 opponentMove = true;
             }
         })));
@@ -373,44 +369,43 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece == null)
-            return;
+        if (piece != null || piece.isSelected()) {
 
-        //find the piece
-        for (Actor a : boardStage.getActors()) {
-            if (a instanceof Group) {
-                for (Actor actor : ((Group) a).getChildren()) {
-                    if (actor instanceof Piece) {
-                        Piece p = (Piece) actor;
-                        if ((p.getPlayer() == Simplech.WHITE)) {
-                            if (Util.isActorCollide(piece, p)) {
-                                ((Piece) actor).setCaptured(true);
-                                capturedPieces.add(((Piece) actor));
-                                isColliding = true;
+            //find the piece
+            for (Actor a : boardStage.getActors()) {
+                if (a instanceof Group) {
+                    for (Actor actor : ((Group) a).getChildren()) {
+                        if (actor instanceof Piece) {
+                            Piece p = (Piece) actor;
+                            if (p.isSelected())
+                                continue;
+                            if ((p.getPlayer() == Simplech.WHITE)) {
+                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
+                                    p.setCaptured(true);
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 
     private void checkWhitePieceCollision(Piece piece) {
 
-        if (piece == null || piece.getPlayer() != Simplech.WHITE)
-            return;
+        if (piece != null || piece.isSelected()) {
 
-        for (Actor a : boardStage.getActors()) {
-            if (a instanceof Group) {
-                for (Actor actor : ((Group) a).getChildren()) {
-                    if (actor instanceof Piece) {
-                        Piece p = (Piece) actor;
-                        if ((p.getPlayer() == Simplech.BLACK)) {
-                            if (Util.isActorCollide(piece, p)) {
-                                ((Piece) actor).setCaptured(true);
-                                capturedPieces.add(((Piece) actor));
-                                break;
+            for (Actor a : boardStage.getActors()) {
+                if (a instanceof Group) {
+                    for (Actor actor : ((Group) a).getChildren()) {
+                        if (actor instanceof Piece) {
+                            Piece p = (Piece) actor;
+                            if (p.isSelected())
+                                continue;
+                            if ((p.getPlayer() == Simplech.BLACK)) {
+                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
+                                    p.setCaptured(true);
+                                }
                             }
                         }
                     }
@@ -419,11 +414,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         }
     }
 
-    protected void removeCapturedPieces() {
-        for (int i = 0; i < capturedPieces.size(); i++) {
-            Piece piece = capturedPieces.get(i);
-            piece.remove();
-            capturedPieces.remove(i);
+    protected synchronized void removeCapturedPieces() {
+        for (Actor a : boardStage.getActors()) {
+            if (a instanceof Group) {
+                for (Actor actor : ((Group) a).getChildren()) {
+                    if (actor instanceof Piece) {
+                        Piece p = (Piece) actor;
+                        if (p.isCaptured()) {
+                            p.remove();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -437,7 +439,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         if (move != null) {
             engine.doMove(board, move);
             move();
-            cpuPiece = null;
             engine.printBoard(board);
         } else
             return;
@@ -475,11 +476,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         cpuPiece = getPiece(steps[0]);
 
-        if(cpuPiece == null)
+        if (cpuPiece == null)
             return;
+        else
+            cpuPiece.setSelected(true);
 
-        for (int i = 0; i < 2 ; i++) {
+        for (int i = 0; i < 2; i++) {
 
+            Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
             destTile = getTile(steps[i] + "");
             cpuPiece.setName(steps[i] + "");
 
@@ -492,9 +496,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         sequenceAction.addAction(run(new Runnable() {
             public void run() {
-                //updateUI();
-                ;
-                // cpuPiece = null;
+                cpuPiece.setSelected(false);
             }
         }));
 

@@ -8,13 +8,23 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
  */
 public class Piece extends Image {
 
-    private  boolean captured;
-    private  int player;
+    private boolean captured;
+    private int player;
+    private boolean selected;
 
     public Piece(SpriteDrawable img, int player) {
         super(img);
         captured = false;
+        selected = false;
         this.player = player;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public int getPlayer() {
@@ -32,5 +42,6 @@ public class Piece extends Image {
     public void setCaptured(boolean captured) {
         this.captured = captured;
     }
+
 
 }
