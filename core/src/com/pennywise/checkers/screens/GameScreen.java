@@ -478,10 +478,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         if(cpuPiece == null)
             return;
 
-        for (int i = 1; i < move.n; i++) {
+        for (int i = 0; i < 2 ; i++) {
 
             destTile = getTile(steps[i] + "");
-            System.out.println(steps[i] + "");
             cpuPiece.setName(steps[i] + "");
 
             float posX = destTile.getX();
