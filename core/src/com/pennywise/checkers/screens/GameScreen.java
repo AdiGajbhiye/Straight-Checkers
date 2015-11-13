@@ -29,7 +29,6 @@ import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Move;
-import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
@@ -80,8 +79,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private BitmapFont hudFont;
     private Move move = new Move();
     private boolean opponentMove = false;
-    private boolean checking = false;
-    private boolean isColliding = false;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -183,9 +180,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             }
         }
 
-        checkBlackPieceCollision(humanPiece);
+        if (humanPiece != null)
+            checkBlackPieceCollision(humanPiece);
 
-        checkWhitePieceCollision(cpuPiece);
+        if (cpuPiece != null)
+            checkWhitePieceCollision(cpuPiece);
 
 
         stage.act();
@@ -369,7 +368,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece != null || piece.isSelected()) {
+        if (piece.isSelected()) {
 
             //find the piece
             for (Actor a : boardStage.getActors()) {
@@ -393,7 +392,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkWhitePieceCollision(Piece piece) {
 
-        if (piece != null || piece.isSelected()) {
+        if (piece.isSelected()) {
 
             for (Actor a : boardStage.getActors()) {
                 if (a instanceof Group) {
@@ -481,7 +480,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         else
             cpuPiece.setSelected(true);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 1; i < 2; i++) {
 
             Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
             destTile = getTile(steps[i] + "");

@@ -334,13 +334,18 @@ public class Simplech {
 
         if (numberofmoves == 1) {
             doMove(b, movelist[0]);
+            //set move
+            move.set(movelist[0]);
             str = "forced capture";
+            System.out.println(movetonotation(move));
             return (1);
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
                 doMove(b, movelist[0]);
                 str = "only move";
+                move.set(movelist[0]);
+                System.out.println(movetonotation(move));
                 return (1);
             }
             if (numberofmoves == 0) {
@@ -385,8 +390,8 @@ public class Simplech {
         if (play)
             bestMove = lastbest;
         doMove(b, bestMove);
-        move.n = bestMove.n;
-        move.m = bestMove.m;
+        move.set(bestMove);
+        System.out.println(movetonotation(move));
         return eval;
     }
 
@@ -1977,7 +1982,7 @@ public class Simplech {
                 p.col = 7;
                 p.row = 5;
                 break;
-		   /*    (white)
+           /*    (white)
    				  32  31  30  29
 28  27  26  25
   24  23  22  21
