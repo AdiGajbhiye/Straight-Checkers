@@ -36,6 +36,7 @@ import com.pennywise.checkers.objects.Tile;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -65,9 +66,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Panel panel;
     private Piece humanPiece = null;
     private Piece cpuPiece = null;
-    private List<Piece> capturedPieces = null;
     private Tile fromTile;
-    private Tile toTile;
+    private List<Tile> toTiles;
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
@@ -112,8 +112,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         engine = new Simplech();
         engine.initCheckers(board);
+        toTiles = new LinkedList<Tile>();
 
-        capturedPieces = new LinkedList<Piece>();
     }
 
 
@@ -170,9 +170,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                 if (humanPiece != null) {
                     if (actor instanceof Tile) {
-                        toTile = ((Tile) actor);
-
-                        if (toTile.getCellEntry() == Simplech.BLACK) {
+                        if (((Tile) actor).getCellEntry() == Simplech.BLACK) {
+                            toTiles.add(((Tile) actor));
                             movePiece();
                         }
                     }
@@ -350,8 +349,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void move() {
 
-        float posX = toTile.getX() + (toTile.getWidth() / 2);
-        float posY = toTile.getY() + (toTile.getHeight() / 2);
+        float posX = toTiles.get(0).getX() + (cellsize / 2);
+        float posY = toTiles.get(0).getY() + (cellsize / 2);
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
@@ -361,10 +360,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
-                if (isKingTile(toTile, humanPiece.getPlayer()) &&
+                if (isKingTile(toTiles.get(0), humanPiece.getPlayer()) &&
                         !humanPiece.isKing()) {
                     crownPiece(humanPiece);
                 }
+                toTiles.clear();
                 opponentMove = true;
             }
         })));
@@ -457,10 +457,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void movePiece() {
 
-        int from = Integer.parseInt(fromTile.getName());
-        int to = Integer.parseInt(toTile.getName());
+        Vector<Move> moves = null;
 
-        Move move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+        int from = Integer.parseInt(fromTile.getName());
+
+        int to = Integer.parseInt(toTiles.get(0).getName());
+
+        if (toTiles.size() == 1) {
+            moves = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+        }
+
+        if (moves.size() > 1)
+            return;
+
+        if (moves.size() == toTiles.size()) {
+            System.out.println("Multi capture");
+        }
 
         if (move != null) {
             engine.doMove(board, move);
@@ -468,6 +480,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             engine.printBoard(board);
         } else
             return;
+
     }
 
     protected void crownPiece(Piece piece) {
