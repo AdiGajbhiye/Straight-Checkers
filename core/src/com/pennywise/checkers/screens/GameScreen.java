@@ -369,8 +369,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece != null || piece.isSelected()) {
+        if (piece != null ) {
 
+            if(piece.isSelected())
             //find the piece
             for (Actor a : boardStage.getActors()) {
                 if (a instanceof Group) {
