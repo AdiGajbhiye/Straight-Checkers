@@ -179,7 +179,6 @@ public class Simplech {
                 break;
             }
         }
-
         return move;
     }
 

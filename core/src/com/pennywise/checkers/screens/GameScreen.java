@@ -361,9 +361,37 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
+
+                if (isKingTile(toTile, humanPiece.getPlayer()) &&
+                        !humanPiece.isKing()) {
+                    crownPiece(humanPiece);
+                }
                 opponentMove = true;
             }
         })));
+    }
+
+    protected boolean isKingTile(Tile tile, int color) {
+
+        if (color == Simplech.BLACK) {
+            //32  31  30  29
+            if (tile.getName().equals("32")
+                    || tile.getName().equals("31")
+                    || tile.getName().equals("30")
+                    || tile.getName().equals("29")) {
+                return true;
+            }
+        } else {
+            //4   3   2   1
+            if (tile.getName().equals("1")
+                    || tile.getName().equals("2")
+                    || tile.getName().equals("3")
+                    || tile.getName().equals("4")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void checkBlackPieceCollision(Piece piece) {
@@ -443,6 +471,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             return;
     }
 
+    protected void crownPiece(Piece piece) {
+
+        if (piece.getPlayer() == Simplech.BLACK)
+            piece.setDrawable(Assets.img_king_black);
+        else
+            piece.setDrawable(Assets.img_king_white);
+
+        piece.setKing(true);
+    }
+
     protected Tile getTile(String name) {
 
         for (Tile t : backgroundTiles) {
@@ -493,9 +531,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             sequenceAction.addAction(moveTo(posX, posY, 0.5f));
         }
 
+        final Tile end = destTile;
+
         sequenceAction.addAction(run(new Runnable() {
             public void run() {
                 cpuPiece.setSelected(false);
+                cpuPiece.toBack();
+                if (isKingTile(end, cpuPiece.getPlayer()) &&
+                        !cpuPiece.isKing()) {
+                    crownPiece(humanPiece);
+                }
             }
         }));
 
