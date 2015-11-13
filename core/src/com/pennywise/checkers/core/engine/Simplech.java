@@ -333,7 +333,6 @@ public class Simplech {
 
         if (numberofmoves == 1) {
             doMove(b, movelist[0]);
-            //set move
             move.set(movelist[0]);
             str = "forced capture";
             System.out.println(movetonotation(move));
@@ -344,7 +343,6 @@ public class Simplech {
                 doMove(b, movelist[0]);
                 str = "only move";
                 move.set(movelist[0]);
-                System.out.println(movetonotation(move));
                 return (1);
             }
             if (numberofmoves == 0) {
@@ -368,8 +366,6 @@ public class Simplech {
                         alphabetas, generatemovelists, generatecapturelists,
                         evaluations);
                 str += str2;
-
-                System.out.println(str);
             }
             if (play)
                 break;
@@ -383,14 +379,10 @@ public class Simplech {
             str2 = movetonotation(bestMove);
 
         str = String.format("best:%s time %2.2f, depth %2d, value %4d  nodes %d, gms %d, gcs %d, evals %d", str2, (System.currentTimeMillis() - start) / TICKS, i, eval, alphabetas, generatemovelists, generatecapturelists, evaluations);
-
-        System.out.println(str);
-
         if (play)
             bestMove = lastbest;
         doMove(b, bestMove);
         move.set(bestMove);
-        System.out.println(movetonotation(move));
         return eval;
     }
 

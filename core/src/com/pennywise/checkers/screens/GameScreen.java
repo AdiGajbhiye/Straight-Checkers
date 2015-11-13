@@ -361,7 +361,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
-
                 if (isKingTile(toTile, humanPiece.getPlayer()) &&
                         !humanPiece.isKing()) {
                     crownPiece(humanPiece);
@@ -539,7 +538,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 cpuPiece.toBack();
                 if (isKingTile(end, cpuPiece.getPlayer()) &&
                         !cpuPiece.isKing()) {
-                    crownPiece(humanPiece);
+                    crownPiece(cpuPiece);
                 }
             }
         }));
