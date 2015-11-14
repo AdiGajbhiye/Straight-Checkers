@@ -18,10 +18,10 @@ import java.io.Console;
 /**
  * Created by CHOXXY on 11/13/2015.
  */
-public class CheckerEngine {
+public class Checker {
     // Global constants
-    public static final int RED = 1;
-    public static final int BLUE = -1;
+    public static final int WHITE = 1;
+    public static final int BLACK = -1;
     public static final int EMPTY = 0;
 
     public static final int SIZE = 8;
@@ -130,8 +130,8 @@ public class CheckerEngine {
                 board[row][col] = EMPTY;
 
         for (int col = 0; col < SIZE; col += 2) {
-            board[0][col] = board[2][col] = board[1][col + 1] = RED;
-            board[SIZE - 1][SIZE - 1 - col] = board[SIZE - 3][SIZE - 1 - col] = board[SIZE - 2][SIZE - 2 - col] = BLUE;
+            board[0][col] = board[2][col] = board[1][col + 1] = WHITE;
+            board[SIZE - 1][SIZE - 1 - col] = board[SIZE - 3][SIZE - 1 - col] = board[SIZE - 2][SIZE - 2 - col] = BLACK;
         }
         // *** SOLUTION ***
 
@@ -363,7 +363,7 @@ public class CheckerEngine {
         int ans = 0;               // YOU CAN CHANGE IT !!
 
         // *** SOLUTION ***
-        ans = sign(discsSum(board, RED) - discsSum(board, BLUE));
+        ans = sign(discsSum(board, WHITE) - discsSum(board, BLACK));
         // *** SOLUTION ***
 
         return ans;
@@ -407,8 +407,8 @@ public class CheckerEngine {
                     int newRow = moves[i][2];
 
                     if (count == -1
-                            || ((player == RED) && newRow > farthestRow)
-                            || ((player == BLUE) && newRow < farthestRow)) {
+                            || ((player == WHITE) && newRow > farthestRow)
+                            || ((player == BLACK) && newRow < farthestRow)) {
                         farthestRow = newRow;
                         count = 0;
                     }
@@ -446,8 +446,8 @@ public class CheckerEngine {
                     int newRow = moves[i][2];
 
                     if (count == -1
-                            || ((player == RED) && newRow < farthestRow)
-                            || ((player == BLUE) && newRow > farthestRow)) {
+                            || ((player == WHITE) && newRow < farthestRow)
+                            || ((player == BLACK) && newRow > farthestRow)) {
                         farthestRow = newRow;
                         count = 0;
                     }
@@ -604,7 +604,6 @@ public class CheckerEngine {
      * ---------------------- */
     public static void main(String[] args) {
         // CREATE THE GRAPHICAL GRID
-        grid = new CheckersGrid(SIZE);
 
         interactivePlay();
         //twoPlayers();
@@ -622,32 +621,32 @@ public class CheckerEngine {
 
         //int strategy = getStrategyChoice();
         int strategy = CUSTOM;
-        System.out.println("You are the first player (RED discs)");
+        System.out.println("You are the first player (WHITE discs)");
 
         boolean oppGameOver = false;
-        while (!gameOver(board, RED) & !oppGameOver) {
-            board = getPlayerFullMove(board, RED);
+        while (!gameOver(board, WHITE) & !oppGameOver) {
+            board = getPlayerFullMove(board, WHITE);
 
-            oppGameOver = gameOver(board, BLUE);
+            oppGameOver = gameOver(board, BLACK);
             if (!oppGameOver) {
                 // Uncomment just one of the two following lines: ENTER or SLEEP 500ms
                 //Console.readString("May I play? (press ENTER for Yes)");
-                CheckersGrid.sleep(200);
+                //CheckersGrid.sleep(200);
 
-                board = getStrategyFullMove(board, BLUE, strategy);
+                board = getStrategyFullMove(board, BLACK, strategy);
             }
         }
 
         int winner = 0;
-        if (playerDiscs(board, RED).length == 0 | playerDiscs(board, BLUE).length == 0)
+        if (playerDiscs(board, WHITE).length == 0 | playerDiscs(board, BLACK).length == 0)
             winner = getCurrentWinner(board);
 
-        if (winner == RED) {
+        if (winner == WHITE) {
             System.out.println();
             System.out.println("\t *************************");
             System.out.println("\t * You are the winner !! *");
             System.out.println("\t *************************");
-        } else if (winner == BLUE) {
+        } else if (winner == BLACK) {
             System.out.println("\n======= You lost :( =======");
         } else
             System.out.println("\n======= DRAW =======");
@@ -664,27 +663,27 @@ public class CheckerEngine {
         System.out.println("Welcome to the 2-player Checkers Game !");
 
         boolean oppGameOver = false;
-        while (!gameOver(board, RED) & !oppGameOver) {
-            System.out.println("\nRED's turn");
-            board = getPlayerFullMove(board, RED);
+        while (!gameOver(board, WHITE) & !oppGameOver) {
+            System.out.println("\nWHITE's turn");
+            board = getPlayerFullMove(board, WHITE);
 
-            oppGameOver = gameOver(board, BLUE);
+            oppGameOver = gameOver(board, BLACK);
             if (!oppGameOver) {
-                System.out.println("\nBLUE's turn");
-                board = getPlayerFullMove(board, BLUE);
+                System.out.println("\nBLACK's turn");
+                board = getPlayerFullMove(board, BLACK);
             }
         }
 
         int winner = 0;
-        if (playerDiscs(board, RED).length == 0 | playerDiscs(board, BLUE).length == 0)
+        if (playerDiscs(board, WHITE).length == 0 | playerDiscs(board, BLACK).length == 0)
             winner = getCurrentWinner(board);
 
         System.out.println();
         System.out.println("\t ************************************");
-        if (winner == RED)
-            System.out.println("\t * The red player is the winner !!  *");
-        else if (winner == BLUE)
-            System.out.println("\t * The blue player is the winner !! *");
+        if (winner == WHITE)
+            System.out.println("\t * The WHITE player is the winner !!  *");
+        else if (winner == BLACK)
+            System.out.println("\t * The BLACK player is the winner !! *");
         else
             System.out.println("\t *   FRIENDSHIP   is the winner !!  *");
         System.out.println("\t ************************************");
@@ -702,13 +701,13 @@ public class CheckerEngine {
         boolean badMove = true;
         while (badMove) {
             System.out.println("Please play:");
-            fromRow = Console.readInt("Origin row");
-            fromCol = Console.readInt("Origin column");
+            //fromRow = Console.readInt("Origin row");
+            //fromCol = Console.readInt("Origin column");
 
             int[][] moves = jumpingMove ? allJumpingMoves(board, player) : getSimpleMoves(board, player);
             markPossibleMoves(board, moves, fromRow, fromCol, MARK);
-            toRow = Console.readInt("Destination row");
-            toCol = Console.readInt("Destination column");
+            //toRow = Console.readInt("Destination row");
+            //toCol = Console.readInt("Destination column");
             markPossibleMoves(board, moves, fromRow, fromCol, EMPTY);
 
             badMove = !isValid(board, player, fromRow, fromCol, toRow, toCol);
@@ -733,8 +732,8 @@ public class CheckerEngine {
                 while (badExtraMove) {
                     markPossibleMoves(board, moves, fromRow, fromCol, MARK);
                     System.out.println("Continue jump:");
-                    toRow = Console.readInt("Destination row");
-                    toCol = Console.readInt("Destination column");
+                   // toRow = Console.readInt("Destination row");
+                   // toCol = Console.readInt("Destination column");
                     markPossibleMoves(board, moves, fromRow, fromCol, EMPTY);
 
                     badExtraMove = !isValid(board, player, fromRow, fromCol, toRow, toCol);
@@ -778,15 +777,15 @@ public class CheckerEngine {
      * --------------------------------------------------------- */
     public static int getStrategyChoice() {
         int strategy = -1;
-        while (strategy != RANDOM & strategy != OFFENSIVE
+        /*while (strategy != RANDOM & strategy != OFFENSIVE
                 & strategy != DEFENSIVE & strategy != CUSTOM) {
             strategy = Console.readInt("Choose:\t(" + RANDOM + ") random strategy"
                     + "\n\t(" + OFFENSIVE + ") offensive strategy"
                     + "\n\t(" + DEFENSIVE + ") defensive strategy"
                     + "\n\t(" + CUSTOM + ") for myPlayer strategy\n");
-        }
+        }*/
 
-        return strategy;
+        return CUSTOM;
     }
 
 
@@ -819,6 +818,183 @@ public class CheckerEngine {
      * without understanding how it works. :)                                      *
      * --------------------------------------------------------------------------- */
     public static void showBoard(int[][] board) {
-        grid.showBoard(board);
+        //grid.showBoard(board);
+    }
+
+    public Point getBoardPosition(int n) {
+    /* turns square number n into a coordinate for checkerboard */
+   /*         (white)
+  32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+    (black)  */
+        Point p = new Point();
+        switch (n) {
+            case 4:
+                p.col = 0;
+                p.row = 0;
+                break;
+            case 3:
+                p.col = 2;
+                p.row = 0;
+                break;
+            case 2:
+                p.col = 4;
+                p.row = 0;
+                break;
+            case 1:
+                p.col = 6;
+                p.row = 0;
+                break;
+            case 8:
+                p.col = 1;
+                p.row = 1;
+                break;
+            case 7:
+                p.col = 3;
+                p.row = 1;
+                break;
+            case 6:
+                p.col = 5;
+                p.row = 1;
+                break;
+            case 5:
+                p.col = 7;
+                p.row = 1;
+                break;
+           /*    (white)
+                     32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 12:
+                p.col = 0;
+                p.row = 2;
+                break;
+            case 11:
+                p.col = 2;
+                p.row = 2;
+                break;
+            case 10:
+                p.col = 4;
+                p.row = 2;
+                break;
+            case 9:
+                p.col = 6;
+                p.row = 2;
+                break;
+            case 16:
+                p.col = 1;
+                p.row = 3;
+                break;
+            case 15:
+                p.col = 3;
+                p.row = 3;
+                break;
+            case 14:
+                p.col = 5;
+                p.row = 3;
+                break;
+            case 13:
+                p.col = 7;
+                p.row = 3;
+                break;
+           /*    (white)
+                      32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 20:
+                p.col = 0;
+                p.row = 4;
+                break;
+            case 19:
+                p.col = 2;
+                p.row = 4;
+                break;
+            case 18:
+                p.col = 4;
+                p.row = 4;
+                break;
+            case 17:
+                p.col = 6;
+                p.row = 4;
+                break;
+            case 24:
+                p.col = 1;
+                p.row = 5;
+                break;
+            case 23:
+                p.col = 3;
+                p.row = 5;
+                break;
+            case 22:
+                p.col = 5;
+                p.row = 5;
+                break;
+            case 21:
+                p.col = 7;
+                p.row = 5;
+                break;
+           /*    (white)
+                     32  31  30  29
+28  27  26  25
+  24  23  22  21
+20  19  18  17
+  16  15  14  13
+12  11  10   9
+  8   7   6   5
+4   3   2   1
+         (black)   */
+            case 28:
+                p.col = 0;
+                p.row = 6;
+                break;
+            case 27:
+                p.col = 2;
+                p.row = 6;
+                break;
+            case 26:
+                p.col = 4;
+                p.row = 6;
+                break;
+            case 25:
+                p.col = 6;
+                p.row = 6;
+                break;
+            case 32:
+                p.col = 1;
+                p.row = 7;
+                break;
+            case 31:
+                p.col = 3;
+                p.row = 7;
+                break;
+            case 30:
+                p.col = 5;
+                p.row = 7;
+                break;
+            case 29:
+                p.col = 7;
+                p.row = 7;
+                break;
+        }
+
+        return p;
     }
 }
