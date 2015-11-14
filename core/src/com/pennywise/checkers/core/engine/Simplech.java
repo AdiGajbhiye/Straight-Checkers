@@ -157,7 +157,6 @@ public class Simplech {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
        the move the user wants to make with from&to */
-        int n = 0;
         Vector<Move> legalMoves = new Vector<Move>();
 
         Vector<Move> movelist = generatecapturelist(board, color);
@@ -168,7 +167,7 @@ public class Simplech {
             return null;
 
 	/* now we have a movelist - check if from and to are the same */
-        for (int i = 0, j = 0; i < n; i++) {
+        for (int i = 0, j = 0; i < movelist.size(); i++) {
 
             int[] iMove = moveNotation(movelist.elementAt(i));
 
@@ -242,9 +241,40 @@ public class Simplech {
         return mv;
     }
 
+    public int[] moveNotation3(Move move) {
+        int j = 0, from = 0, to = 0;
+        int[] mv = new int[move.n];
+
+        System.out.println("MOVES=> " + move.n );
+        for(int i = 0; i < move.n; i++) {
+            from = move.m[i] % 256;
+            to = move.m[i] % 256;
+            from = from - (from / 9);
+            to = to - (to / 9);
+            from -= 5;
+            to -= 5;
+            j = from % 4;
+            from -= j;
+            j = 3 - j;
+            from += j;
+            j = to % 4;
+            to -= j;
+            j = 3 - j;
+            to += j;
+            from++;
+            to++;
+            //mv[0] = from;
+            //mv[1] = to;
+            System.out.println("MOVE=> " + from);
+        }
+        return mv;
+    }
+
+
     public int[] moveNotation2(Move move) {
         int j = 0, from = 0, to = 0;
         int[] mv = new int[move.n];
+
 
         from = move.m[0] % 256;
         to = move.m[1] % 256;
@@ -1103,14 +1133,13 @@ public class Simplech {
 
         Vector<Move> movelist = new Vector<Move>();
 
-        movelist.add(n, new Move());
-
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
+                                movelist.add(n, new Move());
                                 movelist.get(n).n = 3;
                                 if (i >= 28) m = (BLACK | KING);
                                 else m = (BLACK | PAWN);
@@ -1136,6 +1165,7 @@ public class Simplech {
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 if (i >= 28) m = (BLACK | KING);
                                 else m = (BLACK | PAWN);
@@ -1162,6 +1192,7 @@ public class Simplech {
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (BLACK | KING);
                                 m = m << 8;
@@ -1189,6 +1220,7 @@ public class Simplech {
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (BLACK | KING);
                                 m = m << 8;
@@ -1216,6 +1248,7 @@ public class Simplech {
                         }
                         if ((b[i - 4] & WHITE) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (BLACK | KING);
                                 m = m << 8;
@@ -1243,6 +1276,7 @@ public class Simplech {
                         }
                         if ((b[i - 5] & WHITE) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (BLACK | KING);
                                 m = m << 8;
@@ -1277,6 +1311,7 @@ public class Simplech {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 if (i <= 17) m = (WHITE | KING);
                                 else m = (WHITE | PAWN);
@@ -1302,6 +1337,7 @@ public class Simplech {
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 if (i <= 17) m = (WHITE | KING);
                                 else m = (WHITE | PAWN);
@@ -1328,6 +1364,7 @@ public class Simplech {
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & BLACK) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (WHITE | KING);
                                 m = m << 8;
@@ -1355,6 +1392,7 @@ public class Simplech {
                         }
                         if ((b[i + 5] & BLACK) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (WHITE | KING);
                                 m = m << 8;
@@ -1382,6 +1420,7 @@ public class Simplech {
                         }
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (WHITE | KING);
                                 m = m << 8;
@@ -1409,6 +1448,7 @@ public class Simplech {
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
+                                movelist.add(n,new Move());
                                 movelist.get(n).n = 3;
                                 m = (WHITE | KING);
                                 m = m << 8;

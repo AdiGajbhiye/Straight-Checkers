@@ -43,6 +43,8 @@ public class Assets {
     public static SpriteDrawable img_selected_cell_lite;
     public static SpriteDrawable img_dark_outline;
     public static SpriteDrawable img_btn_pause;
+    public static SpriteDrawable img_selected_human_dark;
+    public static SpriteDrawable img_selected_human_lite;
 
     public static Texture loadTexture(String file) {
         return new Texture(Gdx.files.internal(file));
@@ -88,6 +90,8 @@ public class Assets {
         img_board_bg = getAtlas().createPatch("panel_brown");
         img_selected_cell_dark = getDrawable("selecteddarkcell");
         img_selected_cell_lite = getDrawable("selectedlitecell");
+        img_selected_human_dark = getDrawable("selectedhumancell");
+        img_selected_human_lite = getDrawable("selectedhumanlite");
         img_cell_dark = getDrawable("darkcell");
         img_cell_light = getDrawable("litecell");
         img_pawn_black = getDrawable("blackpawn");

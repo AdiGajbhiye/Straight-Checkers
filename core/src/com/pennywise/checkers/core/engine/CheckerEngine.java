@@ -2,26 +2,38 @@ package com.pennywise.checkers.core.engine;
 
 import java.io.Console;
 
+
+/*          (white)
+            32  31  30  29
+        28  27  26  25
+            24  23  22  21
+        20  19  18  17
+            16  15  14  13
+        12  11  10   9
+            8   7   6   5
+        4   3   2   1
+            (black)
+*/
+
 /**
  * Created by CHOXXY on 11/13/2015.
  */
 public class CheckerEngine {
     // Global constants
-    public static final int RED   = 1;
-    public static final int BLUE  = -1;
+    public static final int RED = 1;
+    public static final int BLUE = -1;
     public static final int EMPTY = 0;
 
-    public static final int SIZE  = 8;
+    public static final int SIZE = 8;
 
 
     // You can ignore these constants
-    public static final int MARK  = 3;
-    public static CheckersGrid grid;
+    public static final int MARK = 3;
 
-    public static final int RANDOM    = 1;
+    public static final int RANDOM = 1;
     public static final int OFFENSIVE = 2;
     public static final int DEFENSIVE = 3;
-    public static final int CUSTOM    = 4;
+    public static final int CUSTOM = 4;
 
 
     // *** SOLUTION: EXTRA FUNCTIONS ***
@@ -42,15 +54,15 @@ public class CheckerEngine {
 
     private static int[][] trimArray(int[][] array, int size) {
         int[][] newArray = new int[size][];
-        for (int i = 0;  i < size;  ++i)
+        for (int i = 0; i < size; ++i)
             newArray[i] = array[i];
 
         return newArray;
     }
 
     private static void appendArray(int[][] array, int curSize, int[][] extraArray) {
-        for (int i = 0;  i < extraArray.length;  ++i)
-            array[curSize+i] = extraArray[i];
+        for (int i = 0; i < extraArray.length; ++i)
+            array[curSize + i] = extraArray[i];
     }
 
     private static int sign(int number) {
@@ -66,13 +78,13 @@ public class CheckerEngine {
     }
 
     private static boolean isLegalPosition(int row, int col) {
-        return 0 <= row  &&  row < SIZE
-                && 0 <= col  &&  col < SIZE;
+        return 0 <= row && row < SIZE
+                && 0 <= col && col < SIZE;
     }
 
     private static boolean isLegalDirection(int[][] board, int fromRow, int fromCol, int toRow, int toCol) {
         int indicator = sign(toRow - fromRow) * board[fromRow][fromCol];
-        return indicator >= 1  ||  indicator == -2;
+        return indicator >= 1 || indicator == -2;
     }
 
     private static boolean isJumpingMove(int fromRow, int toRow) {
@@ -93,7 +105,7 @@ public class CheckerEngine {
         int[][] discs = playerDiscs(board, player);
         int sum = 0;
 
-        for (int i = 0;  i < discs.length;  ++i)
+        for (int i = 0; i < discs.length; ++i)
             sum += board[discs[i][0]][discs[i][1]];
 
         return Math.abs(sum);
@@ -113,13 +125,13 @@ public class CheckerEngine {
         // *** SOLUTION ***
         board = new int[SIZE][SIZE];
 
-        for (int row = 0;  row < SIZE;  ++row)
-            for (int col = 0;  col < SIZE;  ++col)
+        for (int row = 0; row < SIZE; ++row)
+            for (int col = 0; col < SIZE; ++col)
                 board[row][col] = EMPTY;
 
-        for (int col = 0;  col < SIZE;  col += 2) {
-            board[0][col]             = board[2][col]             = board[1][col+1]           = RED;
-            board[SIZE-1][SIZE-1-col] = board[SIZE-3][SIZE-1-col] = board[SIZE-2][SIZE-2-col] = BLUE;
+        for (int col = 0; col < SIZE; col += 2) {
+            board[0][col] = board[2][col] = board[1][col + 1] = RED;
+            board[SIZE - 1][SIZE - 1 - col] = board[SIZE - 3][SIZE - 1 - col] = board[SIZE - 2][SIZE - 2 - col] = BLUE;
         }
         // *** SOLUTION ***
 
@@ -137,10 +149,10 @@ public class CheckerEngine {
         // *** SOLUTION ***
         positions = new int[DISCS][];
         int posIndex = 0;
-        for (int row = 0;  row < SIZE;  ++row)
-            for (int col = 0;  col < SIZE;  ++col)
+        for (int row = 0; row < SIZE; ++row)
+            for (int col = 0; col < SIZE; ++col)
                 if (ownSquare(board, player, row, col))
-                    positions[posIndex++] = new int[]{ row, col };
+                    positions[posIndex++] = new int[]{row, col};
 
         positions = trimArray(positions, posIndex);
         // *** SOLUTION ***
@@ -176,18 +188,18 @@ public class CheckerEngine {
         int[][] moves = null;         // YOU SHOULD CHANGE IT !!
 
         // *** SOLUTION ***
-        moves  = new int[DISCS * 4][];
+        moves = new int[DISCS * 4][];
         int movesCount = 0;
 
         int[][] discs = playerDiscs(board, player);
-        for (int i = 0;  i < discs.length;  ++i) {
+        for (int i = 0; i < discs.length; ++i) {
             int row = discs[i][0];
             int col = discs[i][1];
 
-            for (int newRow = row-1;  newRow <= row+1;  newRow += 2)
-                for (int newCol = col-1;  newCol <= col+1;  newCol += 2)
+            for (int newRow = row - 1; newRow <= row + 1; newRow += 2)
+                for (int newCol = col - 1; newCol <= col + 1; newCol += 2)
                     if (isValidSimpleMove(board, player, row, col, newRow, newCol))
-                        moves[movesCount++] = new int[]{ row, col, newRow, newCol };
+                        moves[movesCount++] = new int[]{row, col, newRow, newCol};
         }
 
         moves = trimArray(moves, movesCount);
@@ -221,17 +233,17 @@ public class CheckerEngine {
     /* -------------------------------------------------------------------------------- *
      * Task 6                                                                           *
      * -------------------------------------------------------------------------------- */
-    public static int [][] discJumpingMoves(int[][] board, int player, int row, int col) {
+    public static int[][] discJumpingMoves(int[][] board, int player, int row, int col) {
         int[][] moves = null;         // YOU SHOULD CHANGE IT !!
 
         // *** SOLUTION ***
-        moves  = new int[4][];
+        moves = new int[4][];
         int movesCount = 0;
 
-        for (int newRow = row-2;  newRow <= row+2;  newRow += 4)
-            for (int newCol = col-2;  newCol <= col+2;  newCol += 4)
+        for (int newRow = row - 2; newRow <= row + 2; newRow += 4)
+            for (int newCol = col - 2; newCol <= col + 2; newCol += 4)
                 if (isValidJumping(board, player, row, col, newRow, newCol))
-                    moves[movesCount++] = new int[]{ row, col, newRow, newCol };
+                    moves[movesCount++] = new int[]{row, col, newRow, newCol};
 
         moves = trimArray(moves, movesCount);
         // *** SOLUTION ***
@@ -247,11 +259,11 @@ public class CheckerEngine {
         int[][] moves = null;         // YOU SHOULD CHANGE IT !!
 
         // *** SOLUTION ***
-        moves  = new int[DISCS * 4][];
+        moves = new int[DISCS * 4][];
         int movesCount = 0;
 
         int[][] discs = playerDiscs(board, player);
-        for (int i = 0;  i < discs.length;  ++i) {
+        for (int i = 0; i < discs.length; ++i) {
             int[][] discMoves = discJumpingMoves(board, player, discs[i][0], discs[i][1]);
             appendArray(moves, movesCount, discMoves);
             movesCount += discMoves.length;
@@ -285,7 +297,7 @@ public class CheckerEngine {
         boolean ans = false;         // YOU CAN CHANGE IT !!
 
         // *** SOLUTION ***
-        ans = (isValidSimpleMove(board, player, fromRow, fromCol, toRow, toCol)  &&  !canJump(board, player))
+        ans = (isValidSimpleMove(board, player, fromRow, fromCol, toRow, toCol) && !canJump(board, player))
                 || isValidJumping(board, player, fromRow, fromCol, toRow, toCol);
         // *** SOLUTION ***
 
@@ -313,7 +325,7 @@ public class CheckerEngine {
      * -------------------------------------------------------------------------------- */
     public static int[][] applyMove(int[][] board, int player, int fromRow, int fromCol, int toRow, int toCol) {
         // *** SOLUTION ***
-        if (toRow == 0 || toRow == SIZE-1)
+        if (toRow == 0 || toRow == SIZE - 1)
             board[toRow][toCol] = player * 2;
         else
             board[toRow][toCol] = board[fromRow][fromCol];
@@ -321,7 +333,7 @@ public class CheckerEngine {
         board[fromRow][fromCol] = EMPTY;
 
         if (isJumpingMove(fromRow, toRow))
-            board[(fromRow + toRow)/2][(fromCol + toCol)/2] = EMPTY;
+            board[(fromRow + toRow) / 2][(fromCol + toCol) / 2] = EMPTY;
         // *** SOLUTION ***
 
         return board;
@@ -335,7 +347,7 @@ public class CheckerEngine {
         boolean ans = false;         // YOU CAN CHANGE IT !!
 
         // *** SOLUTION ***
-        ans = playerDiscs(board, player).length  == 0
+        ans = playerDiscs(board, player).length == 0
                 || playerDiscs(board, -player).length == 0
                 || !hasValidMoves(board, player);
         // *** SOLUTION ***
@@ -385,20 +397,20 @@ public class CheckerEngine {
             if (canJump(board, player))
                 board = randomPlayer(board, player);
             else {
-                int[][] moves         = getSimpleMoves(board, player);
+                int[][] moves = getSimpleMoves(board, player);
                 int[][] farthestMoves = new int[moves.length][];
 
                 int farthestRow = -1;
-                int count       = -1;
+                int count = -1;
 
-                for (int i = 0;  i < moves.length;  ++i){
+                for (int i = 0; i < moves.length; ++i) {
                     int newRow = moves[i][2];
 
                     if (count == -1
-                            || ((player == RED)  &&  newRow > farthestRow)
-                            || ((player == BLUE)  &&  newRow < farthestRow)) {
+                            || ((player == RED) && newRow > farthestRow)
+                            || ((player == BLUE) && newRow < farthestRow)) {
                         farthestRow = newRow;
-                        count       = 0;
+                        count = 0;
                     }
 
                     if (newRow == farthestRow)
@@ -424,20 +436,20 @@ public class CheckerEngine {
             if (canJump(board, player))
                 board = randomPlayer(board, player);
             else {
-                int[][] moves         = getSimpleMoves(board, player);
+                int[][] moves = getSimpleMoves(board, player);
                 int[][] farthestMoves = new int[moves.length][];
 
                 int farthestRow = -1;
-                int count       = -1;
+                int count = -1;
 
-                for (int i = 0;  i < moves.length;  ++i){
+                for (int i = 0; i < moves.length; ++i) {
                     int newRow = moves[i][2];
 
                     if (count == -1
-                            || ((player == RED)  &&  newRow < farthestRow)
-                            || ((player == BLUE)  &&  newRow > farthestRow)) {
+                            || ((player == RED) && newRow < farthestRow)
+                            || ((player == BLUE) && newRow > farthestRow)) {
                         farthestRow = newRow;
-                        count       = 0;
+                        count = 0;
                     }
 
                     if (newRow == farthestRow)
@@ -495,15 +507,15 @@ public class CheckerEngine {
         else {
             int[][] moves = randomize(allMoves(board, player));
 
-            for (int i = 0;  i < moves.length;  ++i) {
+            for (int i = 0; i < moves.length; ++i) {
                 int[] move = moves[i];
                 int[][] newBoard = applyMove(cloneBoard(board), player, move[0], move[1], move[2], move[3]);
                 // don't bother with sequences
                 newBoard = finishJumpingSequence(newBoard, player, move);
 
-                double newFitness = -negamaxAB(newBoard, -player, plies-1, -beta, -alpha, null);
+                double newFitness = -negamaxAB(newBoard, -player, plies - 1, -beta, -alpha, null);
                 if (newFitness > alpha) {
-                    alpha     = newFitness;
+                    alpha = newFitness;
                     if (bestBoardBox != null)
                         bestBoardBox[0] = newBoard;
 
@@ -518,7 +530,7 @@ public class CheckerEngine {
 
     private static double fitness(int[][] board, int player) {
         int playerSum = discsSum(board, player);
-        int oppSum    = discsSum(board, -player);
+        int oppSum = discsSum(board, -player);
 
         double difference;
 
@@ -547,32 +559,32 @@ public class CheckerEngine {
     private static int[][] cloneBoard(int[][] board) {
         int[][] newBoard = new int[SIZE][SIZE];
 
-        for (int i = 0;  i < SIZE;  ++i)
+        for (int i = 0; i < SIZE; ++i)
             System.arraycopy(board[i], 0, newBoard[i], 0, SIZE);
 
         return newBoard;
     }
 
     private static int[][] randomize(int[][] array) {
-        for (int i = 1;  i < array.length;  ++i) {
+        for (int i = 1; i < array.length; ++i) {
             // pick j in [0 .. i]
-            int j = (int)(Math.random() * (i+1));
+            int j = (int) (Math.random() * (i + 1));
 
             // swap array[i], array[j]
-            int[] tmp  = array[i];
-            array[i]   = array[j];
-            array[j]   = tmp;
+            int[] tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
         }
 
         return array;
     }
 
     private static void printFitness(double previous, double fitness) {
-        double change = fitness-previous;
+        double change = fitness - previous;
 
-        if (fitness > Double.MAX_VALUE/2)
+        if (fitness > Double.MAX_VALUE / 2)
             System.out.println("*** PWND ***");
-        else if (fitness < -Double.MAX_VALUE/2)
+        else if (fitness < -Double.MAX_VALUE / 2)
             System.out.println("*** LAME ***");
 
         else if (change > 1.5)
@@ -613,7 +625,7 @@ public class CheckerEngine {
         System.out.println("You are the first player (RED discs)");
 
         boolean oppGameOver = false;
-        while (!gameOver(board, RED)  &  !oppGameOver) {
+        while (!gameOver(board, RED) & !oppGameOver) {
             board = getPlayerFullMove(board, RED);
 
             oppGameOver = gameOver(board, BLUE);
@@ -627,7 +639,7 @@ public class CheckerEngine {
         }
 
         int winner = 0;
-        if (playerDiscs(board, RED).length == 0  |  playerDiscs(board, BLUE).length == 0)
+        if (playerDiscs(board, RED).length == 0 | playerDiscs(board, BLUE).length == 0)
             winner = getCurrentWinner(board);
 
         if (winner == RED) {
@@ -635,11 +647,9 @@ public class CheckerEngine {
             System.out.println("\t *************************");
             System.out.println("\t * You are the winner !! *");
             System.out.println("\t *************************");
-        }
-        else if (winner == BLUE) {
+        } else if (winner == BLUE) {
             System.out.println("\n======= You lost :( =======");
-        }
-        else
+        } else
             System.out.println("\n======= DRAW =======");
     }
 
@@ -654,7 +664,7 @@ public class CheckerEngine {
         System.out.println("Welcome to the 2-player Checkers Game !");
 
         boolean oppGameOver = false;
-        while (!gameOver(board, RED)  &  !oppGameOver) {
+        while (!gameOver(board, RED) & !oppGameOver) {
             System.out.println("\nRED's turn");
             board = getPlayerFullMove(board, RED);
 
@@ -666,7 +676,7 @@ public class CheckerEngine {
         }
 
         int winner = 0;
-        if (playerDiscs(board, RED).length == 0  |  playerDiscs(board, BLUE).length == 0)
+        if (playerDiscs(board, RED).length == 0 | playerDiscs(board, BLUE).length == 0)
             winner = getCurrentWinner(board);
 
         System.out.println();
@@ -689,7 +699,7 @@ public class CheckerEngine {
         // Get first move/jump
         int fromRow = -1, fromCol = -1, toRow = -1, toCol = -1;
         boolean jumpingMove = canJump(board, player);
-        boolean badMove   = true;
+        boolean badMove = true;
         while (badMove) {
             System.out.println("Please play:");
             fromRow = Console.readInt("Origin row");
@@ -697,8 +707,8 @@ public class CheckerEngine {
 
             int[][] moves = jumpingMove ? allJumpingMoves(board, player) : getSimpleMoves(board, player);
             markPossibleMoves(board, moves, fromRow, fromCol, MARK);
-            toRow   = Console.readInt("Destination row");
-            toCol   = Console.readInt("Destination column");
+            toRow = Console.readInt("Destination row");
+            toCol = Console.readInt("Destination column");
             markPossibleMoves(board, moves, fromRow, fromCol, EMPTY);
 
             badMove = !isValid(board, player, fromRow, fromCol, toRow, toCol);
@@ -768,8 +778,8 @@ public class CheckerEngine {
      * --------------------------------------------------------- */
     public static int getStrategyChoice() {
         int strategy = -1;
-        while (strategy != RANDOM  &  strategy != OFFENSIVE
-                &  strategy != DEFENSIVE  &  strategy != CUSTOM) {
+        while (strategy != RANDOM & strategy != OFFENSIVE
+                & strategy != DEFENSIVE & strategy != CUSTOM) {
             strategy = Console.readInt("Choose:\t(" + RANDOM + ") random strategy"
                     + "\n\t(" + OFFENSIVE + ") offensive strategy"
                     + "\n\t(" + DEFENSIVE + ") defensive strategy"
@@ -784,8 +794,8 @@ public class CheckerEngine {
      * Print the possible moves                *
      * --------------------------------------- */
     public static void printMoves(int[][] possibleMoves) {
-        for (int i = 0;  i < 4;  i = i+1) {
-            for (int j = 0;  j < possibleMoves.length;  j = j+1)
+        for (int i = 0; i < 4; i = i + 1) {
+            for (int j = 0; j < possibleMoves.length; j = j + 1)
                 System.out.print(" " + possibleMoves[j][i]);
             System.out.println();
         }
@@ -796,8 +806,8 @@ public class CheckerEngine {
      * Mark/unmark the possible moves          *
      * --------------------------------------- */
     public static void markPossibleMoves(int[][] board, int[][] moves, int fromRow, int fromColumn, int value) {
-        for (int i = 0;  i < moves.length;  i = i+1)
-            if (moves[i][0] == fromRow  &  moves[i][1] == fromColumn)
+        for (int i = 0; i < moves.length; i = i + 1)
+            if (moves[i][0] == fromRow & moves[i][1] == fromColumn)
                 board[moves[i][2]][moves[i][3]] = value;
 
         showBoard(board);

@@ -13,8 +13,8 @@ public class DesktopLauncher {
         config.width = 480;
         config.height = 800;
 		new LwjglApplication(new Checkers(), config);
-
-        /*TexturePacker.Settings settings = new TexturePacker.Settings();
+/*
+        TexturePacker.Settings settings = new TexturePacker.Settings();
         settings.maxWidth = 1024;
         settings.maxHeight = 1024;
 

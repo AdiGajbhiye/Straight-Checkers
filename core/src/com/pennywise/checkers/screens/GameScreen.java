@@ -67,6 +67,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Piece humanPiece = null;
     private Piece cpuPiece = null;
     private Tile fromTile;
+    private Tile toTile;
     private List<Tile> toTiles;
     private int[] board = new int[46];
     private boolean gameOver = false;
@@ -162,16 +163,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
                     if (tile.getCellEntry() == Simplech.BLACK)
-                        tile.getStyle().background = Assets.img_selected_cell_dark;
+                        tile.getStyle().background = Assets.img_selected_human_dark;
                     else
-                        tile.getStyle().background = Assets.img_selected_cell_lite;
+                        tile.getStyle().background = Assets.img_selected_human_lite;
                 }
             } else {
 
                 if (humanPiece != null) {
                     if (actor instanceof Tile) {
                         if (((Tile) actor).getCellEntry() == Simplech.BLACK) {
-                            toTiles.add(((Tile) actor));
+                            toTile = (Tile) actor;
                             movePiece();
                         }
                     }
@@ -349,8 +350,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void move() {
 
-        float posX = toTiles.get(0).getX() + (cellsize / 2);
-        float posY = toTiles.get(0).getY() + (cellsize / 2);
+        float posX = toTile.getX() + (cellsize / 2);
+        float posY = toTile.getY() + (cellsize / 2);
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
@@ -360,11 +361,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
-                if (isKingTile(toTiles.get(0), humanPiece.getPlayer()) &&
+                if (isKingTile(toTile, humanPiece.getPlayer()) &&
                         !humanPiece.isKing()) {
                     crownPiece(humanPiece);
                 }
-                toTiles.clear();
+                //toTiles.clear();
                 opponentMove = true;
             }
         })));
@@ -461,23 +462,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         int from = Integer.parseInt(fromTile.getName());
 
-        int to = Integer.parseInt(toTiles.get(0).getName());
+        int to = Integer.parseInt(toTile.getName());
 
-        if (toTiles.size() == 1) {
-            moves = engine.isLegal(board, humanPiece.getPlayer(), from, to);
-        }
+
+        moves = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+
 
         if (moves.size() > 1)
             return;
 
-        if (moves.size() == toTiles.size()) {
-            System.out.println("Multi capture");
-        }
-
-        if (move != null) {
-            engine.doMove(board, move);
-            move();
-            engine.printBoard(board);
+        if (!moves.isEmpty()) {
+            for (Move mv : moves) {
+                engine.doMove(board, mv);
+                move();
+                engine.printBoard(board);
+            }
         } else
             return;
 
@@ -522,6 +521,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         SequenceAction sequenceAction = new SequenceAction();
 
         int[] steps = engine.moveNotation2(move);
+        engine.moveNotation3(move);
 
         cpuPiece = getPiece(steps[0]);
 
@@ -534,6 +534,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
             destTile = getTile(steps[i] + "");
+            destTile.getStyle().background = Assets.img_selected_cell_dark;
             cpuPiece.setName(steps[i] + "");
 
             float posX = destTile.getX();

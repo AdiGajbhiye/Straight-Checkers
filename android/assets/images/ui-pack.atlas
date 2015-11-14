@@ -62,14 +62,14 @@ blue_checkmark
   index: -1
 blue_cross
   rotate: false
-  xy: 384, 557
+  xy: 316, 311
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 blue_tick
   rotate: false
-  xy: 204, 126
+  xy: 384, 562
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -261,56 +261,14 @@ green_checkmark
   index: -1
 green_cross
   rotate: false
-  xy: 407, 579
+  xy: 384, 601
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 green_tick
   rotate: false
-  xy: 297, 279
-  size: 17, 17
-  orig: 17, 17
-  offset: 0, 0
-  index: -1
-grey_boxCheckmark
-  rotate: false
-  xy: 134, 54
-  size: 38, 36
-  orig: 38, 36
-  offset: 0, 0
-  index: -1
-grey_boxCross
-  rotate: false
-  xy: 895, 890
-  size: 38, 36
-  orig: 38, 36
-  offset: 0, 0
-  index: -1
-grey_boxTick
-  rotate: false
-  xy: 278, 336
-  size: 36, 36
-  orig: 36, 36
-  offset: 0, 0
-  index: -1
-grey_checkmarkGrey
-  rotate: false
-  xy: 384, 599
-  size: 21, 20
-  orig: 21, 20
-  offset: 0, 0
-  index: -1
-grey_crossGrey
-  rotate: false
-  xy: 384, 537
-  size: 18, 18
-  orig: 18, 18
-  offset: 0, 0
-  index: -1
-grey_tickGrey
-  rotate: false
-  xy: 316, 280
+  xy: 404, 582
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -474,42 +432,42 @@ pause_dark
   index: -1
 red_boxCheckmark
   rotate: false
-  xy: 973, 884
+  xy: 134, 54
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 red_boxCross
   rotate: false
-  xy: 896, 852
+  xy: 895, 890
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 red_boxTick
   rotate: false
-  xy: 278, 298
+  xy: 278, 336
   size: 36, 36
   orig: 36, 36
   offset: 0, 0
   index: -1
 red_checkmark
   rotate: false
-  xy: 384, 577
+  xy: 316, 353
   size: 21, 20
   orig: 21, 20
   offset: 0, 0
   index: -1
 red_cross
   rotate: false
-  xy: 358, 470
+  xy: 384, 581
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 red_tick
   rotate: false
-  xy: 297, 260
+  xy: 384, 543
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
@@ -521,21 +479,21 @@ selecteddarkcell
   orig: 48, 48
   offset: 0, 0
   index: -1
-selectedlitecell
+selectedhumancell
   rotate: false
   xy: 796, 690
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-validCell
+selectedhumanlite
   rotate: false
   xy: 247, 242
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-validdarkcell
+selectedlitecell
   rotate: false
   xy: 236, 192
   size: 48, 48
@@ -565,42 +523,42 @@ whitepawn
   index: -1
 yellow_boxCheckmark
   rotate: false
-  xy: 316, 337
+  xy: 973, 884
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 yellow_boxCross
   rotate: false
-  xy: 316, 299
+  xy: 896, 852
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 yellow_boxTick
   rotate: false
-  xy: 550, 645
+  xy: 278, 298
   size: 36, 36
   orig: 36, 36
   offset: 0, 0
   index: -1
 yellow_checkmark
   rotate: false
-  xy: 407, 599
+  xy: 316, 331
   size: 21, 20
   orig: 21, 20
   offset: 0, 0
   index: -1
 yellow_cross
   rotate: false
-  xy: 184, 125
+  xy: 404, 601
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 yellow_tick
   rotate: false
-  xy: 316, 261
+  xy: 550, 664
   size: 17, 17
   orig: 17, 17
   offset: 0, 0
