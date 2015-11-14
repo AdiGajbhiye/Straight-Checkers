@@ -29,7 +29,6 @@ import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Move;
-import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
@@ -37,6 +36,7 @@ import com.pennywise.checkers.objects.Tile;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -66,9 +66,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Panel panel;
     private Piece humanPiece = null;
     private Piece cpuPiece = null;
-    private List<Piece> capturedPieces = null;
     private Tile fromTile;
-    private Tile toTile;
+    private List<Tile> toTiles;
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
@@ -80,8 +79,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private BitmapFont hudFont;
     private Move move = new Move();
     private boolean opponentMove = false;
-    private boolean checking = false;
-    private boolean isColliding = false;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -115,8 +112,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         engine = new Simplech();
         engine.initCheckers(board);
+        toTiles = new LinkedList<Tile>();
 
-        capturedPieces = new LinkedList<Piece>();
     }
 
 
@@ -173,9 +170,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                 if (humanPiece != null) {
                     if (actor instanceof Tile) {
-                        toTile = ((Tile) actor);
-
-                        if (toTile.getCellEntry() == Simplech.BLACK) {
+                        if (((Tile) actor).getCellEntry() == Simplech.BLACK) {
+                            toTiles.add(((Tile) actor));
                             movePiece();
                         }
                     }
@@ -183,9 +179,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             }
         }
 
-        checkBlackPieceCollision(humanPiece);
+        if (humanPiece != null)
+            checkBlackPieceCollision(humanPiece);
 
-        checkWhitePieceCollision(cpuPiece);
+        if (cpuPiece != null)
+            checkWhitePieceCollision(cpuPiece);
 
 
         stage.act();
@@ -351,8 +349,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void move() {
 
-        float posX = toTile.getX() + (toTile.getWidth() / 2);
-        float posY = toTile.getY() + (toTile.getHeight() / 2);
+        float posX = toTiles.get(0).getX() + (cellsize / 2);
+        float posY = toTiles.get(0).getY() + (cellsize / 2);
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
@@ -362,16 +360,43 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
+                if (isKingTile(toTiles.get(0), humanPiece.getPlayer()) &&
+                        !humanPiece.isKing()) {
+                    crownPiece(humanPiece);
+                }
+                toTiles.clear();
                 opponentMove = true;
             }
         })));
     }
 
+    protected boolean isKingTile(Tile tile, int color) {
+
+        if (color == Simplech.BLACK) {
+            //32  31  30  29
+            if (tile.getName().equals("32")
+                    || tile.getName().equals("31")
+                    || tile.getName().equals("30")
+                    || tile.getName().equals("29")) {
+                return true;
+            }
+        } else {
+            //4   3   2   1
+            if (tile.getName().equals("1")
+                    || tile.getName().equals("2")
+                    || tile.getName().equals("3")
+                    || tile.getName().equals("4")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece != null ) {
+        if (piece.isSelected()) {
 
-            if(piece.isSelected())
             //find the piece
             for (Actor a : boardStage.getActors()) {
                 if (a instanceof Group) {
@@ -394,7 +419,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkWhitePieceCollision(Piece piece) {
 
-        if (piece != null || piece.isSelected()) {
+        if (piece.isSelected()) {
 
             for (Actor a : boardStage.getActors()) {
                 if (a instanceof Group) {
@@ -432,10 +457,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected void movePiece() {
 
-        int from = Integer.parseInt(fromTile.getName());
-        int to = Integer.parseInt(toTile.getName());
+        Vector<Move> moves = null;
 
-        Move move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+        int from = Integer.parseInt(fromTile.getName());
+
+        int to = Integer.parseInt(toTiles.get(0).getName());
+
+        if (toTiles.size() == 1) {
+            moves = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+        }
+
+        if (moves.size() > 1)
+            return;
+
+        if (moves.size() == toTiles.size()) {
+            System.out.println("Multi capture");
+        }
 
         if (move != null) {
             engine.doMove(board, move);
@@ -443,6 +480,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             engine.printBoard(board);
         } else
             return;
+
+    }
+
+    protected void crownPiece(Piece piece) {
+
+        if (piece.getPlayer() == Simplech.BLACK)
+            piece.setDrawable(Assets.img_king_black);
+        else
+            piece.setDrawable(Assets.img_king_white);
+
+        piece.setKing(true);
     }
 
     protected Tile getTile(String name) {
@@ -482,7 +530,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         else
             cpuPiece.setSelected(true);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 1; i < 2; i++) {
 
             Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
             destTile = getTile(steps[i] + "");
@@ -495,9 +543,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             sequenceAction.addAction(moveTo(posX, posY, 0.5f));
         }
 
+        final Tile end = destTile;
+
         sequenceAction.addAction(run(new Runnable() {
             public void run() {
                 cpuPiece.setSelected(false);
+                cpuPiece.toBack();
+                if (isKingTile(end, cpuPiece.getPlayer()) &&
+                        !cpuPiece.isKing()) {
+                    crownPiece(cpuPiece);
+                }
             }
         }));
 

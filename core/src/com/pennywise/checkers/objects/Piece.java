@@ -11,6 +11,7 @@ public class Piece extends Image {
     private boolean captured;
     private int player;
     private boolean selected;
+    private boolean king;
 
     public Piece(SpriteDrawable img, int player) {
         super(img);
@@ -43,5 +44,11 @@ public class Piece extends Image {
         this.captured = captured;
     }
 
+    public void setKing(boolean king) {
+        this.king = king;
+    }
 
+    public boolean isKing() {
+        return king;
+    }
 }
