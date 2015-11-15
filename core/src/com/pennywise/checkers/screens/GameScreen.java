@@ -28,6 +28,7 @@ import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
+import com.pennywise.checkers.core.engine.Checker;
 import com.pennywise.checkers.core.engine.Move;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
@@ -69,12 +70,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Tile fromTile;
     private Tile toTile;
     private List<Tile> toTiles;
-    private int[] board = new int[46];
+    private int[][] board;
     private boolean gameOver = false;
     String strTime = "";
 
     private Image pauseButton;
-    private Simplech engine;
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
     private BitmapFont hudFont;
@@ -111,8 +111,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
 
-        engine = new Simplech();
-        engine.initCheckers(board);
+        board = Checker.createBoard();
         toTiles = new LinkedList<Tile>();
 
     }
@@ -460,23 +459,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Vector<Move> moves = null;
 
-        int from = Integer.parseInt(fromTile.getName());
+        int orig = Integer.parseInt(fromTile.getName());
+        int dest = Integer.parseInt(toTile.getName());
 
-        int to = Integer.parseInt(toTile.getName());
+        int[] from = Checker.getBoardPosition(orig);
+        int[] to = Checker.getBoardPosition(orig);
 
-
-        moves = engine.isLegal(board, humanPiece.getPlayer(), from, to);
-
-
-        if (moves.size() > 1)
-            return;
-
-        if (!moves.isEmpty()) {
-            for (Move mv : moves) {
-                engine.doMove(board, mv);
-                move();
-                engine.printBoard(board);
-            }
+        if (Checker.isValid(board, humanPiece.getPlayer(), from[1], from[0], to[1], to[0])) {
+            board = Checker.applyMove(board, humanPiece.getPlayer(), from[1], from[0], to[1], to[0]);
+            move();
         } else
             return;
 

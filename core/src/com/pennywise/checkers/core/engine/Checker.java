@@ -1,7 +1,5 @@
 package com.pennywise.checkers.core.engine;
 
-import java.io.Console;
-
 
 /*          (white)
             32  31  30  29
@@ -732,8 +730,8 @@ public class Checker {
                 while (badExtraMove) {
                     markPossibleMoves(board, moves, fromRow, fromCol, MARK);
                     System.out.println("Continue jump:");
-                   // toRow = Console.readInt("Destination row");
-                   // toCol = Console.readInt("Destination column");
+                    // toRow = Console.readInt("Destination row");
+                    // toCol = Console.readInt("Destination column");
                     markPossibleMoves(board, moves, fromRow, fromCol, EMPTY);
 
                     badExtraMove = !isValid(board, player, fromRow, fromCol, toRow, toCol);
@@ -821,177 +819,137 @@ public class Checker {
         //grid.showBoard(board);
     }
 
-    public Point getBoardPosition(int n) {
-    /* turns square number n into a coordinate for checkerboard */
-   /*         (white)
-  32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-    (black)  */
-        Point p = new Point();
+    public static int[] getBoardPosition(int n) {
+
+        int[] p = new int[2];
         switch (n) {
             case 4:
-                p.col = 0;
-                p.row = 0;
+                p[0] = 0;
+                p[1] = 0;
                 break;
             case 3:
-                p.col = 2;
-                p.row = 0;
+                p[0] = 2;
+                p[1] = 0;
                 break;
             case 2:
-                p.col = 4;
-                p.row = 0;
+                p[0] = 4;
+                p[1] = 0;
                 break;
             case 1:
-                p.col = 6;
-                p.row = 0;
+                p[0] = 6;
+                p[1] = 0;
                 break;
             case 8:
-                p.col = 1;
-                p.row = 1;
+                p[0] = 1;
+                p[1] = 1;
                 break;
             case 7:
-                p.col = 3;
-                p.row = 1;
+                p[0] = 3;
+                p[1] = 1;
                 break;
             case 6:
-                p.col = 5;
-                p.row = 1;
+                p[0] = 5;
+                p[1] = 1;
                 break;
             case 5:
-                p.col = 7;
-                p.row = 1;
+                p[0] = 7;
+                p[1] = 1;
                 break;
-           /*    (white)
-                     32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-         (black)   */
-            case 12:
-                p.col = 0;
-                p.row = 2;
+           case 12:
+                p[0] = 0;
+                p[1] = 2;
                 break;
             case 11:
-                p.col = 2;
-                p.row = 2;
+                p[0] = 2;
+                p[1] = 2;
                 break;
             case 10:
-                p.col = 4;
-                p.row = 2;
+                p[0] = 4;
+                p[1] = 2;
                 break;
             case 9:
-                p.col = 6;
-                p.row = 2;
+                p[0] = 6;
+                p[1] = 2;
                 break;
             case 16:
-                p.col = 1;
-                p.row = 3;
+                p[0] = 1;
+                p[1] = 3;
                 break;
             case 15:
-                p.col = 3;
-                p.row = 3;
+                p[0] = 3;
+                p[1] = 3;
                 break;
             case 14:
-                p.col = 5;
-                p.row = 3;
+                p[0] = 5;
+                p[1] = 3;
                 break;
             case 13:
-                p.col = 7;
-                p.row = 3;
+                p[0] = 7;
+                p[1] = 3;
                 break;
-           /*    (white)
-                      32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-         (black)   */
             case 20:
-                p.col = 0;
-                p.row = 4;
+                p[0] = 0;
+                p[1] = 4;
                 break;
             case 19:
-                p.col = 2;
-                p.row = 4;
+                p[0] = 2;
+                p[1] = 4;
                 break;
             case 18:
-                p.col = 4;
-                p.row = 4;
+                p[0] = 4;
+                p[1] = 4;
                 break;
             case 17:
-                p.col = 6;
-                p.row = 4;
+                p[0] = 6;
+                p[1] = 4;
                 break;
             case 24:
-                p.col = 1;
-                p.row = 5;
+                p[0] = 1;
+                p[1] = 5;
                 break;
             case 23:
-                p.col = 3;
-                p.row = 5;
+                p[0] = 3;
+                p[1] = 5;
                 break;
             case 22:
-                p.col = 5;
-                p.row = 5;
+                p[0] = 5;
+                p[1] = 5;
                 break;
             case 21:
-                p.col = 7;
-                p.row = 5;
+                p[0] = 7;
+                p[1] = 5;
                 break;
-           /*    (white)
-                     32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-         (black)   */
             case 28:
-                p.col = 0;
-                p.row = 6;
+                p[0] = 0;
+                p[1] = 6;
                 break;
             case 27:
-                p.col = 2;
-                p.row = 6;
+                p[0] = 2;
+                p[1] = 6;
                 break;
             case 26:
-                p.col = 4;
-                p.row = 6;
+                p[0] = 4;
+                p[1] = 6;
                 break;
             case 25:
-                p.col = 6;
-                p.row = 6;
+                p[0] = 6;
+                p[1] = 6;
                 break;
             case 32:
-                p.col = 1;
-                p.row = 7;
+                p[0] = 1;
+                p[1] = 7;
                 break;
             case 31:
-                p.col = 3;
-                p.row = 7;
+                p[0] = 3;
+                p[1] = 7;
                 break;
             case 30:
-                p.col = 5;
-                p.row = 7;
+                p[0] = 5;
+                p[1] = 7;
                 break;
             case 29:
-                p.col = 7;
-                p.row = 7;
+                p[0] = 7;
+                p[1] = 7;
                 break;
         }
 
