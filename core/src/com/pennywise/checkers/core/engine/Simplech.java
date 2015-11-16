@@ -1847,180 +1847,240 @@ public class Simplech {
         return false;
     }
 
-    public Point getBoardPosition(int n) {
-    /* turns square number n into a coordinate for checkerboard */
-   /*         (white)
-  32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-    (black)  */
-        Point p = new Point();
+    CbMove setMove(Move move) {
+        int i;
+        int jumps;
+        int from, to;
+        Coord c1;
+        Coord c2;
+        CbMove cbMove = new CbMove();
+        jumps = move.n - 2;
+
+        from = move.m[0] % 256;
+        to = move.m[1] % 256;
+
+        cbMove.from = toCoord(from);
+        cbMove.to = toCoord(to);
+        cbMove.ismove = jumps;
+        cbMove.newpiece = ((move.m[1] >> 16) % 256);
+        cbMove.oldpiece = ((move.m[0] >> 8) % 256);
+        for (i = 2; i < move.n; i++) {
+            cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
+            cbMove.del[i - 2] = toCoord(move.m[i] % 256);
+        }
+        if (jumps > 1)
+        /* more than one jump - need to calculate intermediate squares*/ {
+        /* set square where we start to c1 */
+            c1 = toCoord(from);
+            for (i = 2; i < move.n; i++) {
+                c2 = toCoord(move.m[i] % 256);
+			/* c2 is the piece we jump */
+			/* => we land on the next square?! */
+                if (c2.x > c1.x) c2.x++;
+                else c2.x--;
+                if (c2.y > c1.y) c2.y++;
+                else c2.y--;
+			/* now c2 holds the square after the jumped piece - this is our path square */
+                cbMove.path[i - 1] = c2;
+                c1 = c2;
+            }
+        } else {
+            cbMove.path[1] = toCoord(to);
+        }
+        //for(i=1;i<move.n;i++)
+        //	GCBmove.path[i]=numbertocoor(to);
+
+        return cbMove;
+    }
+
+
+    protected Coord toCoord(int n) {
+	/* turns square number n into a coordinate for checkerboard */
+   /*    (white)
+   				 37  38  39  40
+              32  33  34  35
+                28  29  30  31
+              23  24  25  26
+                19  20  21  22
+              14  15  16  17
+                10  11  12  13
+               5   6   7   8
+         (black)   */
+        Coord c = new Coord();
         switch (n) {
-            case 4:
-                p.col = 0;
-                p.row = 0;
-                break;
-            case 3:
-                p.col = 2;
-                p.row = 0;
-                break;
-            case 2:
-                p.col = 4;
-                p.row = 0;
-                break;
-            case 1:
-                p.col = 6;
-                p.row = 0;
-                break;
-            case 8:
-                p.col = 1;
-                p.row = 1;
-                break;
-            case 7:
-                p.col = 3;
-                p.row = 1;
+            case 5:
+                c.x = 0;
+                c.y = 0;
                 break;
             case 6:
-                p.col = 5;
-                p.row = 1;
+                c.x = 2;
+                c.y = 0;
                 break;
-            case 5:
-                p.col = 7;
-                p.row = 1;
+            case 7:
+                c.x = 4;
+                c.y = 0;
                 break;
-           /*    (white)
-                     32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-         (black)   */
-            case 12:
-                p.col = 0;
-                p.row = 2;
-                break;
-            case 11:
-                p.col = 2;
-                p.row = 2;
+            case 8:
+                c.x = 6;
+                c.y = 0;
                 break;
             case 10:
-                p.col = 4;
-                p.row = 2;
+                c.x = 1;
+                c.y = 1;
                 break;
-            case 9:
-                p.col = 6;
-                p.row = 2;
+            case 11:
+                c.x = 3;
+                c.y = 1;
                 break;
-            case 16:
-                p.col = 1;
-                p.row = 3;
-                break;
-            case 15:
-                p.col = 3;
-                p.row = 3;
-                break;
-            case 14:
-                p.col = 5;
-                p.row = 3;
+            case 12:
+                c.x = 5;
+                c.y = 1;
                 break;
             case 13:
-                p.col = 7;
-                p.row = 3;
-                break;
-           /*    (white)
-                      32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
-         (black)   */
-            case 20:
-                p.col = 0;
-                p.row = 4;
-                break;
-            case 19:
-                p.col = 2;
-                p.row = 4;
-                break;
-            case 18:
-                p.col = 4;
-                p.row = 4;
-                break;
-            case 17:
-                p.col = 6;
-                p.row = 4;
-                break;
-            case 24:
-                p.col = 1;
-                p.row = 5;
-                break;
-            case 23:
-                p.col = 3;
-                p.row = 5;
-                break;
-            case 22:
-                p.col = 5;
-                p.row = 5;
-                break;
-            case 21:
-                p.col = 7;
-                p.row = 5;
+                c.x = 7;
+                c.y = 1;
                 break;
 		   /*    (white)
-   				  32  31  30  29
-28  27  26  25
-  24  23  22  21
-20  19  18  17
-  16  15  14  13
-12  11  10   9
-  8   7   6   5
-4   3   2   1
+   				 37  38  39  40
+              32  33  34  35
+                28  29  30  31
+              23  24  25  26
+                19  20  21  22
+              14  15  16  17
+                10  11  12  13
+               5   6   7   8
          (black)   */
-            case 28:
-                p.col = 0;
-                p.row = 6;
+            case 14:
+                c.x = 0;
+                c.y = 2;
                 break;
-            case 27:
-                p.col = 2;
-                p.row = 6;
+            case 15:
+                c.x = 2;
+                c.y = 2;
                 break;
-            case 26:
-                p.col = 4;
-                p.row = 6;
+            case 16:
+                c.x = 4;
+                c.y = 2;
+                break;
+            case 17:
+                c.x = 6;
+                c.y = 2;
+                break;
+            case 19:
+                c.x = 1;
+                c.y = 3;
+                break;
+            case 20:
+                c.x = 3;
+                c.y = 3;
+                break;
+            case 21:
+                c.x = 5;
+                c.y = 3;
+                break;
+            case 22:
+                c.x = 7;
+                c.y = 3;
+                break;
+		   /*    (white)
+   				 37  38  39  40
+              32  33  34  35
+                28  29  30  31
+              23  24  25  26
+                19  20  21  22
+              14  15  16  17
+                10  11  12  13
+               5   6   7   8
+         (black)   */
+            case 23:
+                c.x = 0;
+                c.y = 4;
+                break;
+            case 24:
+                c.x = 2;
+                c.y = 4;
                 break;
             case 25:
-                p.col = 6;
-                p.row = 6;
+                c.x = 4;
+                c.y = 4;
                 break;
-            case 32:
-                p.col = 1;
-                p.row = 7;
+            case 26:
+                c.x = 6;
+                c.y = 4;
                 break;
-            case 31:
-                p.col = 3;
-                p.row = 7;
-                break;
-            case 30:
-                p.col = 5;
-                p.row = 7;
+            case 28:
+                c.x = 1;
+                c.y = 5;
                 break;
             case 29:
-                p.col = 7;
-                p.row = 7;
+                c.x = 3;
+                c.y = 5;
+                break;
+            case 30:
+                c.x = 5;
+                c.y = 5;
+                break;
+            case 31:
+                c.x = 7;
+                c.y = 5;
+                break;
+		   /*    (white)
+   				 37  38  39  40
+              32  33  34  35
+                28  29  30  31
+              23  24  25  26
+                19  20  21  22
+              14  15  16  17
+                10  11  12  13
+               5   6   7   8
+         (black)   */
+            case 32:
+                c.x = 0;
+                c.y = 6;
+                break;
+            case 33:
+                c.x = 2;
+                c.y = 6;
+                break;
+            case 34:
+                c.x = 4;
+                c.y = 6;
+                break;
+            case 35:
+                c.x = 6;
+                c.y = 6;
+                break;
+            case 37:
+                c.x = 1;
+                c.y = 7;
+                break;
+            case 38:
+                c.x = 3;
+                c.y = 7;
+                break;
+            case 39:
+                c.x = 5;
+                c.y = 7;
+                break;
+            case 40:
+                c.x = 7;
+                c.y = 7;
                 break;
         }
+		   /*    (white)
+   				 37  38  39  40
+              32  33  34  35
+                28  29  30  31
+              23  24  25  26
+                19  20  21  22
+              14  15  16  17
+                10  11  12  13
+               5   6   7   8
+         (black)   */
 
-        return p;
+        return c;
     }
+
 }
+
+
