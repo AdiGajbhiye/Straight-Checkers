@@ -156,7 +156,7 @@ public class Simplech {
         int n = 0;
         Move[] movelist = new Move[MAXMOVES];
         Move move = null;
-        CbMove cbMove= new CbMove();
+        CbMove cbMove = new CbMove();
 
 
         /* array initialized */
@@ -180,7 +180,11 @@ public class Simplech {
             }
         }
 
-        cbMove =  setMove(move);
+        //move
+
+        doMove(board, move);
+
+        cbMove = setMove(move);
 
         return cbMove;
     }
@@ -305,7 +309,6 @@ public class Simplech {
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
 
-
     int computeMove(int[] b, int color, double maxtime, CbMove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
@@ -338,14 +341,14 @@ public class Simplech {
         if (numberofmoves == 1) {
             doMove(b, movelist[0]);
             str = "forced capture";
-            move =  setMove(movelist[0]);
+            move = setMove(movelist[0]);
             return (1);
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
                 doMove(b, movelist[0]);
                 str = "only move";
-                move =  setMove(movelist[0]);
+                move = setMove(movelist[0]);
                 return (1);
             }
             if (numberofmoves == 0) {
@@ -390,7 +393,7 @@ public class Simplech {
         if (play)
             bestMove = lastbest;
         doMove(b, bestMove);
-        move =  setMove(bestMove);
+        move = setMove(bestMove);
         return eval;
     }
 
@@ -1863,43 +1866,50 @@ public class Simplech {
         from = move.m[0] % 256;
         to = move.m[1] % 256;
 
-        cbMove.from = toCoord(from);
-        cbMove.to = toCoord(to);
-        cbMove.ismove = jumps;
+        cbMove.from = from;
+        cbMove.to = to;
+        cbMove.cdFrom = toCoord(from);
+        cbMove.cdTo = toCoord(to);
+        cbMove.jumps = jumps;
         cbMove.newpiece = ((move.m[1] >> 16) % 256);
         cbMove.oldpiece = ((move.m[0] >> 8) % 256);
+
         for (i = 2; i < move.n; i++) {
             cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
             cbMove.del[i - 2] = toCoord(move.m[i] % 256);
         }
+
         if (jumps > 1)
         /* more than one jump - need to calculate intermediate squares*/ {
         /* set square where we start to c1 */
             c1 = toCoord(from);
             for (i = 2; i < move.n; i++) {
                 c2 = toCoord(move.m[i] % 256);
-			/* c2 is the piece we jump */
-			/* => we land on the next square?! */
-                if (c2.x > c1.x) c2.x++;
-                else c2.x--;
-                if (c2.y > c1.y) c2.y++;
-                else c2.y--;
-			/* now c2 holds the square after the jumped piece - this is our path square */
+            /* c2 is the piece we jump */
+            /* => we land on the next square?! */
+                if (c2.x > c1.x)
+                    c2.x++;
+                else
+                    c2.x--;
+
+                if (c2.y > c1.y)
+                    c2.y++;
+                else
+                    c2.y--;
+            /* now c2 holds the square after the jumped piece - this is our path square */
                 cbMove.path[i - 1] = c2;
                 c1 = c2;
             }
         } else {
             cbMove.path[1] = toCoord(to);
         }
-        //for(i=1;i<move.n;i++)
-        //	GCBmove.path[i]=numbertocoor(to);
 
         return cbMove;
     }
 
 
     protected Coord toCoord(int n) {
-	/* turns square number n into a coordinate for checkerboard */
+    /* turns square number n into a coordinate for checkerboard */
    /*    (white)
    				 37  38  39  40
               32  33  34  35
@@ -2083,6 +2093,38 @@ public class Simplech {
          (black)   */
 
         return c;
+    }
+
+    public static int toNumber(Coord c) {
+        // board coordinates are [y][x]!
+        // ENGLISH
+        int[][] en = new int[][]{
+                {
+                        4, 0, 3, 0, 2, 0, 1, 0
+                },
+                {
+                        0, 8, 0, 7, 0, 6, 0, 5
+                },
+                {
+                        12, 0, 11, 0, 10, 0, 9, 0
+                },
+                {
+                        0, 16, 0, 15, 0, 14, 0, 13
+                },
+                {
+                        20, 0, 19, 0, 18, 0, 17, 0
+                },
+                {
+                        0, 24, 0, 23, 0, 22, 0, 21
+                },
+                {
+                        28, 0, 27, 0, 26, 0, 25, 0
+                },
+                {
+                        0, 32, 0, 31, 0, 30, 0, 29
+                },};
+
+        return en[c.y][c.x];
     }
 
 }

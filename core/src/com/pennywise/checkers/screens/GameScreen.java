@@ -28,8 +28,8 @@ import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.Move;
-import com.pennywise.checkers.core.engine.Point;
+import com.pennywise.checkers.core.engine.CbMove;
+import com.pennywise.checkers.core.engine.Coord;
 import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
@@ -78,10 +78,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
     private BitmapFont hudFont;
-    private Move move = new Move();
     private boolean opponentMove = false;
-    private boolean checking = false;
-    private boolean isColliding = false;
 
     public GameScreen(Checkers game) {
         super(game);
@@ -146,8 +143,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             opponentMove = false;
             new Thread("Opponent") {
                 public void run() {
-                    engine.getMove(board, Simplech.WHITE, 1, false, move);
-                    moveOpponentPiece(move);
+                    CbMove cbMove = null;
+                    engine.getMove(board, Simplech.WHITE, 1, false, cbMove);
+                    if (cbMove != null)
+                        moveOpponentPiece(cbMove);
                     engine.printBoard(board);
                 }
             }.start();
@@ -369,26 +368,26 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void checkBlackPieceCollision(Piece piece) {
 
-        if (piece != null ) {
+        if (piece != null) {
 
-            if(piece.isSelected())
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren()) {
-                        if (actor instanceof Piece) {
-                            Piece p = (Piece) actor;
-                            if (p.isSelected())
-                                continue;
-                            if ((p.getPlayer() == Simplech.WHITE)) {
-                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
-                                    p.setCaptured(true);
+            if (piece.isSelected())
+                //find the piece
+                for (Actor a : boardStage.getActors()) {
+                    if (a instanceof Group) {
+                        for (Actor actor : ((Group) a).getChildren()) {
+                            if (actor instanceof Piece) {
+                                Piece p = (Piece) actor;
+                                if (p.isSelected())
+                                    continue;
+                                if ((p.getPlayer() == Simplech.WHITE)) {
+                                    if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
+                                        p.setCaptured(true);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
         }
     }
 
@@ -435,10 +434,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(fromTile.getName());
         int to = Integer.parseInt(toTile.getName());
 
-        Move move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
+        CbMove move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
 
         if (move != null) {
-            engine.doMove(board, move);
             move();
             engine.printBoard(board);
         } else
@@ -467,32 +465,48 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return ((Piece) actor);
     }
 
-    protected void moveOpponentPiece(Move move) {
+    protected void moveOpponentPiece(CbMove cbMove) {
         Tile srcTile;
         String srcName = "";
         Tile destTile = null;
         SequenceAction sequenceAction = new SequenceAction();
 
-        int[] steps = engine.moveNotation2(move);
+        int from = cbMove.from;
+        int to = cbMove.to;
 
-        cpuPiece = getPiece(steps[0]);
+        cpuPiece = getPiece(from);
 
         if (cpuPiece == null)
             return;
         else
             cpuPiece.setSelected(true);
 
-        for (int i = 0; i < 2; i++) {
+        if (cbMove.jumps != 0) {
+            //jump moves
+            for (int i = 0; i < cbMove.jumps; i++) {
+                Coord coord = cbMove.path[i];
+                to = Simplech.toNumber(coord);
+                Gdx.app.log("moveOpponentPiece", "Moving =>" + to);
+                destTile = getTile(to + "");
+                cpuPiece.setName(to + "");
 
-            Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
-            destTile = getTile(steps[i] + "");
-            cpuPiece.setName(steps[i] + "");
+                float posX = destTile.getX();
+                float posY = destTile.getY();
+
+                sequenceAction.addAction(delay(0.5f));
+                sequenceAction.addAction(moveTo(posX, posY, 0.5f));
+            }
+        } else {
+            Gdx.app.log("moveOpponentPiece", "Moving =>" + to);
+            destTile = getTile(to + "");
+            cpuPiece.setName(to + "");
 
             float posX = destTile.getX();
             float posY = destTile.getY();
 
             sequenceAction.addAction(delay(0.5f));
             sequenceAction.addAction(moveTo(posX, posY, 0.5f));
+
         }
 
         sequenceAction.addAction(run(new Runnable() {
