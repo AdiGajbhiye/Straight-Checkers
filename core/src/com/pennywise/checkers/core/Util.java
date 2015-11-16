@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.pennywise.checkers.core.engine.Coord;
 
 /**
  * Created by Joshua.Nabongo on 9/18/2015.
@@ -52,7 +53,7 @@ public class Util {
 
     /**
      * Get the rectangle of an actor from its current position and size
-     * */
+     */
     public static Rectangle getRectangleOfActor(Actor actor) {
         return new Rectangle(actor.getX(), actor.getY(), actor.getWidth(),
                 actor.getHeight());
@@ -60,7 +61,7 @@ public class Util {
 
     /**
      * Check collision from actor's rectangles
-     * */
+     */
     public static boolean isActorsCollide(Actor actor1, Actor actor2) {
         if (Intersector.overlaps(getRectangleOfActor(actor1),
                 getRectangleOfActor(actor2))) {
@@ -86,7 +87,7 @@ public class Util {
     /**
      * Very precise point detection in a box, think as virtual box in the actual
      * box with padding as precision amount
-     * */
+     */
     public static boolean isTouchPointCollide(float touchX, float touchY,
                                               float posX, float posY, float width, float height,
                                               float precisionAmount) {
@@ -103,7 +104,7 @@ public class Util {
     /**
      * Very precise point detection in an actor, think as virtual box in the
      * actual box with margin as precision amount
-     * */
+     */
     public static boolean isTouchPointCollide(float touchX, float touchY,
                                               Actor actor, float precisionAmount) {
         if (touchX > (actor.getX() + precisionAmount)
@@ -134,6 +135,53 @@ public class Util {
         Gdx.app.log(logTag,
                 "Collision detected: Actor (Name: " + a1.getName()
                         + ") overlaps Actor (Name: " + a2.getName() + ")");
+    }
+
+    public  static int coordtonumber(Coord coord) {
+        // given board coordinates x and y, this function returns the board number in
+        // standard checkers notation
+        int number;
+
+        number = 0;
+        number += 4 * (coord.y + 1);
+        number -= (coord.x / 2);
+
+        return number;
+    }
+
+    public static int coordstonumber(int x, int y) {
+        // takes coordinates x and y, gametype, and returns the associated board number
+        Coord c = new Coord();
+        c.x = x;
+        c.y = y;
+        return (coordtonumber(c));
+    }
+
+    public static Coord numbertocoors(int number) {
+        // given a board number this function returns the coordinates
+        // whoa, this has to be fixed for spanish / italian / etc.!
+        Coord coord = new Coord();
+        number--;
+        coord.y = number / 4;
+        coord.x = 2 * (3 - number % 4);
+        if ((coord.y) % 2 != 0)
+            coord.x++;
+
+        return coord;
+    }
+
+
+    public static Coord coordstocoords(Coord coord, boolean invert, boolean mirror) {
+        // given coordinates x and y on the screen, this function converts them to internal
+        // representation of the board based on whether the board is inverted or mirrored
+        if (invert) {
+            coord.x -= 7;
+            coord.y -= 7;
+        }
+        if (mirror)
+            coord.x -= 7;
+
+        return coord;
     }
 
 

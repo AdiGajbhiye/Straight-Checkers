@@ -3,6 +3,34 @@ package com.pennywise.checkers.core.engine;
 /**
  * Created by Joshua.Nabongo on 10/13/2015.
  */
+/*
+board representation: the standard checkers notation is
+
+             (white)
+          32  31  30  29
+        28  27  26  25
+          24  23  22  21
+        20  19  18  17
+          16  15  14  13
+        12  11  10   9
+          8   7   6   5
+        4   3   2   1
+        (black)
+
+        the internal representation of the board is different, it is a
+        array of int with length 46, the checkers board is numbered
+        like this:
+
+        (white)
+          37  38  39  40
+        32  33  34  35
+          28  29  30  31
+        23  24  25  26
+          19  20  21  22
+        14  15  16  17
+          10  11  12  13
+        5   6   7   8
+        (black)*/
 public class Simplech {
     public static final int OCCUPIED = 0;
 
@@ -189,7 +217,7 @@ public class Simplech {
         return cbMove;
     }
 
-    public int getMove(int[] board, int color, long maxtime, boolean playNow, CbMove move) {
+    public CbMove getMove(int[] board, int color, long maxtime, boolean playNow) {
    /* getmove is what checkerboard calls. you get 6 parameters:
    board 	is the current position. the values in the array are determined by
    			the #defined values of BLACK, WHITE, KING, PAWN. a black king for
@@ -205,7 +233,7 @@ public class Simplech {
             */
 
         int i;
-        int value;
+        int status = 0;
 
         for (i = 5; i <= 40; i++)
             if (board[i] == 0)
@@ -216,17 +244,24 @@ public class Simplech {
 
         this.play = playNow;
 
-        value = computeMove(board, color, maxtime, move);
+        CbMove move = computeMove(board, color, maxtime);
+        int value = move.eval;
 
         if (color == BLACK) {
-            if (value > 4000) return WIN;
-            if (value < -4000) return LOSS;
+            if (value > 4000)
+                status =  (BLACK | WIN);
+            if (value < -4000)
+                status = (BLACK| LOSS);
         }
         if (color == WHITE) {
-            if (value > 4000) return LOSS;
-            if (value < -4000) return WIN;
+            if (value > 4000)
+                status = (WHITE|LOSS);
+            if (value < -4000)
+                status = (WHITE|WIN);
         }
-        return VALID;
+
+        move.status = status;
+        return move;
     }
 
     public int[] moveNotation(Move move) {
@@ -309,7 +344,7 @@ public class Simplech {
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
 
-    int computeMove(int[] b, int color, double maxtime, CbMove move)
+    CbMove computeMove(int[] b, int color, double maxtime)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -324,6 +359,7 @@ public class Simplech {
         Move[] movelist = new Move[MAXMOVES];
         String str2 = "";
         String str = "";
+        CbMove move;
 
         for (int j = 0; j < MAXMOVES; j++)
             movelist[j] = new Move();
@@ -342,18 +378,22 @@ public class Simplech {
             doMove(b, movelist[0]);
             str = "forced capture";
             move = setMove(movelist[0]);
-            return (1);
+            move.eval = 1;
+            return move;
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
                 doMove(b, movelist[0]);
                 str = "only move";
                 move = setMove(movelist[0]);
-                return (1);
+                move.eval = 1;
+                return move;
             }
             if (numberofmoves == 0) {
                 str = "no legal moves in this position";
-                return (0);
+                move = new CbMove();
+                move.eval = 0;
+                return move;
             }
         }
 
@@ -394,7 +434,8 @@ public class Simplech {
             bestMove = lastbest;
         doMove(b, bestMove);
         move = setMove(bestMove);
-        return eval;
+        move.eval = eval;
+        return move;
     }
 
     int firstalphabeta(int[] b, int depth, int alpha, int beta, int color)
@@ -1866,10 +1907,9 @@ public class Simplech {
         from = move.m[0] % 256;
         to = move.m[1] % 256;
 
-        cbMove.from = from;
-        cbMove.to = to;
-        cbMove.cdFrom = toCoord(from);
-        cbMove.cdTo = toCoord(to);
+
+        cbMove.from = toCoord(from);
+        cbMove.to = toCoord(to);
         cbMove.jumps = jumps;
         cbMove.newpiece = ((move.m[1] >> 16) % 256);
         cbMove.oldpiece = ((move.m[0] >> 8) % 256);
@@ -1907,11 +1947,10 @@ public class Simplech {
         return cbMove;
     }
 
-
     protected Coord toCoord(int n) {
     /* turns square number n into a coordinate for checkerboard */
    /*    (white)
-   				 37  38  39  40
+                    37  38  39  40
               32  33  34  35
                 28  29  30  31
               23  24  25  26
@@ -2094,39 +2133,6 @@ public class Simplech {
 
         return c;
     }
-
-    public static int toNumber(Coord c) {
-        // board coordinates are [y][x]!
-        // ENGLISH
-        int[][] en = new int[][]{
-                {
-                        4, 0, 3, 0, 2, 0, 1, 0
-                },
-                {
-                        0, 8, 0, 7, 0, 6, 0, 5
-                },
-                {
-                        12, 0, 11, 0, 10, 0, 9, 0
-                },
-                {
-                        0, 16, 0, 15, 0, 14, 0, 13
-                },
-                {
-                        20, 0, 19, 0, 18, 0, 17, 0
-                },
-                {
-                        0, 24, 0, 23, 0, 22, 0, 21
-                },
-                {
-                        28, 0, 27, 0, 26, 0, 25, 0
-                },
-                {
-                        0, 32, 0, 31, 0, 30, 0, 29
-                },};
-
-        return en[c.y][c.x];
-    }
-
 }
 
 
