@@ -72,6 +72,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private int[] board = new int[46];
     private boolean gameOver = false;
     String strTime = "";
+    int count = 0;
 
     private Image pauseButton;
     private Simplech engine;
@@ -362,6 +363,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             public void run() {
                 humanPiece.toBack();
                 humanPiece.setSelected(false);
+                isBusy = false;
                 opponentMove = true;
             }
         })));
@@ -433,6 +435,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         int from = Integer.parseInt(fromTile.getName());
         int to = Integer.parseInt(toTile.getName());
+
+        isBusy = true;
+
+        System.err.println("FROM => " + from + " TO=> " + to);
 
         CbMove move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
 

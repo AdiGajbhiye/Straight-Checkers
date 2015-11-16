@@ -68,7 +68,7 @@ public class Simplech {
     public static final int BLACKWIN = (BLACK | WIN);
 
 
-    public boolean STATISTICS = false;
+    public boolean STATISTICS = true;
     public boolean MUTE = false;
 
     //stats variables
@@ -204,15 +204,11 @@ public class Simplech {
 
             if (from == iMove[0] && to == iMove[1]) {
                 move = movelist[i];
+                doMove(board, move);
+                cbMove = setMove(move);
                 break;
             }
         }
-
-        //move
-
-        doMove(board, move);
-
-        cbMove = setMove(move);
 
         return cbMove;
     }
@@ -248,19 +244,30 @@ public class Simplech {
         int value = move.eval;
 
         if (color == BLACK) {
-            if (value > 4000)
-                status =  (BLACK | WIN);
-            if (value < -4000)
-                status = (BLACK| LOSS);
+            if (value == 5000) {
+                status = (BLACK | WIN);
+                System.out.println("BLACK WIN");
+            }
+            if (value == -5000) {
+                status = (BLACK | LOSS);
+                System.out.println("BLACK LOSS");
+            }
         }
         if (color == WHITE) {
-            if (value > 4000)
-                status = (WHITE|LOSS);
-            if (value < -4000)
-                status = (WHITE|WIN);
+            if (value == 5000) {
+                status = (WHITE | LOSS);
+                System.out.println("WHITE LOSS");
+            }
+            if (value == -5000) {
+                status = (WHITE | WIN);
+                System.out.println("WHITE WIN");
+            }
         }
 
+        System.out.println("STATUS =>" + status + " VALUE =>" + value);
+
         move.status = status;
+
         return move;
     }
 
@@ -399,13 +406,13 @@ public class Simplech {
 
         start = System.currentTimeMillis();
 
-        eval = firstalphabeta(b, 1, -10000, 10000, color);
+        eval = firstalphabeta(b, 1, Integer.MIN_VALUE, Integer.MAX_VALUE, color);
 
         for (i = 2; (i <= MAXDEPTH) && ((System.currentTimeMillis() - start) / TICKS < maxtime); i++) {
             lastbest = bestMove;
-            eval = firstalphabeta(b, i, -10000, 10000, color);
+            eval = firstalphabeta(b, i, Integer.MIN_VALUE, Integer.MAX_VALUE, color);
             str2 = movetonotation(bestMove);
-            if (MUTE)
+            if (!MUTE)
                 str = String.format("best:%s time %2.2fs, depth %d, value %d", str2, (System.currentTimeMillis() - start) / TICKS, i, eval);
             if (STATISTICS) {
                 str2 = String.format("  nodes %d, gms %d, gcs %d, evals %d",
@@ -471,8 +478,10 @@ public class Simplech {
             numberofmoves = generatemovelist(b, movelist, color);
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
-                if (color == BLACK) return (-5000);
-                else return (5000);
+                if (color == BLACK)
+                    return (-5000);
+                else
+                    return (5000);
             }
         } else
             numberofmoves = generatecapturelist(b, movelist, color);
@@ -483,24 +492,32 @@ public class Simplech {
 
             value = alphabeta(b, depth - 1, alpha, beta, (color ^ CHANGECOLOR));
 
+            System.out.println("VALUE =>" + value);
+
             undomove(b, movelist[i]);
+
             if (color == BLACK) {
-                if (value >= beta) return (value);
+                if (value >= beta)
+                    return (value);
                 if (value > alpha) {
                     alpha = value;
                     bestMove = movelist[i];
                 }
             }
+
             if (color == WHITE) {
-                if (value <= alpha) return (value);
+                if (value <= alpha)
+                    return (value);
                 if (value < beta) {
                     beta = value;
                     bestMove = movelist[i];
                 }
             }
         }
+
         if (color == BLACK)
             return (alpha);
+
         return (beta);
     }
 
@@ -1993,7 +2010,7 @@ public class Simplech {
                 c.x = 7;
                 c.y = 1;
                 break;
-		   /*    (white)
+           /*    (white)
    				 37  38  39  40
               32  33  34  35
                 28  29  30  31
