@@ -149,26 +149,26 @@ public class Simplech {
 
     ////////////////////////////////////
 
-    public Move isLegal(int[] board, int color, int from, int to) {
+    public CbMove isLegal(int[] board, int color, int from, int to) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
        the move the user wants to make with from&to */
         int n = 0;
         Move[] movelist = new Move[MAXMOVES];
         Move move = null;
-        int capture = 0;
+        CbMove cbMove= new CbMove();
+
 
         /* array initialized */
         for (int j = 0; j < MAXMOVES; j++)
             movelist[j] = new Move();
 
         n = generatecapturelist(board, movelist, color);
-        capture = n;
 
         if (n == 0)
             n = generatemovelist(board, movelist, color);
         if (n == 0)
-            return move;
+            return null;
 
 	/* now we have a movelist - check if from and to are the same */
         for (int i = 0; i < n; i++) {
@@ -180,10 +180,12 @@ public class Simplech {
             }
         }
 
-        return move;
+        cbMove =  setMove(move);
+
+        return cbMove;
     }
 
-    public int getMove(int[] board, int color, long maxtime, boolean playNow, Move move) {
+    public int getMove(int[] board, int color, long maxtime, boolean playNow, CbMove move) {
    /* getmove is what checkerboard calls. you get 6 parameters:
    board 	is the current position. the values in the array are determined by
    			the #defined values of BLACK, WHITE, KING, PAWN. a black king for
@@ -302,8 +304,7 @@ public class Simplech {
 
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
-
-    int computeMove(int[] b, int color, double maxtime, Move move)
+    int computeMove(int[] b, int color, double maxtime, CbMove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
