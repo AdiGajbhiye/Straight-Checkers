@@ -304,6 +304,8 @@ public class Simplech {
 
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
+
+
     int computeMove(int[] b, int color, double maxtime, CbMove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
@@ -336,12 +338,14 @@ public class Simplech {
         if (numberofmoves == 1) {
             doMove(b, movelist[0]);
             str = "forced capture";
+            move =  setMove(movelist[0]);
             return (1);
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
             if (numberofmoves == 1) {
                 doMove(b, movelist[0]);
                 str = "only move";
+                move =  setMove(movelist[0]);
                 return (1);
             }
             if (numberofmoves == 0) {
@@ -386,8 +390,7 @@ public class Simplech {
         if (play)
             bestMove = lastbest;
         doMove(b, bestMove);
-        move.n = bestMove.n;
-        move.m = bestMove.m;
+        move =  setMove(bestMove);
         return eval;
     }
 
