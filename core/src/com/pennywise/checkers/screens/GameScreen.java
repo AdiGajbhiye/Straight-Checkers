@@ -81,6 +81,121 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private BitmapFont hudFont;
     private boolean opponentMove = false;
 
+    int[][] board = new int[8][8];
+
+    int [][] preBoard1= new int[8][8];                 //for undo
+    int preToMove1;
+    int [][] preBoard2= new int[8][8];
+    int preToMove2;
+    int [][] preBoard3= new int[8][8];
+    int preToMove3;
+
+    public void newGame()
+    {                            //creates a new game
+
+        //Yellow takes the first move in both modes
+        //If someone wants to move secondly, red has to be selected
+        //Yellow is always at the bottom of the board
+
+        timerCount = 0;
+
+        if(firstGameStart == false){
+
+            new java.util.Timer().schedule(
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            timerCount +=1;
+                            timerLbl.setText("Timer:" + Integer.toString(timerCount));
+
+                        }
+                    },1,
+                    1000
+            );
+            firstGameStart = true;
+
+        }
+
+        selectedColor = redRadioButton.isSelected() ? "red" : "yellow";
+        selectedMode = p1RadioButton.isSelected() ? 1 : 2;
+        difficulty = difficultyLevelComboBox.getSelectedIndex();
+
+        undoButton.setEnabled(false);
+
+        won=0;
+
+        undoCount=0;
+
+
+        highlight = false;
+        incomplete = false;
+
+        loser=EMPTY;
+
+        for (int i=0; i<8; i++)                                  //applies values to the board
+        {
+            for (int j=0; j<8; j++)
+                board[i][j] = EMPTY;
+
+            for (int j=0; j<3; j++)
+                if ( isPossibleSquare(i,j) )
+                    board[i][j] =  REDNORMAL;
+
+            for (int j=5; j<8; j++)
+                if ( isPossibleSquare(i,j) )
+                    board[i][j] =  YELLOWNORMAL;
+        }
+
+        toMove = YELLOWNORMAL;
+
+        for(int i=0;i<8;i++)
+        {
+            System.arraycopy(board[i],0,preBoard1[i],0,8);                       //for undo
+            System.arraycopy(preBoard1[i],0,preBoard2[i],0,8);
+            System.arraycopy(preBoard2[i],0,preBoard3[i],0,8);
+            preToMove3=preToMove2=preToMove1=toMove;
+        }
+
+        if (selectedMode == 1 && selectedColor.equalsIgnoreCase("yellow"))
+        {
+            this.toMove = REDNORMAL;
+            play();
+        }
+        else if (selectedMode==1 && selectedColor.equalsIgnoreCase("red"))
+        {
+            this.toMove = REDNORMAL;
+            play();
+        }
+
+        update(getGraphics());
+        drawCheckers();
+        showStatus();
+        //timer.stop();
+        //timer = new Timer();  //At this line a new Thread will be created
+        // timer.schedule(Clock(), 1*1000); //delay in milliseconds
+
+
+
+
+    }
+
+    public void undo()
+    {            //undo function
+        undoCount=1;
+        for(int i=0;i<8;i++)
+        {
+            System.arraycopy(preBoard3[i],0,board[i],0,8);              //copies previous board
+        }
+        toMove=preToMove3;
+        drawCheckers();
+        update(g);
+
+        if(selectedMode==1)
+        {
+            play();
+        }
+    }
+
     public GameScreen(Checkers game) {
         super(game);
 
