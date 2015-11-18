@@ -28,9 +28,8 @@ import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.CbMove;
+import com.pennywise.checkers.core.engine.Checker;
 import com.pennywise.checkers.core.engine.Coord;
-import com.pennywise.checkers.core.engine.Simplech;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
@@ -66,134 +65,63 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Panel panel;
     private Piece humanPiece = null;
     private Piece cpuPiece = null;
-    private List<Piece> capturedPieces = null;
     private Tile fromTile;
     private Tile toTile;
-    private int[] board = new int[46];
+
     private boolean gameOver = false;
     String strTime = "";
     int count = 0;
 
     private Image pauseButton;
-    private Simplech engine;
+    private Checker engine;
     private long startTime = System.nanoTime();
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
-
+    int toMove;
     int[][] board = new int[8][8];
 
-    int [][] preBoard1= new int[8][8];                 //for undo
+    int[][] preBoard1 = new int[8][8];                 //for undo
     int preToMove1;
-    int [][] preBoard2= new int[8][8];
+    int[][] preBoard2 = new int[8][8];
     int preToMove2;
-    int [][] preBoard3= new int[8][8];
+    int[][] preBoard3 = new int[8][8];
     int preToMove3;
+    private int undoCount = 0;
 
-    public void newGame()
-    {                            //creates a new game
+    public void newGame() {                            //creates a new game
 
-        //Yellow takes the first move in both modes
-        //If someone wants to move secondly, red has to be selected
-        //Yellow is always at the bottom of the board
-
-        timerCount = 0;
-
-        if(firstGameStart == false){
-
-            new java.util.Timer().schedule(
-                    new java.util.TimerTask() {
-                        @Override
-                        public void run() {
-                            timerCount +=1;
-                            timerLbl.setText("Timer:" + Integer.toString(timerCount));
-
-                        }
-                    },1,
-                    1000
-            );
-            firstGameStart = true;
-
-        }
-
-        selectedColor = redRadioButton.isSelected() ? "red" : "yellow";
-        selectedMode = p1RadioButton.isSelected() ? 1 : 2;
-        difficulty = difficultyLevelComboBox.getSelectedIndex();
-
-        undoButton.setEnabled(false);
-
-        won=0;
-
-        undoCount=0;
-
-
-        highlight = false;
-        incomplete = false;
-
-        loser=EMPTY;
-
-        for (int i=0; i<8; i++)                                  //applies values to the board
+        for (int i = 0; i < 8; i++)                                  //applies values to the board
         {
-            for (int j=0; j<8; j++)
-                board[i][j] = EMPTY;
+            for (int j = 0; j < 8; j++)
+                board[i][j] = Checker.EMPTY;
 
-            for (int j=0; j<3; j++)
-                if ( isPossibleSquare(i,j) )
-                    board[i][j] =  REDNORMAL;
+            for (int j = 0; j < 3; j++)
+   //             if (isPossibleSquare(i, j))
+                    board[i][j] = Checker.BLACKPAWN;
 
-            for (int j=5; j<8; j++)
-                if ( isPossibleSquare(i,j) )
-                    board[i][j] =  YELLOWNORMAL;
+            for (int j = 5; j < 8; j++)
+   //             if (isPossibleSquare(i, j))
+                    board[i][j] = Checker.WHITEPAWN;
         }
 
-        toMove = YELLOWNORMAL;
+        toMove = Checker.WHITEPAWN;
 
-        for(int i=0;i<8;i++)
-        {
-            System.arraycopy(board[i],0,preBoard1[i],0,8);                       //for undo
-            System.arraycopy(preBoard1[i],0,preBoard2[i],0,8);
-            System.arraycopy(preBoard2[i],0,preBoard3[i],0,8);
-            preToMove3=preToMove2=preToMove1=toMove;
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
+            System.arraycopy(preBoard1[i], 0, preBoard2[i], 0, 8);
+            System.arraycopy(preBoard2[i], 0, preBoard3[i], 0, 8);
+            preToMove3 = preToMove2 = preToMove1 = toMove;
         }
-
-        if (selectedMode == 1 && selectedColor.equalsIgnoreCase("yellow"))
-        {
-            this.toMove = REDNORMAL;
-            play();
-        }
-        else if (selectedMode==1 && selectedColor.equalsIgnoreCase("red"))
-        {
-            this.toMove = REDNORMAL;
-            play();
-        }
-
-        update(getGraphics());
-        drawCheckers();
-        showStatus();
-        //timer.stop();
-        //timer = new Timer();  //At this line a new Thread will be created
-        // timer.schedule(Clock(), 1*1000); //delay in milliseconds
-
-
-
 
     }
 
-    public void undo()
-    {            //undo function
-        undoCount=1;
-        for(int i=0;i<8;i++)
-        {
-            System.arraycopy(preBoard3[i],0,board[i],0,8);              //copies previous board
+    public void undo() {            //undo function
+        undoCount = 1;
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(preBoard3[i], 0, board[i], 0, 8);              //copies previous board
         }
-        toMove=preToMove3;
-        drawCheckers();
-        update(g);
-
-        if(selectedMode==1)
-        {
-            play();
-        }
+        toMove = preToMove3;
     }
 
     public GameScreen(Checkers game) {
@@ -226,10 +154,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
 
-        engine = new Simplech();
-        engine.initCheckers(board);
-
-        capturedPieces = new LinkedList<Piece>();
+        newGame();
     }
 
 
@@ -259,10 +184,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             opponentMove = false;
             new Thread("Opponent") {
                 public void run() {
-                    CbMove cbMove = engine.getMove(board, Simplech.WHITE, 1, false);
-                    if (cbMove != null)
-                        moveOpponentPiece(cbMove);
-                    engine.printBoard(board);
+                   // Checker.moveComputer();
+                   // CbMove cbMove = engine.getMove(board, Checker.WHITE, 1, false);
+                   // if (cbMove != null)
+                   //     moveOpponentPiece(cbMove);
+                   // engine.printBoard(board);
                 }
             }.start();
         }
@@ -278,7 +204,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 fromTile = (Tile) actor;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
-                    if (tile.getCellEntry() == Simplech.BLACK)
+                    if (tile.getCellEntry() == Checker.BLACK)
                         tile.getStyle().background = Assets.img_selected_cell_dark;
                     else
                         tile.getStyle().background = Assets.img_selected_cell_lite;
@@ -289,7 +215,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if (actor instanceof Tile) {
                         toTile = ((Tile) actor);
 
-                        if (toTile.getCellEntry() == Simplech.BLACK) {
+                        if (toTile.getCellEntry() == Checker.BLACK) {
                             movePiece();
                         }
                     }
@@ -419,12 +345,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.BLACK, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
                         style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.WHITE, new Label.LabelStyle(style));
                     }
 
                     backgroundTiles[index].setSize(cellsize, cellsize);
@@ -444,12 +370,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.BLACK, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
                         style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.WHITE, new Label.LabelStyle(style));
                     }
 
                     backgroundTiles[index].setSize(cellsize, cellsize);
@@ -490,7 +416,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected boolean isKingTile(Tile tile, int color) {
 
-        if (color == Simplech.BLACK) {
+        if (color == Checker.BLACK) {
             //32  31  30  29
             if (tile.getName().equals("32")
                     || tile.getName().equals("31")
@@ -533,7 +459,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             Piece p = (Piece) actor;
                             if (p.isSelected())
                                 continue;
-                            if ((p.getPlayer() == Simplech.WHITE)) {
+                            if ((p.getPlayer() == Checker.WHITE)) {
                                 if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
                                     p.setCaptured(true);
                                 }
@@ -556,7 +482,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             Piece p = (Piece) actor;
                             if (p.isSelected())
                                 continue;
-                            if ((p.getPlayer() == Simplech.BLACK)) {
+                            if ((p.getPlayer() == Checker.BLACK)) {
                                 if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
                                     p.setCaptured(true);
                                 }
@@ -590,27 +516,25 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(fromTile.getName());
         int to = Integer.parseInt(toTile.getName());
 
+        Coord src = Util.numbertocoors(from);
+        Coord dest = Util.numbertocoors(to);
 
-        if (!isMoveLegal(humanPiece, from, to))
-            return;
+        int result = Checker.ApplyMove(board, src.y, src.x, dest.y, dest.x);
 
-        System.err.println("FROM => " + from + " TO=> " + to);
-
-        CbMove move = engine.isLegal(board, humanPiece.getPlayer(), from, to);
-
-        if (move != null) {
-            if (move.jumps != 0) {
-                ;
-            }
-            move();
-            engine.printBoard(board);
-        } else
-            return;
+        switch(result){
+            case Checker.ILLEGALMOVE:
+                break;
+            case Checker.LEGALMOVE:
+                move();
+                break;
+            case Checker.INCOMLETEMOVE:
+                break;
+        }
     }
 
     protected void crownPiece(Piece piece) {
 
-        if (piece.getPlayer() == Simplech.BLACK)
+        if (piece.getPlayer() == Checker.BLACK)
             piece.setDrawable(Assets.img_king_black);
         else
             piece.setDrawable(Assets.img_king_white);
@@ -640,7 +564,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return ((Piece) actor);
     }
 
-    protected void moveOpponentPiece(CbMove cbMove) {
+   /* protected void moveOpponentPiece(CbMove cbMove) {
         Tile srcTile;
         String srcName = "";
         Tile destTile = null;
@@ -702,7 +626,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
-    }
+    }*/
 
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
@@ -737,9 +661,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
+                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACK);
                         else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
+                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITE);
 
                         if (pieces[index] == null)
                             continue;
@@ -761,9 +685,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
+                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITE);
                         else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
+                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACK);
 
                         if (pieces[index] == null)
                             continue;
