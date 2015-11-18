@@ -21,6 +21,7 @@ public class Checker {
     public static final int WHITEKING = (WHITE|KING);
     public static final int BLACKKING = (BLACK|KING);
     public static final int EMPTY = 0;
+    public static final int OCCUPIED = 14;
 
     /**
      * returns the index according to the given x and y values
@@ -151,7 +152,8 @@ public class Checker {
                         return LEGALMOVE;       //Normal checkers only can go forward
                     break;
                 case Checker.WHITEPAWN:
-                    if (endJ - srtJ == -1) return LEGALMOVE;
+                    if (endJ - srtJ == -1)
+                        return LEGALMOVE;
                     break;
                 case Checker.BLACKKING:
                 case Checker.WHITEKING:
@@ -166,7 +168,7 @@ public class Checker {
             int cap_j = (srtJ + endJ) / 2;
             int cap_piece = board[cap_i][cap_j];
 
-            if (turn == Checker.BLACKPAWN)         //when you try to cut a piece it should be a peice of opposite side.
+            if (turn == BLACK)         //when you try to cut a piece it should be a peice of opposite side.
             //otherwise it is an illegal move.
             {
                 if (!(cap_piece == Checker.WHITEPAWN ||
@@ -364,10 +366,10 @@ public class Checker {
         switch (piece) {
             case BLACKPAWN:
             case BLACKKING:
-                return BLACKPAWN;
+                return BLACK;
             case WHITEPAWN:
             case WHITEKING:
-                return WHITEPAWN;
+                return WHITE;
         }
         return Checker.EMPTY;
     }
@@ -478,5 +480,114 @@ public class Checker {
                         forceCaptures(tempPosition, new_move, moves_list, inc * 10);  //do until there are no more captures
                     }
                 }
+    }
+
+    public void initCheckers()
+    {
+        int [] b = new int[46];
+
+        for (int i = 0; i < 46; i++)
+            b[i] = OCCUPIED;
+
+        for (int i = 5; i <= 40; i++)
+            b[i] = EMPTY;
+
+        for (int i = 5; i <= 17; i++)
+            b[i] = (BLACK | PAWN);
+
+        for (int i = 28; i <= 40; i++)
+            b[i] = (WHITE | PAWN);
+
+        for (int i = 9; i <= 36; i += 9)
+            b[i] = OCCUPIED;
+
+
+    }
+
+    public void printBoard(int[] board) {
+
+        int[][] b = new int[8][8];
+
+        b[0][0] = board[5];
+        b[2][0] = board[6];
+        b[4][0] = board[7];
+        b[6][0] = board[8];
+        b[1][1] = board[10];
+        b[3][1] = board[11];
+        b[5][1] = board[12];
+        b[7][1] = board[13];
+        b[0][2] = board[14];
+        b[2][2] = board[15];
+        b[4][2] = board[16];
+        b[6][2] = board[17];
+        b[1][3] = board[19];
+        b[3][3] = board[20];
+        b[5][3] = board[21];
+        b[7][3] = board[22];
+        b[0][4] = board[23];
+        b[2][4] = board[24];
+        b[4][4] = board[25];
+        b[6][4] = board[26];
+        b[1][5] = board[28];
+        b[3][5] = board[29];
+        b[5][5] = board[30];
+        b[7][5] = board[31];
+        b[0][6] = board[32];
+        b[2][6] = board[33];
+        b[4][6] = board[34];
+        b[6][6] = board[35];
+        b[1][7] = board[37];
+        b[3][7] = board[38];
+        b[5][7] = board[39];
+        b[7][7] = board[40];
+
+        for (int r = 7; r >= 0; r--) {
+            for (int c = 0; c < 8; c++) {
+                if (b[c][r] == OCCUPIED)
+                    System.out.print("- ");
+                else if (b[c][r] == WHITEPAWN)
+                    System.out.print("W ");
+                else if (b[c][r] == BLACKPAWN)
+                    System.out.print("B ");
+                else if (b[c][r] == EMPTY)
+                    System.out.print("F ");
+                else if (b[c][r] == BLACKKING)
+                    System.out.print("B+");
+                else if (b[c][r] == WHITEKING)
+                    System.out.print("W+");
+                else
+                    System.out.print(b[c][r] + " ");
+
+            }
+            System.out.println("");
+        }
+
+        System.out.println("");
+    }
+
+    public static void printBoard(int[][] b) {
+
+        for (int r = 7; r >= 0; r--) {
+            for (int c = 0; c < 8; c++) {
+                if (b[c][r] == OCCUPIED)
+                    System.out.print("- ");
+                else if (b[c][r] == WHITEPAWN)
+                    System.out.print("W ");
+                else if (b[c][r] == BLACKPAWN)
+                    System.out.print("B ");
+                else if (b[c][r] == EMPTY)
+                    System.out.print("F ");
+                else if (b[c][r] == BLACKKING)
+                    System.out.print("B+");
+                else if (b[c][r] == WHITEKING)
+                    System.out.print("W+");
+                else
+                    System.out.print(b[c][r] + " ");
+
+            }
+            System.out.println("");
+        }
+
+        System.out.println("");
     }
 }

@@ -91,6 +91,35 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void newGame() {                            //creates a new game
 
+        int [] b = new int[46];
+
+        for (int i = 0; i < 46; i++)
+            b[i] = Checker.OCCUPIED;
+
+        for (int i = 5; i <= 40; i++)
+            b[i] = Checker.EMPTY;
+
+        for (int i = 5; i <= 17; i++)
+            b[i] = Checker.BLACKPAWN;
+
+        for (int i = 28; i <= 40; i++)
+            b[i] = Checker.WHITEPAWN;
+
+        for (int i = 9; i <= 36; i += 9)
+            b[i] = Checker.OCCUPIED;
+
+        board[0][0]=b[5];board[2][0]=b[6];board[4][0]=b[7];board[6][0]=b[8];
+        board[1][1]=b[10];board[3][1]=b[11];board[5][1]=b[12];board[7][1]=b[13];
+        board[0][2]=b[14];board[2][2]=b[15];board[4][2]=b[16];board[6][2]=b[17];
+        board[1][3]=b[19];board[3][3]=b[20];board[5][3]=b[21];board[7][3]=b[22];
+        board[0][4]=b[23];board[2][4]=b[24];board[4][4]=b[25];board[6][4]=b[26];
+        board[1][5]=b[28];board[3][5]=b[29];board[5][5]=b[30];board[7][5]=b[31];
+        board[0][6]=b[32];board[2][6]=b[33];board[4][6]=b[34];board[6][6]=b[35];
+        board[1][7]=b[37];board[3][7]=b[38];board[5][7]=b[39];board[7][7]=b[40];
+
+        Checker.printBoard(board);
+
+        /*
         for (int i = 0; i < 8; i++)                                  //applies values to the board
         {
             for (int j = 0; j < 8; j++)
@@ -104,6 +133,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
    //             if (isPossibleSquare(i, j))
                     board[i][j] = Checker.WHITEPAWN;
         }
+
+*/
 
         toMove = Checker.WHITEPAWN;
 
@@ -519,7 +550,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Coord src = Util.numbertocoors(from);
         Coord dest = Util.numbertocoors(to);
 
-        int result = Checker.ApplyMove(board, src.y, src.x, dest.y, dest.x);
+        int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
 
         switch(result){
             case Checker.ILLEGALMOVE:
