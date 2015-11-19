@@ -134,7 +134,7 @@ public class GameEngine {
                 int temp[] = new int[4];
                 score= MinMax(newBoard, depth+1, maxDepth, temp, getOpponent(turn), counter, yellowBest, redBest);
 
-                if (turn==Checker.WHITEPAWN && score > bestScore)
+                if (turn==Checker.WHITE && score > bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -147,7 +147,7 @@ public class GameEngine {
                     }
                 }
 
-                else if (turn==Checker.BLACKPAWN && score < bestScore)
+                else if (turn==Checker.BLACK && score < bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -177,11 +177,11 @@ public class GameEngine {
 
     static int getOpponent(int turn)
     {                  //returns the opponent
-        return turn==Checker.WHITEPAWN ? Checker.BLACKPAWN : Checker.WHITEPAWN;
+        return turn==Checker.WHITE ? Checker.BLACK : Checker.WHITE;
     }
 
     static int getTurn(int turn)
     {                     //returns the turn
-        return Checker.colour(turn)==Checker.WHITEPAWN ? -inf : inf;
+        return Checker.colour(turn)==Checker.WHITE ? -inf : inf;
     }
 }

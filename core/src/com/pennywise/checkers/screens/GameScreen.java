@@ -30,6 +30,7 @@ import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Checker;
 import com.pennywise.checkers.core.engine.Coord;
+import com.pennywise.checkers.core.engine.GameEngine;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
@@ -79,8 +80,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private BitmapFont hudFont;
     private boolean opponentMove = false;
     int toMove;
-    int[][] board = new int[8][8];
 
+    int[][] board = new int[8][8];
     int[][] preBoard1 = new int[8][8];                 //for undo
     int preToMove1;
     int[][] preBoard2 = new int[8][8];
@@ -91,7 +92,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void newGame() {                            //creates a new game
 
-        int [] b = new int[46];
+       int[] b = new int[46];
 
         for (int i = 0; i < 46; i++)
             b[i] = Checker.OCCUPIED;
@@ -108,14 +109,54 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         for (int i = 9; i <= 36; i += 9)
             b[i] = Checker.OCCUPIED;
 
-        board[0][0]=b[5];board[2][0]=b[6];board[4][0]=b[7];board[6][0]=b[8];
-        board[1][1]=b[10];board[3][1]=b[11];board[5][1]=b[12];board[7][1]=b[13];
-        board[0][2]=b[14];board[2][2]=b[15];board[4][2]=b[16];board[6][2]=b[17];
-        board[1][3]=b[19];board[3][3]=b[20];board[5][3]=b[21];board[7][3]=b[22];
-        board[0][4]=b[23];board[2][4]=b[24];board[4][4]=b[25];board[6][4]=b[26];
-        board[1][5]=b[28];board[3][5]=b[29];board[5][5]=b[30];board[7][5]=b[31];
-        board[0][6]=b[32];board[2][6]=b[33];board[4][6]=b[34];board[6][6]=b[35];
-        board[1][7]=b[37];board[3][7]=b[38];board[5][7]=b[39];board[7][7]=b[40];
+        board[0][0] = b[5];
+        board[2][0] = b[6];
+        board[4][0] = b[7];
+        board[6][0] = b[8];
+        board[1][1] = b[10];
+        board[3][1] = b[11];
+        board[5][1] = b[12];
+        board[7][1] = b[13];
+        board[0][2] = b[14];
+        board[2][2] = b[15];
+        board[4][2] = b[16];
+        board[6][2] = b[17];
+        board[1][3] = b[19];
+        board[3][3] = b[20];
+        board[5][3] = b[21];
+        board[7][3] = b[22];
+        board[0][4] = b[23];
+        board[2][4] = b[24];
+        board[4][4] = b[25];
+        board[6][4] = b[26];
+        board[1][5] = b[28];
+        board[3][5] = b[29];
+        board[5][5] = b[30];
+        board[7][5] = b[31];
+        board[0][6] = b[32];
+        board[2][6] = b[33];
+        board[4][6] = b[34];
+        board[6][6] = b[35];
+        board[1][7] = b[37];
+        board[3][7] = b[38];
+        board[5][7] = b[39];
+        board[7][7] = b[40];
+
+        Checker.printBoard(board);
+
+        for (int i=0; i<8; i++)                                  //applies values to the board
+        {
+            for (int j=0; j<8; j++)
+                board[i][j] = Checker.EMPTY;
+
+            for (int j=0; j<3; j++)
+                if ( isPossibleSquare(i,j) )
+                    board[i][j] =  Checker.BLACKPAWN;
+
+            for (int j=5; j<8; j++)
+                if ( isPossibleSquare(i,j) )
+                    board[i][j] =  Checker.WHITEPAWN;
+        }
 
         Checker.printBoard(board);
 
@@ -145,6 +186,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             preToMove3 = preToMove2 = preToMove1 = toMove;
         }
 
+    }
+
+    private boolean isPossibleSquare(int i, int j)
+    {
+        return (i+j)%2 == 1;
     }
 
     public void undo() {            //undo function
@@ -215,11 +261,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             opponentMove = false;
             new Thread("Opponent") {
                 public void run() {
-                   // Checker.moveComputer();
-                   // CbMove cbMove = engine.getMove(board, Checker.WHITE, 1, false);
-                   // if (cbMove != null)
-                   //     moveOpponentPiece(cbMove);
-                   // engine.printBoard(board);
+
+
+                    moveOpponentPiece();
+
                 }
             }.start();
         }
@@ -552,7 +597,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
 
-        switch(result){
+        switch (result) {
             case Checker.ILLEGALMOVE:
                 break;
             case Checker.LEGALMOVE:
@@ -595,15 +640,38 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return ((Piece) actor);
     }
 
-   /* protected void moveOpponentPiece(CbMove cbMove) {
+    protected void moveOpponentPiece() {
         Tile srcTile;
         String srcName = "";
         Tile destTile = null;
         SequenceAction sequenceAction = new SequenceAction();
 
-        int from = Util.coordtonumber(cbMove.from);
-        int to = Util.coordtonumber(cbMove.to);
 
+        int tempScore, loser = Checker.EMPTY;
+        int[] move = new int[4];
+        int[] counter = new int[1];
+        counter[0] = 0;
+
+        tempScore = GameEngine.MinMax(board, 0, 4, move, Checker.BLACK, counter);
+
+        if (move[0] == 0 && move[1] == 0)
+            loser = Checker.BLACK;
+        else {
+            Checker.moveComputer(board, move);
+            if (loser == Checker.EMPTY) {
+               return;
+            }
+            this.toMove = Checker.BLACK;
+        }
+
+        ///////
+
+        int startx = move[0];
+        int starty = move[1];
+        int endx = move[2];
+        int endy = move[3];
+
+        int from  = Util.coordstonumber(startx,starty);
         cpuPiece = getPiece(from);
 
         if (cpuPiece == null)
@@ -611,23 +679,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         else
             cpuPiece.setSelected(true);
 
-        if (cbMove.jumps != 0) {
-            //jump moves
-            for (int i = 1; i <= cbMove.jumps; i++) {
-                Coord coord = cbMove.path[i];
-                to = Util.coordtonumber(coord);
-                Gdx.app.log("moveOpponentPiece", "Moving =>" + to);
-                destTile = getTile(to + "");
-                cpuPiece.setName(to + "");
+        while (endx > 0 || endy > 0) {
 
-                float posX = destTile.getX();
-                float posY = destTile.getY();
+            int to = Util.coordstonumber(endx % 10, endy % 10);
 
-                sequenceAction.addAction(delay(0.5f));
-                sequenceAction.addAction(moveTo(posX, posY, 0.5f));
-            }
-        } else {
-            Gdx.app.log("moveOpponentPiece", "Moving =>" + to);
             destTile = getTile(to + "");
             cpuPiece.setName(to + "");
 
@@ -637,27 +692,38 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             sequenceAction.addAction(delay(0.5f));
             sequenceAction.addAction(moveTo(posX, posY, 0.5f));
 
+            startx = endx % 10;
+            starty = endy % 10;
+            endx /= 10;
+            endy /= 10;
         }
 
         final Tile end = destTile;
 
-        sequenceAction.addAction(run(new Runnable() {
-            public void run() {
-                cpuPiece.setSelected(false);
-                cpuPiece.toBack();
-                if (isKingTile(end, cpuPiece.getPlayer()) &&
-                        !cpuPiece.isKing()) {
-                    crownPiece(cpuPiece);
-                }
-            }
-        }));
+        sequenceAction.addAction(
+
+                run(new Runnable() {
+                        public void run() {
+                            cpuPiece.setSelected(false);
+                            cpuPiece.toBack();
+                            if (isKingTile(end, cpuPiece.getPlayer()) &&
+                                    !cpuPiece.isKing()) {
+                                crownPiece(cpuPiece);
+                            }
+                        }
+                    }
+
+                ));
 
         //update name
-        if (cpuPiece != null) {
+        if (cpuPiece != null)
+
+        {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
-    }*/
+
+    }
 
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
