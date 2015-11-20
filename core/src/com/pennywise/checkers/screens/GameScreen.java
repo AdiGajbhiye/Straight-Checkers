@@ -80,8 +80,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private BitmapFont hudFont;
     private boolean opponentMove = false;
     int toMove;
-
     int[][] board = new int[8][8];
+
     int[][] preBoard1 = new int[8][8];                 //for undo
     int preToMove1;
     int[][] preBoard2 = new int[8][8];
@@ -92,7 +92,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void newGame() {                            //creates a new game
 
-       int[] b = new int[46];
+        /*int[] b = new int[46];
 
         for (int i = 0; i < 46; i++)
             b[i] = Checker.OCCUPIED;
@@ -140,22 +140,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         board[1][7] = b[37];
         board[3][7] = b[38];
         board[5][7] = b[39];
-        board[7][7] = b[40];
-
-        Checker.printBoard(board);
+        board[7][7] = b[40];*/
 
         for (int i=0; i<8; i++)                                  //applies values to the board
         {
             for (int j=0; j<8; j++)
-                board[i][j] = Checker.EMPTY;
+                board[i][j] = EMPTY;
 
             for (int j=0; j<3; j++)
                 if ( isPossibleSquare(i,j) )
-                    board[i][j] =  Checker.BLACKPAWN;
+                    board[i][j] =  Checker.BLACK;
 
             for (int j=5; j<8; j++)
                 if ( isPossibleSquare(i,j) )
-                    board[i][j] =  Checker.WHITEPAWN;
+                    board[i][j] =  Checker.WHITE;
         }
 
         Checker.printBoard(board);
@@ -188,10 +186,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     }
 
-    private boolean isPossibleSquare(int i, int j)
-    {
-        return (i+j)%2 == 1;
-    }
+
 
     public void undo() {            //undo function
         undoCount = 1;
