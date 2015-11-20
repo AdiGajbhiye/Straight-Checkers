@@ -510,13 +510,13 @@ public class Checker {
         {
             for(int j=0;j<8;j++)
             {
-                if(board[i][j]==BLACKPAWN)
+                if(board[j][i]==BLACKPAWN)
                     System.out.print("B ");
-                else if(board[i][j]==WHITEPAWN)
+                else if(board[j][i]==WHITEPAWN)
                     System.out.print("W ");
-                else if(board[i][j]==BLACKKING)
+                else if(board[j][i]==BLACKKING)
                     System.out.print("B+");
-                else if(board[i][j]==WHITEKING)
+                else if(board[j][i]==WHITEKING)
                     System.out.print("W+");
                 else
                     System.out.print("  ");
