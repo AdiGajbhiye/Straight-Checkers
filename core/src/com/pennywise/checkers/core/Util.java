@@ -226,7 +226,6 @@ public class Util {
                 c.x = 6;
                 c.y = 3;
                 break;
-
             case 17:
                 c.x = 1;
                 c.y = 4;

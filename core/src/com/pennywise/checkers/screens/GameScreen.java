@@ -521,9 +521,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(fromTile.getName());
         int to = Integer.parseInt(toTile.getName());
 
-
-        int curRow = (width - 1) - (from / width);
-        int curCol = (width - (from % width));
+        Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + to);
 
         Coord src = Util.toCoord(from);
         Coord dest = Util.toCoord(to);
@@ -626,6 +624,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         while (endx > 0 || endy > 0) {
 
             int to = Util.toNumber(endx % 10, endy % 10);
+
+            Gdx.app.log("BLACK MOVE", "FROM => " + from + " TO => " + to);
 
             destTile = getTile(to + "");
             cpuPiece.setName(to + "");
