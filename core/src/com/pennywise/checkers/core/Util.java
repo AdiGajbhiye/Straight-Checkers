@@ -137,7 +137,7 @@ public class Util {
                         + ") overlaps Actor (Name: " + a2.getName() + ")");
     }
 
-    public  static int coordtonumber(Coord coord) {
+    public static int coordtonumber(Coord coord) {
         // given board coordinates x and y, this function returns the board number in
         // standard checkers notation
         int number;
@@ -157,32 +157,163 @@ public class Util {
         return (coordtonumber(c));
     }
 
-    public static Coord numbertocoors(int number) {
-        // given a board number this function returns the coordinates
-        // whoa, this has to be fixed for spanish / italian / etc.!
-        Coord coord = new Coord();
-        number--;
-        coord.y = number / 4;
-        coord.x = 2 * (3 - number % 4);
-        if ((coord.y) % 2 != 0)
-            coord.x++;
+    public static Coord toCoord(int n) {
 
-        return coord;
-    }
+        Coord c = new Coord();
 
+        switch (n) {
+            case 1:
+                c.x = 1;
+                c.y = 0;
+                break;
+            case 2:
+                c.x = 3;
+                c.y = 0;
+                break;
+            case 3:
+                c.x = 5;
+                c.y = 0;
+                break;
+            case 4:
+                c.x = 7;
+                c.y = 0;
+                break;
+            case 5:
+                c.x = 0;
+                c.y = 1;
+                break;
+            case 6:
+                c.x = 2;
+                c.y = 1;
+                break;
+            case 7:
+                c.x = 4;
+                c.y = 1;
+                break;
+            case 8:
+                c.x = 6;
+                c.y = 1;
+                break;
+            case 9:
+                c.x = 1;
+                c.y = 2;
+                break;
+            case 10:
+                c.x = 3;
+                c.y = 2;
+                break;
+            case 11:
+                c.x = 5;
+                c.y = 2;
+                break;
+            case 12:
+                c.x = 7;
+                c.y = 2;
+                break;
+            case 13:
+                c.x = 0;
+                c.y = 3;
+                break;
+            case 14:
+                c.x = 2;
+                c.y = 3;
+                break;
+            case 15:
+                c.x = 4;
+                c.y = 3;
+                break;
+            case 16:
+                c.x = 6;
+                c.y = 3;
+                break;
 
-    public static Coord coordstocoords(Coord coord, boolean invert, boolean mirror) {
-        // given coordinates x and y on the screen, this function converts them to internal
-        // representation of the board based on whether the board is inverted or mirrored
-        if (invert) {
-            coord.x -= 7;
-            coord.y -= 7;
+            case 17:
+                c.x = 1;
+                c.y = 4;
+                break;
+            case 18:
+                c.x = 3;
+                c.y = 4;
+                break;
+            case 19:
+                c.x = 5;
+                c.y = 4;
+                break;
+            case 20:
+                c.x = 7;
+                c.y = 4;
+                break;
+            case 21:
+                c.x = 0;
+                c.y = 5;
+                break;
+            case 22:
+                c.x = 2;
+                c.y = 5;
+                break;
+            case 23:
+                c.x = 4;
+                c.y = 5;
+                break;
+            case 24:
+                c.x = 6;
+                c.y = 5;
+                break;
+            case 25:
+                c.x = 1;
+                c.y = 6;
+                break;
+            case 26:
+                c.x = 3;
+                c.y = 6;
+                break;
+            case 27:
+                c.x = 5;
+                c.y = 6;
+                break;
+            case 28:
+                c.x = 7;
+                c.y = 6;
+                break;
+            case 29:
+                c.x = 0;
+                c.y = 7;
+                break;
+            case 30:
+                c.x = 2;
+                c.y = 7;
+                break;
+            case 31:
+                c.x = 4;
+                c.y = 7;
+                break;
+            case 32:
+                c.x = 6;
+                c.y = 7;
+                break;
         }
-        if (mirror)
-            coord.x -= 7;
 
-        return coord;
+        return c;
     }
 
+    // return board number for coordinates
+    public static int  toNumber ( int x, int y)
+    {
+        // board coordinates are [y][x]!
+        // ENGLISH
+        int [][] en = new int [][] {
+                {0, 1, 0, 2, 0, 3, 0, 4},
+                {5, 0, 6, 0, 7, 0, 8, 0},
+                {0, 9, 0, 10, 0, 11, 0, 12},
+                {13, 0, 14, 0, 15, 0, 16, 0},
+                {0, 17, 0, 18, 0, 19, 0, 20},
+                {21, 0, 22, 0, 23, 0, 24, 0},
+                {0, 25, 0, 26, 0, 27, 0, 28},
+                {29, 0, 30, 0,31, 0, 32, 0},
+        };
 
+
+        return en[y][x];
+
+    }
 }
