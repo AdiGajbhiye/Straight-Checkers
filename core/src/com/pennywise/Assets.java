@@ -17,8 +17,8 @@ import com.pennywise.checkers.core.Util;
  */
 public class Assets {
 
-    private final static String FILE_IMAGE_ATLAS = "images/ui-pack.atlas";
-    private final static String FILE_UI_SKIN = "images/ui-pack.json";
+    private final static String FILE_IMAGE_ATLAS = "ui-pack.atlas";
+    private final static String FILE_UI_SKIN = "ui-pack.json";
     public static TextureAtlas imageAtlas;
     public static Skin skin;
 

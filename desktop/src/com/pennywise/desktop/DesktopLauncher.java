@@ -18,7 +18,7 @@ public class DesktopLauncher {
         settings.maxWidth = 1024;
         settings.maxHeight = 1024;
 
-        TexturePacker.process(settings, "android\\assets\\background", "android\\assets\\images", "ui-pack");
+        TexturePacker.process(settings, "android\\assets\\background", "android\\assets", "ui-pack");
 
         System.out.println("Done packing...");
 */
