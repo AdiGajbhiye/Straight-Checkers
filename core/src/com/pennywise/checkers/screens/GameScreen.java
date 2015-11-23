@@ -357,7 +357,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
-        boardStage.addActor(drawPieces(height, width, false));
+        boardStage.addActor(drawPieces(height, width, true));
     }
 
     private Table backGround() {
@@ -377,7 +377,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Table buildBoard() {
         Table layer = new Table();
-        layer.addActor(board(height, width, false));
+        layer.addActor(board(height, width, true));
         return layer;
     }
 
