@@ -62,6 +62,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Tile[] backgroundTiles;
     private Panel panel;
     private Piece humanPiece = null;
+    private int humanPlayer;
     private Piece cpuPiece = null;
     private Tile fromTile;
     private Tile toTile;
@@ -105,7 +106,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Checker.printboard(board);
 
-        toMove = Checker.YELLOWNORMAL;
+        humanPlayer = Checker.YELLOWNORMAL;
 
         for (int i = 0; i < 8; i++) {
             System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
@@ -200,15 +201,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             if (actor2 != null && actor2 instanceof Piece) {
                 humanPiece = (Piece) actor2;
-                humanPiece.setSelected(true);
-                fromTile = (Tile) actor;
-                if (actor instanceof Tile) {
-                    Tile tile = (((Tile) actor));
-                    if (tile.getCellEntry() == Checker.REDNORMAL)
-                        tile.getStyle().background = Assets.img_selected_cell_dark;
-                    else
-                        tile.getStyle().background = Assets.img_selected_cell_lite;
-                }
+                if (humanPiece.getPlayer() == humanPlayer) {
+                    humanPiece.setSelected(true);
+                    fromTile = (Tile) actor;
+                    if (actor instanceof Tile) {
+                        Tile tile = (((Tile) actor));
+                        if (tile.getCellEntry() == Checker.REDNORMAL)
+                            tile.getStyle().background = Assets.img_selected_cell_dark;
+
+                    }
+                } else
+                    humanPiece = null;
             } else {
 
                 if (humanPiece != null) {
@@ -536,6 +539,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 isBusy = false;
                 break;
             case Checker.LEGALMOVE:
+                humanPiece.setName(toTile.getName());
                 move();
                 break;
             case Checker.INCOMLETEMOVE:
@@ -853,7 +857,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void gameOverDialog(String winner) {
 
-        Skin skin = new Skin(Gdx.files.internal("images/ui-pack.json"), Assets.getAtlas());
+        Skin skin = new Skin(Gdx.files.internal("ui-pack.json"), Assets.getAtlas());
 
         Label label = new Label(winner + "wins!", skin);
         label.setWrap(true);
