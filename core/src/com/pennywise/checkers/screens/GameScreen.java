@@ -89,60 +89,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     public void newGame() {                            //creates a new game
 
-        int[] b = new int[46];
-
-        for (int i = 0; i < 46; i++)
-            b[i] = Checker.OCCUPIED;
-
-        for (int i = 5; i <= 40; i++)
-            b[i] = Checker.EMPTY;
-
-        for (int i = 5; i <= 17; i++)
-            b[i] = Checker.BLACKPAWN;
-
-        for (int i = 28; i <= 40; i++)
-            b[i] = Checker.WHITEPAWN;
-
-        for (int i = 9; i <= 36; i += 9)
-            b[i] = Checker.OCCUPIED;
-
-        board[0][0] = b[5];
-        board[2][0] = b[6];
-        board[4][0] = b[7];
-        board[6][0] = b[8];
-        board[1][1] = b[10];
-        board[3][1] = b[11];
-        board[5][1] = b[12];
-        board[7][1] = b[13];
-        board[0][2] = b[14];
-        board[2][2] = b[15];
-        board[4][2] = b[16];
-        board[6][2] = b[17];
-        board[1][3] = b[19];
-        board[3][3] = b[20];
-        board[5][3] = b[21];
-        board[7][3] = b[22];
-        board[0][4] = b[23];
-        board[2][4] = b[24];
-        board[4][4] = b[25];
-        board[6][4] = b[26];
-        board[1][5] = b[28];
-        board[3][5] = b[29];
-        board[5][5] = b[30];
-        board[7][5] = b[31];
-        board[0][6] = b[32];
-        board[2][6] = b[33];
-        board[4][6] = b[34];
-        board[6][6] = b[35];
-        board[1][7] = b[37];
-        board[3][7] = b[38];
-        board[5][7] = b[39];
-        board[7][7] = b[40];
-
-        Checker.printboard(board);
-
-
-
         for (int i = 0; i < 8; i++)                                  //applies values to the board
         {
             for (int j = 0; j < 8; j++)
@@ -150,33 +96,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
             for (int j = 0; j < 3; j++)
                 if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.BLACKPAWN;
+                    board[i][j] = Checker.REDNORMAL;
 
             for (int j = 5; j < 8; j++)
                 if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.WHITEPAWN;
+                    board[i][j] = Checker.YELLOWNORMAL;
         }
 
         Checker.printboard(board);
 
-        /*
-        for (int i = 0; i < 8; i++)                                  //applies values to the board
-        {
-            for (int j = 0; j < 8; j++)
-                board[i][j] = Checker.EMPTY;
-
-            for (int j = 0; j < 3; j++)
-   //             if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.BLACKPAWN;
-
-            for (int j = 5; j < 8; j++)
-   //             if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.WHITEPAWN;
-        }
-
-*/
-
-        toMove = Checker.WHITEPAWN;
+        toMove = Checker.YELLOWNORMAL;
 
         for (int i = 0; i < 8; i++) {
             System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
@@ -259,10 +188,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             opponentMove = false;
             new Thread("Opponent") {
                 public void run() {
-
-
                     moveOpponentPiece();
-
                 }
             }.start();
         }
@@ -278,7 +204,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 fromTile = (Tile) actor;
                 if (actor instanceof Tile) {
                     Tile tile = (((Tile) actor));
-                    if (tile.getCellEntry() == Checker.BLACK)
+                    if (tile.getCellEntry() == Checker.REDNORMAL)
                         tile.getStyle().background = Assets.img_selected_cell_dark;
                     else
                         tile.getStyle().background = Assets.img_selected_cell_lite;
@@ -289,7 +215,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if (actor instanceof Tile) {
                         toTile = ((Tile) actor);
 
-                        if (toTile.getCellEntry() == Checker.BLACK) {
+                        if (toTile.getCellEntry() == Checker.REDNORMAL) {
                             movePiece();
                         }
                     }
@@ -420,19 +346,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Checker.BLACK, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
                         style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Checker.WHITE, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
                     }
 
                     backgroundTiles[index].setSize(cellsize, cellsize);
                     backgroundTiles[index].setAlignment(Align.center);
                     backgroundTiles[index].setPosition(position[index].x, position[index].y);
                     backgroundTiles[index].setName(text + "");
-                    backgroundTiles[index].setText(text + "");
+                    //backgroundTiles[index].setText(text + "");
                     panel.addActor(backgroundTiles[index]);
                 }
             }
@@ -448,18 +374,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Checker.BLACK, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
 
                     } else {
                         text = 0;
                         style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Checker.WHITE, new Label.LabelStyle(style));
+                        backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
                     }
 
                     backgroundTiles[index].setSize(cellsize, cellsize);
                     backgroundTiles[index].setAlignment(Align.center);
                     backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    backgroundTiles[index].setText(text + "");
+                    //backgroundTiles[index].setText(text + "");
                     backgroundTiles[index].setName(text + "");
                     panel.addActor(backgroundTiles[index]);
                 }
@@ -495,7 +421,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     protected boolean isKingTile(Tile tile, int color) {
 
-        if (color == Checker.BLACK) {
+        if (color == Checker.REDNORMAL) {
             //32  31  30  29
             if (tile.getName().equals("32")
                     || tile.getName().equals("31")
@@ -538,7 +464,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             Piece p = (Piece) actor;
                             if (p.isSelected())
                                 continue;
-                            if ((p.getPlayer() == Checker.WHITE)) {
+                            if ((p.getPlayer() == Checker.REDNORMAL)) {
                                 if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
                                     p.setCaptured(true);
                                 }
@@ -561,7 +487,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             Piece p = (Piece) actor;
                             if (p.isSelected())
                                 continue;
-                            if ((p.getPlayer() == Checker.BLACK)) {
+                            if ((p.getPlayer() == Checker.YELLOWNORMAL)) {
                                 if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
                                     p.setCaptured(true);
                                 }
@@ -595,25 +521,34 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int from = Integer.parseInt(fromTile.getName());
         int to = Integer.parseInt(toTile.getName());
 
-        Coord src = Util.numbertocoors(from);
-        Coord dest = Util.numbertocoors(to);
+        Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + to);
+
+        Coord src = Util.toCoord(from);
+        Coord dest = Util.toCoord(to);
 
         int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
 
         switch (result) {
             case Checker.ILLEGALMOVE:
+                humanPiece = null;
+                fromTile = null;
+                toTile = null;
+                isBusy = false;
                 break;
             case Checker.LEGALMOVE:
                 move();
                 break;
             case Checker.INCOMLETEMOVE:
+                move();
+                fromTile = toTile;
+                isBusy = false;
                 break;
         }
     }
 
     protected void crownPiece(Piece piece) {
 
-        if (piece.getPlayer() == Checker.BLACK)
+        if (piece.getPlayer() == Checker.REDNORMAL)
             piece.setDrawable(Assets.img_king_black);
         else
             piece.setDrawable(Assets.img_king_white);
@@ -655,16 +590,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int[] counter = new int[1];
         counter[0] = 0;
 
-        tempScore = GameEngine.MinMax(board, 0, 4, move, Checker.BLACK, counter);
+        tempScore = GameEngine.MinMax(board, 0, 4, move, Checker.REDNORMAL, counter);
 
         if (move[0] == 0 && move[1] == 0)
-            loser = Checker.BLACK;
+            loser = Checker.REDNORMAL;
         else {
             Checker.moveComputer(board, move);
-            if (loser == Checker.EMPTY) {
+            if (loser != Checker.EMPTY) {
                 return;
             }
-            this.toMove = Checker.BLACK;
+            this.toMove = Checker.YELLOWNORMAL;
+
+            if (Checker.noMovesLeft(board, toMove)) {
+                gameOverDialog("Black");
+            }
         }
 
         ///////
@@ -674,7 +613,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int endx = move[2];
         int endy = move[3];
 
-        int from = Util.coordstonumber(startx, starty);
+        int from = Util.toNumber(startx, starty);
         cpuPiece = getPiece(from);
 
         if (cpuPiece == null)
@@ -684,7 +623,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         while (endx > 0 || endy > 0) {
 
-            int to = Util.coordstonumber(endx % 10, endy % 10);
+            int to = Util.toNumber(endx % 10, endy % 10);
+
+            Gdx.app.log("BLACK MOVE", "FROM => " + from + " TO => " + to);
 
             destTile = getTile(to + "");
             cpuPiece.setName(to + "");
@@ -752,8 +693,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         board.setHeight(bHeight);
 
         if (inverted) {
-
-
             for (int row = 0; row < rows; row++) {
                 for (int col = 7; col >= 0; col--) {
                     index = col + (row * cols);
@@ -763,9 +702,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITE);
+                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
                         else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACK);
+                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.REDNORMAL);
 
                         if (pieces[index] == null)
                             continue;
@@ -787,16 +726,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     if ((row % 2) == (col % 2)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACK);
+                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.REDNORMAL);
                         else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITE);
+                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
 
                         if (pieces[index] == null)
                             continue;
 
                         pieces[index].setSize(cellsize, cellsize);
                         pieces[index].setPosition(position[index].x, position[index].y);
-                        pieces[index].setName(index + "");
+                        pieces[index].setName(text + "");
                         board.addActor(pieces[index]);
                     }
                 }

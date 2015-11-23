@@ -38,13 +38,13 @@ public class GameEngine {
 
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
-                if (board[i][j] == Checker.BLACKPAWN)
+                if (board[i][j] == Checker.REDNORMAL)
                 {
                     score-=normal;
                     score-=pos*j*j;
                 }
 
-                else if (board[i][j] ==Checker.BLACKKING)
+                else if (board[i][j] ==Checker.REDKING)
                 {
                     score-=king;
                     if (i==0 || i==7)
@@ -53,13 +53,13 @@ public class GameEngine {
                         score += edge;
                 }
 
-                else if (board[i][j] == Checker.WHITEPAWN)
+                else if (board[i][j] == Checker.YELLOWNORMAL)
                 {
                     score+=normal;
                     score+=pos*(7-j)*(7-j);
                 }
 
-                else if (board[i][j] == Checker.WHITEKING)
+                else if (board[i][j] == Checker.YELLOWKING)
                 {
                     score+=king;
                     if (i==0 || i==7)
@@ -122,7 +122,7 @@ public class GameEngine {
                     else
                     {
                         // extend search since there is a forcing move
-                        maxDepth += 1;
+                       // maxDepth += 1;
                     }
             }
 
@@ -134,7 +134,7 @@ public class GameEngine {
                 int temp[] = new int[4];
                 score= MinMax(newBoard, depth+1, maxDepth, temp, getOpponent(turn), counter, yellowBest, redBest);
 
-                if (turn==Checker.WHITE && score > bestScore)
+                if (turn==Checker.YELLOWNORMAL && score > bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -147,7 +147,7 @@ public class GameEngine {
                     }
                 }
 
-                else if (turn==Checker.BLACK && score < bestScore)
+                else if (turn==Checker.REDNORMAL && score < bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -177,11 +177,11 @@ public class GameEngine {
 
     static int getOpponent(int turn)
     {                  //returns the opponent
-        return turn==Checker.WHITE ? Checker.BLACK : Checker.WHITE;
+        return turn==Checker.YELLOWNORMAL ? Checker.REDNORMAL : Checker.YELLOWNORMAL;
     }
 
     static int getTurn(int turn)
     {                     //returns the turn
-        return Checker.colour(turn)==Checker.WHITE ? -inf : inf;
+        return Checker.colour(turn)==Checker.YELLOWNORMAL ? -inf : inf;
     }
 }
