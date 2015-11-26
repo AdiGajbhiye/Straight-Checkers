@@ -26,4 +26,7 @@ public class Constants {
     public static final int VSHUMAN = 11;
     public static final int VSCPU = 12;
 
+    public static final int TCPPORT = 54555;
+    public static final int UDPPORT = 54777;
+
 }

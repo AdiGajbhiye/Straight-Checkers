@@ -19,8 +19,8 @@ public class Assets {
 
     private final static String FILE_IMAGE_ATLAS = "ui-pack.atlas";
     private final static String FILE_UI_SKIN = "ui-pack.json";
-    public static TextureAtlas imageAtlas;
-    public static Skin skin;
+    private static TextureAtlas imageAtlas;
+    private static Skin skin;
 
     //
     public static BitmapFont font;

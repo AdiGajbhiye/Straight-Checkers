@@ -2,6 +2,7 @@ package com.pennywise.checkers.screens;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -10,18 +11,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
@@ -34,6 +34,7 @@ import com.pennywise.checkers.core.engine.GameEngine;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
+import com.pennywise.checkers.screens.dialogs.GameDialog;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -73,11 +74,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private Image pauseButton;
     private Checker engine;
-    private long startTime = System.nanoTime();
+    private long startTime = 0;
+    private boolean timer = false;
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
     int toMove;
+    int level = Constants.EASY;
 
     int[][] board = new int[8][8];
     int[][] preBoard1 = new int[8][8];                 //for undo
@@ -87,6 +90,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     int[][] preBoard3 = new int[8][8];
     int preToMove3;
     private int undoCount = 0;
+    private GameDialog gameDialog;
 
     public void newGame() {                            //creates a new game
 
@@ -148,8 +152,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
 
-
-        Gdx.input.setInputProcessor(this);
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
         hudFont = Assets.font;
 
@@ -165,8 +168,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     @Override
     public void show() {
+        level();
         setupScreen();
-
     }
 
     private final Vector2 stageCoords = new Vector2();
@@ -180,10 +183,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (System.nanoTime() - startTime >= 1000000000) {
-            secondsTime++;
-            startTime = System.nanoTime();
-        }
+        if (timer)
+            if (System.nanoTime() - startTime >= 1000000000) {
+                secondsTime++;
+                startTime = System.nanoTime();
+            }
 
         if (opponentMove) {
             opponentMove = false;
@@ -346,7 +350,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if (isPossibleSquare(row,col)) {
+                    if (isPossibleSquare(row, col)) {
                         if (row < 3) {
                             text = (count += 2) / 2;
                             style.background = Assets.img_cell_dark;
@@ -605,7 +609,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int[] counter = new int[1];
         counter[0] = 0;
 
-        tempScore = GameEngine.MinMax(board, 0, 4, move, Checker.REDNORMAL, counter);
+        tempScore = GameEngine.MinMax(board, 0, level, move, Checker.REDNORMAL, counter);
 
         if (move[0] == 0 && move[1] == 0)
             loser = Checker.REDNORMAL;
@@ -617,7 +621,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             this.toMove = Checker.YELLOWNORMAL;
 
             if (Checker.noMovesLeft(board, toMove)) {
-                gameOverDialog("Black");
+                gameOver("Black");
+                timer = false;
             }
         }
 
@@ -714,7 +719,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if (isPossibleSquare(row,col)) {
+                    if (isPossibleSquare(row, col)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
                             pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
@@ -865,36 +870,79 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         batch.end();
     }
 
+    public void startGame(int level) {
+        gameDialog.hide();
+        timer = true;
+        startTime = System.nanoTime();
+        this.level = level;
+    }
 
-    public void gameOverDialog(String winner) {
+    public void level() {
 
-        Skin skin = new Skin(Gdx.files.internal("ui-pack.json"), Assets.getAtlas());
-
-        Label label = new Label(winner + "wins!", skin);
-        label.setWrap(true);
-        label.setFontScale(.8f);
-        label.setAlignment(Align.center);
-
-        Dialog dialog =
-                new Dialog("Game Over", skin) {
-                    protected void result(Object object) {
-                        System.out.println("Chosen: " + object);
+        gameDialog = new GameDialog("") // this is the dialog title
+                .content("Easy", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        startGame(Constants.EASY);
+                        return true;
                     }
-                };
+                })
+                .content("Normal", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        startGame(Constants.NORMAL);
+                        return true;
+                    }
+                })
+                .content("Hard", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        startGame(Constants.HARD);
+                        return true;
+                    }
+                });
 
-        dialog.padTop(50).padBottom(50);
-        dialog.getContentTable().add(label).width((Constants.GAME_WIDTH * 0.65f)).row();
-        dialog.getButtonTable().padTop(50);
+        gameDialog.show(dialogStage); // actually show the dialog
+    }
 
-        TextButton dbutton = new TextButton("Yes", skin);
-        dialog.button(dbutton, true);
+    public void gameOver(String text) {
 
-        dbutton = new TextButton("No", skin);
-        dialog.button(dbutton, false);
-        dialog.invalidateHierarchy();
-        dialog.invalidate();
-        dialog.layout();
-        dialog.show(dialogStage);
+        new GameDialog(text + " WIN!") // this is the dialog title
+                .content("Easy", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.exit();
+                        return false;
+                    }
+                })
+                .content("Normal", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.exit();
+                        return false;
+                    }
+                })
+                .content("Hard", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.exit();
+                        return false;
+                    }
+                })
+                .show(dialogStage); // actually show the dialog
+    }
+
+    public void network() {
+
+        new GameDialog("LAN Game") // this is the dialog title
+                .text("Your wifi needs to be on to play LAN game.")
+                .content("Host Game", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.exit();
+                        return false;
+                    }
+                })
+                .content("Connect to host", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.exit();
+                        return false;
+                    }
+                })
+                .show(dialogStage); // actually show the dialog
     }
 
 }

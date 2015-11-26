@@ -19,6 +19,10 @@
       default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
       transparent: { }
     },
+    com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+      default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
+      transparent: { }
+    },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
       default: { up: button-blue, down: button-bluedown, checked: button-bluedown, disabled: button-greydown, font: normaltext, fontColor: white }
     },
