@@ -341,28 +341,39 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         if (inverted) {
 
             for (int row = 0; row < rows; row++) {
-                for (int col = 7; col >= 0; col--) {
+                for (int col = 0; col < 8; col++) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
+                    if (isPossibleSquare(row,col)) {
+                        if (row < 3) {
+                            text = (count += 2) / 2;
+                            style.background = Assets.img_cell_dark;
+                            backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
 
-                    } else {
-                        text = 0;
-                        style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
+                            backgroundTiles[index].setSize(cellsize, cellsize);
+                            backgroundTiles[index].setAlignment(Align.center);
+                            backgroundTiles[index].setPosition(position[index].x, position[index].y);
+                            backgroundTiles[index].setName(text + "");
+                            //backgroundTiles[index].setText(text + "");
+                            panel.addActor(backgroundTiles[index]);
+                        }
+                        //} else {
+                        if (row >= 5) {
+                            text = 0;
+                            style.background = Assets.img_cell_light;
+                            backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
+
+
+                            backgroundTiles[index].setSize(cellsize, cellsize);
+                            backgroundTiles[index].setAlignment(Align.center);
+                            backgroundTiles[index].setPosition(position[index].x, position[index].y);
+                            backgroundTiles[index].setName(text + "");
+                            //backgroundTiles[index].setText(text + "");
+                            panel.addActor(backgroundTiles[index]);
+                        }
                     }
-
-                    backgroundTiles[index].setSize(cellsize, cellsize);
-                    backgroundTiles[index].setAlignment(Align.center);
-                    backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    backgroundTiles[index].setName(text + "");
-                    //backgroundTiles[index].setText(text + "");
-                    panel.addActor(backgroundTiles[index]);
                 }
             }
         } else {
@@ -698,12 +709,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         if (inverted) {
             for (int row = 0; row < rows; row++) {
-                for (int col = 7; col >= 0; col--) {
+                for (int col = 0; col < 8; col++) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
+                    if (isPossibleSquare(row,col)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
                             pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
