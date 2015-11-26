@@ -341,7 +341,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         if (inverted) {
 
             for (int row = 0; row < rows; row++) {
-                for (int col = 0; col < 8; col++) {
+                for (int col = 0; col < cols; col++) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
