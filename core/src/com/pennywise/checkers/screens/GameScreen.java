@@ -68,7 +68,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Tile fromTile;
     private Tile toTile;
 
-    private boolean gameOver = false;
+    private boolean gameOver = false, incomplete = false;
     String strTime = "";
     int count = 0;
 
@@ -79,7 +79,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
-    int toMove;
+    int toMove, to;
     int level = Constants.EASY;
 
     int[][] board = new int[8][8];
@@ -147,10 +147,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
         hudCam.update();
 
-
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+
+
+    }
+
+
+    @Override
+    public void show() {
+
 
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
@@ -162,14 +169,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         batch = new SpriteBatch();
 
-        newGame();
+        initGame();
+
     }
 
-
-    @Override
-    public void show() {
+    protected void initGame() {
         level();
         setupScreen();
+        newGame();
     }
 
     private final Vector2 stageCoords = new Vector2();
@@ -203,6 +210,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
+            if(incomplete) {
+                Gdx.app.log("FFF", "INCOMPLETE");
+                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
+
+                if(actor.getName().equals(toTile.getName())){
+                    Gdx.app.log("Tiles", "SAME TILE TERMINATE");
+                    actor  = null;
+                }
+            }
+
             if (actor2 != null && actor2 instanceof Piece) {
                 humanPiece = (Piece) actor2;
                 if (humanPiece.getPlayer() == humanPlayer) {
@@ -218,8 +235,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     humanPiece = null;
             } else {
 
-                if (humanPiece != null) {
+                if (humanPiece != null && actor != null) {
                     if (actor instanceof Tile) {
+
                         toTile = ((Tile) actor);
 
                         if (toTile.getCellEntry() == Checker.REDNORMAL) {
@@ -419,20 +437,23 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         float posX = toTile.getX() + (toTile.getWidth() / 2);
         float posY = toTile.getY() + (toTile.getHeight() / 2);
 
+
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
         moveAction.setDuration(0.5f);
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                humanPiece.toBack();
-                humanPiece.setSelected(false);
-                if (isKingTile(toTile, humanPiece.getPlayer()) &&
-                        !humanPiece.isKing()) {
-                    crownPiece(humanPiece);
+                if(!incomplete) {
+                    humanPiece.toBack();
+                    humanPiece.setSelected(false);
+                    if (isKingTile(toTile, humanPiece.getPlayer()) &&
+                            !humanPiece.isKing()) {
+                        crownPiece(humanPiece);
+                    }
+                    isBusy = false;
+                    opponentMove = true;
                 }
-                isBusy = false;
-                opponentMove = true;
             }
         })));
     }
@@ -537,12 +558,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         isBusy = true;
 
         int from = Integer.parseInt(fromTile.getName());
-        int to = Integer.parseInt(toTile.getName());
+        int dst = Integer.parseInt(toTile.getName());
 
-        Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + to);
+        Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + dst);
 
         Coord src = Util.toCoord(from);
-        Coord dest = Util.toCoord(to);
+        Coord dest = Util.toCoord(dst);
+
+        if(incomplete && (dst ==  to)) {
+            Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
+            to = 0;
+            return;
+        }
 
         int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
 
@@ -555,11 +582,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 break;
             case Checker.LEGALMOVE:
                 humanPiece.setName(toTile.getName());
+                incomplete = false;
                 move();
                 break;
             case Checker.INCOMLETEMOVE:
                 move();
                 fromTile = toTile;
+                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
+                incomplete = true;
+                to = dst;
                 isBusy = false;
                 break;
         }
@@ -905,19 +936,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public void gameOver(String text) {
 
         new GameDialog(text + " WIN!") // this is the dialog title
-                .content("Easy", new InputListener() { // button to exit app
+                .text("Start new game?")
+                .button("Yes", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.exit();
                         return false;
                     }
                 })
-                .content("Normal", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.exit();
-                        return false;
-                    }
-                })
-                .content("Hard", new InputListener() { // button to exit app
+                .button("No", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.exit();
                         return false;
