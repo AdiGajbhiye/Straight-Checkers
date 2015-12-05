@@ -378,7 +378,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             backgroundTiles[index].setAlignment(Align.center);
                             backgroundTiles[index].setPosition(position[index].x, position[index].y);
                             backgroundTiles[index].setName(text + "");
-                            //backgroundTiles[index].setText(text + "");
                             panel.addActor(backgroundTiles[index]);
                         }
                         //} else {
@@ -392,7 +391,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                             backgroundTiles[index].setAlignment(Align.center);
                             backgroundTiles[index].setPosition(position[index].x, position[index].y);
                             backgroundTiles[index].setName(text + "");
-                            //backgroundTiles[index].setText(text + "");
                             panel.addActor(backgroundTiles[index]);
                         }
                     }
@@ -421,7 +419,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                     backgroundTiles[index].setSize(cellsize, cellsize);
                     backgroundTiles[index].setAlignment(Align.center);
                     backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    //backgroundTiles[index].setText(text + "");
                     backgroundTiles[index].setName(text + "");
                     panel.addActor(backgroundTiles[index]);
                 }
