@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -57,7 +58,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
-    private Button pause;
+    private ImageButton resetGame,undoMove;
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
@@ -136,6 +137,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public GameScreen(Checkers game) {
         super(game);
 
+        game.getAdController().showBannerAd();
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
@@ -265,7 +267,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialogStage.draw();
 
         renderHud(batch, delta);
-        renderFPS(batch);
+        //renderFPS(batch);
 
         removeCapturedPieces();
     }
@@ -304,7 +306,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        //stack.add(backGround());
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
@@ -321,8 +322,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Table hud() {
         Table layer = new Table();
         layer.top();
-        pauseButton = new Image(Assets.img_btn_pause);
-        layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
+        layer.right();
+        //layer.debugTable();
+        resetGame = new ImageButton(Assets.img_btn_pause);
+        undoMove = new ImageButton(Assets.img_btn_pause);
+        layer.add(undoMove).height(80).width(80).top().right().padRight(5).padTop(10);
+        layer.add(resetGame).height(80).width(80).top().right().padRight(10).padTop(10);
         return layer;
     }
 
@@ -860,7 +865,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void renderHud(SpriteBatch batch, float gameTime) {
 
-        float y = Constants.GAME_HEIGHT * 0.95f;
+        float y = Constants.GAME_HEIGHT * 0.93f;
 
         float minutes = (float) Math.floor(gameTime / 60.0f);
         float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
