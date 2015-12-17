@@ -6,42 +6,42 @@ filter: Nearest,Nearest
 repeat: none
 beige_plain
   rotate: false
-  xy: 937, 338
+  xy: 259, 249
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 beige_tile
   rotate: false
-  xy: 552, 58
+  xy: 614, 273
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
-blackKing
+blackking
   rotate: false
-  xy: 550, 344
+  xy: 2, 10
   size: 144, 144
   orig: 144, 144
   offset: 0, 0
   index: -1
 blackpawn
   rotate: false
-  xy: 550, 198
+  xy: 358, 366
   size: 144, 144
   orig: 144, 144
   offset: 0, 0
   index: -1
 brown_tile
   rotate: false
-  xy: 602, 108
+  xy: 657, 273
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 button-blue
   rotate: false
-  xy: 301, 6
+  xy: 259, 102
   size: 49, 45
   split: 21, 26, 22, 21
   orig: 49, 45
@@ -49,7 +49,7 @@ button-blue
   index: -1
 button-bluedown
   rotate: false
-  xy: 388, 115
+  xy: 148, 75
   size: 49, 49
   split: 16, 32, 21, 27
   orig: 49, 49
@@ -57,7 +57,7 @@ button-bluedown
   index: -1
 button-green
   rotate: false
-  xy: 944, 439
+  xy: 148, 24
   size: 49, 49
   split: 11, 37, 23, 24
   orig: 49, 49
@@ -65,7 +65,7 @@ button-green
   index: -1
 button-greendown
   rotate: false
-  xy: 937, 191
+  xy: 360, 269
   size: 49, 45
   split: 18, 30, 22, 22
   orig: 49, 45
@@ -73,7 +73,7 @@ button-greendown
   index: -1
 button-grey
   rotate: false
-  xy: 301, 53
+  xy: 199, 75
   size: 49, 49
   split: 12, 36, 18, 29
   orig: 49, 49
@@ -81,7 +81,7 @@ button-grey
   index: -1
 button-greydown
   rotate: false
-  xy: 550, 151
+  xy: 411, 269
   size: 49, 45
   split: 22, 26, 15, 28
   orig: 49, 45
@@ -89,7 +89,7 @@ button-greydown
   index: -1
 button-orange
   rotate: false
-  xy: 439, 115
+  xy: 199, 24
   size: 49, 49
   split: 18, 29, 31, 16
   orig: 49, 49
@@ -97,7 +97,7 @@ button-orange
   index: -1
 button-orangedown
   rotate: false
-  xy: 601, 151
+  xy: 462, 269
   size: 49, 45
   split: 24, 23, 22, 21
   orig: 49, 45
@@ -105,7 +105,7 @@ button-orangedown
   index: -1
 button-yellow
   rotate: false
-  xy: 944, 388
+  xy: 259, 299
   size: 49, 49
   split: 25, 23, 21, 26
   orig: 49, 49
@@ -113,7 +113,7 @@ button-yellow
   index: -1
 button-yellowdown
   rotate: false
-  xy: 652, 151
+  xy: 513, 269
   size: 49, 45
   split: 21, 26, 20, 23
   orig: 49, 45
@@ -121,112 +121,112 @@ button-yellowdown
   index: -1
 darkcell
   rotate: false
-  xy: 490, 116
+  xy: 259, 199
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 dotBlue
   rotate: false
-  xy: 995, 464
+  xy: 196, 324
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotGreen
   rotate: false
-  xy: 803, 172
+  xy: 760, 340
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotRed
   rotate: false
-  xy: 645, 125
+  xy: 222, 324
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotWhite
   rotate: false
-  xy: 995, 438
+  xy: 760, 314
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dotYellow
   rotate: false
-  xy: 671, 125
+  xy: 300, 76
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 lineDark03
   rotate: false
-  xy: 388, 328
+  xy: 2, 156
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark06
   rotate: false
-  xy: 388, 166
+  xy: 196, 350
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
   index: -1
 lineDark08
   rotate: false
-  xy: 937, 288
+  xy: 259, 149
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark12
   rotate: false
-  xy: 937, 238
+  xy: 310, 300
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark18
   rotate: false
-  xy: 352, 54
+  xy: 360, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 lineDark29
   rotate: false
-  xy: 352, 4
+  xy: 410, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 line_dark
   rotate: false
-  xy: 402, 65
+  xy: 460, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 litecell
   rotate: false
-  xy: 402, 15
+  xy: 510, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 2, 104
-  size: 384, 384
-  orig: 384, 384
+  xy: 2, 318
+  size: 192, 192
+  orig: 192, 192
   offset: 0, 0
   index: -1
 panel-beigeLight
   rotate: false
-  xy: 2, 2
+  xy: 796, 410
   size: 100, 100
   split: 40, 55, 57, 37
   orig: 100, 100
@@ -234,14 +234,14 @@ panel-beigeLight
   index: -1
 panelInset_beige
   rotate: false
-  xy: 842, 292
+  xy: 898, 314
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panelInset_beigeLight
   rotate: false
-  xy: 206, 8
+  xy: 164, 222
   size: 93, 94
   split: 70, 14, 40, 46
   orig: 93, 94
@@ -249,21 +249,21 @@ panelInset_beigeLight
   index: -1
 panelInset_brown
   rotate: false
-  xy: 842, 196
+  xy: 164, 126
   size: 93, 94
   orig: 93, 94
   offset: 0, 0
   index: -1
 panel_beige
   rotate: false
-  xy: 842, 388
+  xy: 898, 410
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
 panel_brown
   rotate: false
-  xy: 104, 2
+  xy: 796, 308
   size: 100, 100
   split: 79, 12, 44, 46
   orig: 100, 100
@@ -271,70 +271,70 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 452, 65
+  xy: 560, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 red_boxCheckmark
   rotate: false
-  xy: 552, 20
+  xy: 700, 278
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 selecteddarkcell
   rotate: false
-  xy: 452, 15
+  xy: 610, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 selectedlitecell
   rotate: false
-  xy: 502, 66
+  xy: 660, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 undo
   rotate: false
-  xy: 502, 16
+  xy: 710, 316
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 validCell
   rotate: false
-  xy: 703, 148
+  xy: 250, 52
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 validDarkCell
   rotate: false
-  xy: 753, 148
+  xy: 250, 2
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 whiteCell
   rotate: false
-  xy: 552, 101
+  xy: 564, 266
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 whiteking
   rotate: false
-  xy: 696, 344
+  xy: 504, 366
   size: 144, 144
   orig: 144, 144
   offset: 0, 0
   index: -1
 whitepawn
   rotate: false
-  xy: 696, 198
+  xy: 650, 366
   size: 144, 144
   orig: 144, 144
   offset: 0, 0

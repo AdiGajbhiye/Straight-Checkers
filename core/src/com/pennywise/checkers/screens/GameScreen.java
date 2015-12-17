@@ -58,7 +58,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
-    private ImageButton resetGame,undoMove;
+    private ImageButton pauseGame,undoMove;
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
@@ -71,9 +71,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private boolean gameOver = false, incomplete = false;
     String strTime = "";
-    int count = 0;
 
-    private Image pauseButton;
     private Checker engine;
     private long startTime = 0;
     private boolean timer = false;
@@ -152,8 +150,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
-
-
     }
 
 
@@ -183,9 +179,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Vector2 stageCoords = new Vector2();
 
-    private int getRow(int index, int boardCol) {
-        return (int) Math.floor((((index - 2) - boardCol) / boardCol));
-    }
 
     @Override
     public void render(float delta) {
@@ -324,10 +317,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         layer.top();
         layer.right();
         //layer.debugTable();
-        resetGame = new ImageButton(Assets.img_btn_pause);
-        undoMove = new ImageButton(Assets.img_btn_pause);
+        pauseGame = new ImageButton(Assets.img_btn_pause);
+        undoMove = new ImageButton(Assets.img_undo);
         layer.add(undoMove).height(80).width(80).top().right().padRight(5).padTop(10);
-        layer.add(resetGame).height(80).width(80).top().right().padRight(10).padTop(10);
+        layer.add(pauseGame).height(80).width(80).top().right().padRight(10).padTop(10);
         return layer;
     }
 
@@ -761,7 +754,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                         if (pieces[index] == null)
                             continue;
-                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setSize((cellsize - 2), (cellsize - 2));
                         pieces[index].setPosition(position[index].x, position[index].y);
                         pieces[index].setName(text + "");
                         board.addActor(pieces[index]);
@@ -786,7 +779,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         if (pieces[index] == null)
                             continue;
 
-                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setSize((cellsize - 2), (cellsize - 2));
                         pieces[index].setPosition(position[index].x, position[index].y);
                         pieces[index].setName(text + "");
                         board.addActor(pieces[index]);
@@ -865,7 +858,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private void renderHud(SpriteBatch batch, float gameTime) {
 
-        float y = Constants.GAME_HEIGHT * 0.93f;
+        float y = Constants.GAME_HEIGHT * 0.95f;
 
         float minutes = (float) Math.floor(gameTime / 60.0f);
         float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
