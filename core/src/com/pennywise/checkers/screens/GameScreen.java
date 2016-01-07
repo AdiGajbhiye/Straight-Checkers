@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -36,6 +35,8 @@ import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
+import com.pennywise.managers.GameManager;
+import com.pennywise.managers.NetworkListener;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -46,7 +47,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
  */
-public class GameScreen extends AbstractScreen implements InputProcessor {
+public class GameScreen extends AbstractScreen implements InputProcessor, NetworkListener {
 
 
     private final Stage stage;
@@ -58,7 +59,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
-    private ImageButton pauseGame,undoMove;
+    private ImageButton pauseGame, undoMove;
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
@@ -90,6 +91,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     int preToMove3;
     private int undoCount = 0;
     private GameDialog gameDialog;
+    private GameManager manager;
 
     public void newGame() {                            //creates a new game
 
@@ -135,7 +137,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public GameScreen(Checkers game) {
         super(game);
 
-        game.getAdController().showBannerAd();
+        manager = game.getGameManager();
+        manager.receiver(this);
+        manager.showBannerAd();
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
@@ -205,13 +209,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-            if(incomplete) {
+            if (incomplete) {
                 Gdx.app.log("FFF", "INCOMPLETE");
                 Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
 
-                if(actor.getName().equals(toTile.getName())){
+                if (actor.getName().equals(toTile.getName())) {
                     Gdx.app.log("Tiles", "SAME TILE TERMINATE");
-                    actor  = null;
+                    actor = null;
                 }
             }
 
@@ -439,7 +443,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                if(!incomplete) {
+                if (!incomplete) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
                     if (isKingTile(toTile, humanPiece.getPlayer()) &&
@@ -560,7 +564,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Coord src = Util.toCoord(from);
         Coord dest = Util.toCoord(dst);
 
-        if(incomplete && (dst ==  to)) {
+        if (incomplete && (dst == to)) {
             Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
             to = 0;
             return;
@@ -923,6 +927,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         startGame(Constants.HARD);
                         return true;
                     }
+                })
+                .content("vs Human", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        startGame(Constants.HARD);
+                        return true;
+                    }
                 });
 
         gameDialog.show(dialogStage); // actually show the dialog
@@ -931,7 +941,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public void gameOver(String text) {
 
         new GameDialog(text + " WIN!") // this is the dialog title
-                .text("Start new game?")
+                .text("LAN Game")
                 .button("Yes", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.exit();
@@ -966,4 +976,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                 .show(dialogStage); // actually show the dialog
     }
 
+    @Override
+    public void onReceive(String msg) {
+
+    }
 }

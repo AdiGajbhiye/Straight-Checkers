@@ -2,13 +2,14 @@ package com.pennywise;
 
 import com.badlogic.gdx.Game;
 import com.pennywise.checkers.screens.GameScreen;
+import com.pennywise.managers.GameManager;
 
 public class Checkers extends Game {
 
-    private AdsController mController;
+    private GameManager mManager;
 
-    public Checkers(AdsController controller) {
-        this.mController = controller;
+    public Checkers(GameManager manager) {
+        this.mManager = manager;
     }
 
     @Override
@@ -17,8 +18,8 @@ public class Checkers extends Game {
         setScreen(new GameScreen(this));
     }
 
-    public AdsController getAdController() {
-        return mController;
+    public GameManager getGameManager() {
+        return mManager;
     }
 
 }

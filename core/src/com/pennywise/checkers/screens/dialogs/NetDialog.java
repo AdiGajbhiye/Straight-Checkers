@@ -3,18 +3,16 @@ package com.pennywise.checkers.screens.dialogs;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.pennywise.Assets;
 import com.pennywise.checkers.core.Constants;
 
 /**
- * Created by CHOXXY on 11/26/2015.
+ * Created by Joshua.Nabongo on 1/7/2016.
  */
-public class GameDialog extends Dialog {
+public class NetDialog extends Dialog {
 
-    public GameDialog(String title) {
+    public NetDialog(String title) {
         super(title, Assets.getSkin());
         initialize();
     }
@@ -24,12 +22,14 @@ public class GameDialog extends Dialog {
         setModal(true);
         setMovable(false);
         setResizable(false);
+
         getContentTable().defaults().expandX();
+        //getContentTable().debugAll();
     }
 
 
     @Override
-    public GameDialog text(String text) {
+    public NetDialog text(String text) {
         super.text(new Label(text, Assets.getSkin()));
         return this;
     }
@@ -50,6 +50,7 @@ public class GameDialog extends Dialog {
      * @param listener the input listener that will be attached to the button.
      */
     public GameDialog content(String buttonText, InputListener listener) {
+
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
         getContentTable().add(button).height(60).fill().left().top().center();
@@ -68,6 +69,4 @@ public class GameDialog extends Dialog {
         // force dialog height
         return (Constants.GAME_HEIGHT * 0.50f);
     }
-
-
 }

@@ -7,5 +7,6 @@
     <string name="gamehelper_license_failed">License check failed.</string>
     <string name="gamehelper_unknown_error">Unknown error.</string>
     <string name="adUnitId">ca-app-pub-6424626033677167/2644906935</string>
+    <string name="wireless_off">Wireless is off, turn it on and try again.</string>
 
 </resources>
