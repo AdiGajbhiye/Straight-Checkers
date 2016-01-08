@@ -980,4 +980,24 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     public void onReceive(String msg) {
 
     }
+
+    @Override
+    public void onConnect() {
+
+    }
+
+    @Override
+    public void onDisconnect() {
+
+    }
+
+    @Override
+    public void onDiscovery() {
+
+    }
+
+    @Override
+    public void discovering() {
+
+    }
 }

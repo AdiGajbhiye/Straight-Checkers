@@ -18,5 +18,9 @@ public interface GameManager {
 
     public void receiver(NetworkListener receiver);
 
+    public void startClient();
+
+    public void startServer();
+
 
 }

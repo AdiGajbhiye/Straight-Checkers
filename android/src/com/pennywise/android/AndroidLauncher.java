@@ -1,17 +1,15 @@
 package com.pennywise.android;
 
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.IntentFilter;
-import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,12 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AndroidLauncher extends AndroidApplication implements GameManager,
-        WifiP2pManager.ChannelListener, DeviceActionListener, PeerListListener {
+        WifiP2pManager.ChannelListener, DeviceActionListener {
 
     protected AdView adView;
 
     private final int SHOW_ADS = 1;
     private final int HIDE_ADS = 0;
+    protected static final int PORT = 32300;
 
     public static final String TAG = "wifidirectdemo";
     private WifiP2pManager manager;
@@ -47,15 +46,19 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
 
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager.Channel channel;
-    private BroadcastReceiver receiver = null;
-
     private NetworkListener networkListener;
 
     private List<WifiP2pDevice> peerList = new ArrayList<WifiP2pDevice>();
-    ProgressDialog progressDialog = null;
-    View mContentView = null;
-    private WifiP2pDevice device;
-
+    private WifiP2pDevice targetDevice;
+    private Handler mUpdateHandler;
+    private WifiP2pInfo wifiInfo;
+    private boolean serverThreadActive = false;
+    private ServerService serverService;
+    private ClientService clientService;
+    private WiFiClientBroadcastReceiver clientReceiver;
+    private WiFiServerBroadcastReceiver serverReceiver;
+    private boolean connectedAndReadyToSendFile;
+    private boolean clientThreadActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,21 +99,14 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
 
+        clientReceiver = new WiFiClientBroadcastReceiver(manager, channel, this);
 
-    }
-
-    public void onInitiateDiscovery() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-        progressDialog = ProgressDialog.show(this, "Press back to cancel", "finding peers", true,
-                true, new DialogInterface.OnCancelListener() {
-
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-
-                    }
-                });
+        mUpdateHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                String chatLine = msg.getData().getString("msg");
+            }
+        };
     }
 
     public void discover(String gameName) {
@@ -120,7 +116,7 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        onInitiateDiscovery();
+
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
 
             @Override
@@ -173,28 +169,17 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
 
     @Override
     public void advertise() {
-        if (mConnection.getLocalPort() > -1) {
-            mNsdHelper.registerService(mConnection.getLocalPort());
-        } else {
-            Log.d(TAG, "ServerSocket isn't bound.");
-        }
+
     }
 
     @Override
     public void discover() {
-        mNsdHelper.discoverServices();
+
     }
 
     @Override
     public void connect() {
-        NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
-        if (service != null) {
-            Log.d(TAG, "Connecting.");
-            mConnection.connectToServer(service.getHost(),
-                    service.getPort());
-        } else {
-            Log.d(TAG, "No service to connect to!");
-        }
+
     }
 
     @Override
@@ -203,21 +188,47 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
     }
 
     @Override
-    public void receiver(NetworkListener receiver) {
-        this.receiver = receiver;
+    public void receiver(NetworkListener listener) {
+        this.networkListener = listener;
+    }
+
+    @Override
+    public void startClient() {
+
+        if (!clientThreadActive) {
+            clientReceiver = new WiFiClientBroadcastReceiver(manager, channel, this);
+            registerReceiver(clientReceiver, intentFilter);
+            //Create new thread, open socket, wait for connection, and transfer file
+            clientService = new ClientService(mUpdateHandler);
+            clientService.connectToServer(wifiInfo.groupOwnerAddress, PORT);
+            clientThreadActive = true;
+        }
+    }
+
+    @Override
+    public void startServer() {
+        //If server is already listening on port or transfering data, do not attempt to start server service
+        if (!serverThreadActive) {
+            serverReceiver = new WiFiServerBroadcastReceiver(manager, channel, this);
+            registerReceiver(serverReceiver, intentFilter);
+            //Create new thread, open socket, wait for connection, and transfer file
+            serverService = new ServerService(mUpdateHandler, PORT);
+            serverThreadActive = true;
+        }
+    }
+
+    public void stopServer(View view) {
+        serverService.tearDown();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
-        registerReceiver(receiver, intentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
     }
 
     /**
@@ -282,6 +293,11 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
     }
 
     @Override
+    public void showDetails(WifiP2pDevice device) {
+
+    }
+
+    @Override
     public void cancelDisconnect() {
 
         if (manager != null) {
@@ -329,11 +345,7 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
         }
     }
 
-    @Override
-    public void onPeersAvailable(WifiP2pDeviceList peers) {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
+    public void displayPeers(WifiP2pDeviceList peers) {
         peerList.clear();
         peerList.addAll(peers.getDeviceList());
         if (peerList.size() == 0) {
@@ -342,10 +354,51 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
     }
 
     public WifiP2pDevice getDevice() {
-        return device;
+        return targetDevice;
     }
 
     public void setDevice(WifiP2pDevice device) {
-        this.device = device;
+        this.targetDevice = device;
     }
+
+    public void setTransferStatus(boolean status) {
+        connectedAndReadyToSendFile = status;
+    }
+
+    public void setNetworkToReadyState(boolean status, WifiP2pInfo info, WifiP2pDevice device) {
+        wifiInfo = info;
+        targetDevice = device;
+        connectedAndReadyToSendFile = status;
+    }
+
+    private void stopClient() {
+        try {
+            clientService.tearDown();
+        } catch (IllegalArgumentException e) {
+            //This will happen if the server was never running and the stop button was pressed.
+            //Do nothing in this case.
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (clientReceiver != null)
+            unregisterReceiver(clientReceiver);
+        if (serverReceiver != null)
+            unregisterReceiver(serverReceiver);
+
+        stopClient();
+        stopServer(null);
+
+    }
+
+    public void setServerWifiStatus(String s) {
+    }
+
+    public void setServerStatus(String s) {
+    }
+
+
 }
