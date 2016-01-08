@@ -55,8 +55,8 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
     private boolean serverThreadActive = false;
     private ServerService serverService;
     private ClientService clientService;
-    private WiFiClientBroadcastReceiver clientReceiver;
-    private WiFiServerBroadcastReceiver serverReceiver;
+    private WiFiClientBroadcastReceiver clientReceiver = null;
+    private WiFiServerBroadcastReceiver serverReceiver = null;
     private boolean connectedAndReadyToSendFile;
     private boolean clientThreadActive = false;
 
@@ -98,8 +98,6 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
 
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
-
-        clientReceiver = new WiFiClientBroadcastReceiver(manager, channel, this);
 
         mUpdateHandler = new Handler() {
             @Override
@@ -150,7 +148,7 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
             public void run() {
                 adView.setVisibility(View.VISIBLE);
                 AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-                adRequestBuilder.addTestDevice("85253FE6D4C2A3DEBA982785D93C3ABF");
+                adRequestBuilder.addTestDevice("A171181E4E254A38F6E617040D216CC8");
                 adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
                 adView.loadAd(adRequestBuilder.build());
             }
@@ -384,13 +382,15 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
     protected void onDestroy() {
         super.onDestroy();
 
-        if (clientReceiver != null)
+        if (clientReceiver != null) {
             unregisterReceiver(clientReceiver);
-        if (serverReceiver != null)
+            stopClient();
+        }
+        if (serverReceiver != null) {
             unregisterReceiver(serverReceiver);
+            stopServer(null);
+        }
 
-        stopClient();
-        stopServer(null);
 
     }
 

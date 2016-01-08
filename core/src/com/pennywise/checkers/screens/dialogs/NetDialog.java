@@ -36,9 +36,10 @@ public class NetDialog extends Dialog {
 
     /**
      * Adds a text button to the button table.
+     *
      * @param listener the input listener that will be attached to the button.
      */
-    public GameDialog button(String buttonText, InputListener listener) {
+    public NetDialog button(String buttonText, InputListener listener) {
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
         button(button);
@@ -47,9 +48,10 @@ public class NetDialog extends Dialog {
 
     /**
      * Adds a text button to the button table.
+     *
      * @param listener the input listener that will be attached to the button.
      */
-    public GameDialog content(String buttonText, InputListener listener) {
+    public NetDialog content(String buttonText, InputListener listener) {
 
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);

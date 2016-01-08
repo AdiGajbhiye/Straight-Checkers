@@ -22,6 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
@@ -928,9 +930,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                         return true;
                     }
                 })
-                .content("vs Human", new InputListener() { // button to exit app
+                .content("2 Player", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        startGame(Constants.HARD);
+                        network();
                         return true;
                     }
                 });
@@ -941,7 +943,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     public void gameOver(String text) {
 
         new GameDialog(text + " WIN!") // this is the dialog title
-                .text("LAN Game")
+                .text("Game Over")
                 .button("Yes", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.exit();
@@ -961,17 +963,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
         new GameDialog("LAN Game") // this is the dialog title
                 .text("Your wifi needs to be on to play LAN game.")
-                .content("Host Game", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.exit();
-                        return false;
+                .selectBox("Connect to host", new ChangeListener() {
+                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                        //System.out.println(selectBox.getSelected());
                     }
                 })
-                .content("Connect to host", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.exit();
-                        return false;
-                    }
+                .list("", new ClickListener() {
+                    
                 })
                 .show(dialogStage); // actually show the dialog
     }
