@@ -3,20 +3,16 @@ package com.pennywise.checkers.screens.dialogs;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.pennywise.Assets;
 import com.pennywise.checkers.core.Constants;
 
 /**
- * Created by CHOXXY on 11/26/2015.
+ * Created by Joshua.Nabongo on 1/7/2016.
  */
-public class GameDialog extends Dialog {
+public class NetDialog extends Dialog {
 
-    public GameDialog(String title) {
+    public NetDialog(String title) {
         super(title, Assets.getSkin());
         initialize();
     }
@@ -26,12 +22,14 @@ public class GameDialog extends Dialog {
         setModal(true);
         setMovable(false);
         setResizable(false);
+
         getContentTable().defaults().expandX();
+        //getContentTable().debugAll();
     }
 
 
     @Override
-    public GameDialog text(String text) {
+    public NetDialog text(String text) {
         super.text(new Label(text, Assets.getSkin()));
         return this;
     }
@@ -41,7 +39,7 @@ public class GameDialog extends Dialog {
      *
      * @param listener the input listener that will be attached to the button.
      */
-    public GameDialog button(String buttonText, InputListener listener) {
+    public NetDialog button(String buttonText, InputListener listener) {
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
         button(button);
@@ -53,34 +51,11 @@ public class GameDialog extends Dialog {
      *
      * @param listener the input listener that will be attached to the button.
      */
-    public GameDialog content(String buttonText, InputListener listener) {
+    public NetDialog content(String buttonText, InputListener listener) {
+
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
         getContentTable().add(button).height(60).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
-
-    public GameDialog selectBox(String buttonText, ChangeListener listener) {
-        getContentTable().row();
-        SelectBox selectBox = new SelectBox(Assets.getSkin());
-        selectBox.addListener(listener);
-        selectBox.setItems("Host Game", "Connect to host");
-        getContentTable().add(selectBox).height(60).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
-
-    public GameDialog list(String buttonText, ClickListener listener) {
-
-        Object[] listEntries = {"This is a list entry1", "And another one1", "The meaning of life1"};
-
-        List list = new List(Assets.getSkin());
-        list.setItems(listEntries);
-        list.getSelection().setMultiple(false);
-        list.getSelection().setRequired(false);
-        list.addListener(listener);
-        getContentTable().add(list).height(90).fill().left().top().center();
         getContentTable().row();
         return this;
     }
@@ -96,6 +71,4 @@ public class GameDialog extends Dialog {
         // force dialog height
         return (Constants.GAME_HEIGHT * 0.50f);
     }
-
-
 }

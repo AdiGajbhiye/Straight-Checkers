@@ -17,11 +17,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
@@ -35,6 +37,8 @@ import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
+import com.pennywise.managers.GameManager;
+import com.pennywise.managers.NetworkListener;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -45,7 +49,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
  */
-public class GameScreen extends AbstractScreen implements InputProcessor {
+public class GameScreen extends AbstractScreen implements InputProcessor, NetworkListener {
 
 
     private final Stage stage;
@@ -57,7 +61,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     SpriteBatch batch;
     private float cellsize = 0;
     private float gridHeight = 0;
-    private Button pause;
+    private ImageButton pauseGame, undoMove;
     private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
@@ -70,9 +74,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private boolean gameOver = false, incomplete = false;
     String strTime = "";
-    int count = 0;
 
-    private Image pauseButton;
     private Checker engine;
     private long startTime = 0;
     private boolean timer = false;
@@ -91,6 +93,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     int preToMove3;
     private int undoCount = 0;
     private GameDialog gameDialog;
+    private GameManager manager;
 
     public void newGame() {                            //creates a new game
 
@@ -136,6 +139,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public GameScreen(Checkers game) {
         super(game);
 
+        manager = game.getGameManager();
+        manager.receiver(this);
+        manager.showBannerAd();
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
@@ -150,8 +156,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
-
-
     }
 
 
@@ -181,9 +185,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     private final Vector2 stageCoords = new Vector2();
 
-    private int getRow(int index, int boardCol) {
-        return (int) Math.floor((((index - 2) - boardCol) / boardCol));
-    }
 
     @Override
     public void render(float delta) {
@@ -210,13 +211,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
             Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-            if(incomplete) {
+            if (incomplete) {
                 Gdx.app.log("FFF", "INCOMPLETE");
                 Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
 
-                if(actor.getName().equals(toTile.getName())){
+                if (actor.getName().equals(toTile.getName())) {
                     Gdx.app.log("Tiles", "SAME TILE TERMINATE");
-                    actor  = null;
+                    actor = null;
                 }
             }
 
@@ -265,7 +266,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialogStage.draw();
 
         renderHud(batch, delta);
-        renderFPS(batch);
+        //renderFPS(batch);
 
         removeCapturedPieces();
     }
@@ -304,7 +305,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        //stack.add(backGround());
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
@@ -321,8 +321,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     private Table hud() {
         Table layer = new Table();
         layer.top();
-        pauseButton = new Image(Assets.img_btn_pause);
-        layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
+        layer.right();
+        //layer.debugTable();
+        pauseGame = new ImageButton(Assets.img_btn_pause);
+        undoMove = new ImageButton(Assets.img_undo);
+        layer.add(undoMove).height(80).width(80).top().right().padRight(5).padTop(10);
+        layer.add(pauseGame).height(80).width(80).top().right().padRight(10).padTop(10);
         return layer;
     }
 
@@ -441,7 +445,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                if(!incomplete) {
+                if (!incomplete) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
                     if (isKingTile(toTile, humanPiece.getPlayer()) &&
@@ -562,7 +566,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         Coord src = Util.toCoord(from);
         Coord dest = Util.toCoord(dst);
 
-        if(incomplete && (dst ==  to)) {
+        if (incomplete && (dst == to)) {
             Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
             to = 0;
             return;
@@ -756,7 +760,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
                         if (pieces[index] == null)
                             continue;
-                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setSize((cellsize - 2), (cellsize - 2));
                         pieces[index].setPosition(position[index].x, position[index].y);
                         pieces[index].setName(text + "");
                         board.addActor(pieces[index]);
@@ -781,7 +785,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         if (pieces[index] == null)
                             continue;
 
-                        pieces[index].setSize(cellsize, cellsize);
+                        pieces[index].setSize((cellsize - 2), (cellsize - 2));
                         pieces[index].setPosition(position[index].x, position[index].y);
                         pieces[index].setName(text + "");
                         board.addActor(pieces[index]);
@@ -925,6 +929,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
                         startGame(Constants.HARD);
                         return true;
                     }
+                })
+                .content("2 Player", new InputListener() { // button to exit app
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        network();
+                        return true;
+                    }
                 });
 
         gameDialog.show(dialogStage); // actually show the dialog
@@ -933,7 +943,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
     public void gameOver(String text) {
 
         new GameDialog(text + " WIN!") // this is the dialog title
-                .text("Start new game?")
+                .text("Game Over")
                 .button("Yes", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.exit();
@@ -953,19 +963,39 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         new GameDialog("LAN Game") // this is the dialog title
                 .text("Your wifi needs to be on to play LAN game.")
-                .content("Host Game", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.exit();
-                        return false;
+                .selectBox("Connect to host", new ChangeListener() {
+                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                        //System.out.println(selectBox.getSelected());
                     }
                 })
-                .content("Connect to host", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.exit();
-                        return false;
-                    }
+                .list("", new ClickListener() {
+                    
                 })
                 .show(dialogStage); // actually show the dialog
     }
 
+    @Override
+    public void onReceive(String msg) {
+
+    }
+
+    @Override
+    public void onConnect() {
+
+    }
+
+    @Override
+    public void onDisconnect() {
+
+    }
+
+    @Override
+    public void onDiscovery() {
+
+    }
+
+    @Override
+    public void discovering() {
+
+    }
 }

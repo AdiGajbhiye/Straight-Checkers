@@ -26,17 +26,13 @@ public class Assets {
     public static BitmapFont font;
 
     //
-    public static SpriteDrawable img_bg_1;
-    public static SpriteDrawable img_obj_btn_play;
-    public static SpriteDrawable img_obj_btn_scores;
-    public static SpriteDrawable img_obj_btn_settings;
-    public static SpriteDrawable img_obj_circle;
     public static SpriteDrawable img_cell_dark;
     public static SpriteDrawable img_cell_light;
     public static SpriteDrawable img_pawn_white;
     public static SpriteDrawable img_king_white;
     public static SpriteDrawable img_pawn_black;
     public static SpriteDrawable img_king_black;
+    public static SpriteDrawable img_undo;
     public static NinePatch img_background;
     public static NinePatch img_board_bg;
     public static SpriteDrawable img_selected_cell_dark;
@@ -95,6 +91,7 @@ public class Assets {
         img_king_black = getDrawable("blackking");
         img_king_white = getDrawable("whiteking");
         img_dark_outline = getDrawable("line_dark");
+        img_undo = getDrawable("undo");
 
     }
 
