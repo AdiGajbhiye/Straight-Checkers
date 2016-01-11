@@ -37,6 +37,7 @@ import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
+import com.pennywise.checkers.screens.dialogs.NetDialog;
 import com.pennywise.managers.GameManager;
 import com.pennywise.managers.NetworkListener;
 
@@ -961,17 +962,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     public void network() {
 
-        new GameDialog("LAN Game") // this is the dialog title
-                .text("Your wifi needs to be on to play LAN game.")
-                .selectBox("Connect to host", new ChangeListener() {
-                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                        //System.out.println(selectBox.getSelected());
-                    }
-                })
-                .list("", new ClickListener() {
+        NetDialog netDialog = new NetDialog("LAN Game"); // this is the dialog title
+        netDialog.selectBox("Connect to host", new ChangeListener() {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                //System.out.println(selectBox.getSelected());
+            }
+        });
+        netDialog.list("", new ClickListener() {
 
-                })
-                .show(dialogStage); // actually show the dialog
+        });
+        netDialog.button("Join", new InputListener() {
+        });
+        netDialog.button("Cancel", new InputListener() {
+        });
+        netDialog.show(dialogStage); // actually show the dialog*/
     }
 
     @Override

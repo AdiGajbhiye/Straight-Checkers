@@ -23,10 +23,14 @@ public class GameDialog extends Dialog {
 
     private void initialize() {
         padTop(60); // set padding on top of the dialog title
+        padLeft(30);
+        padRight(30);
+        padBottom(30);
+
         setModal(true);
         setMovable(false);
         setResizable(false);
-        getContentTable().defaults().expandX();
+        getContentTable().defaults().expandX().pad(5);
     }
 
 
@@ -61,29 +65,7 @@ public class GameDialog extends Dialog {
         return this;
     }
 
-    public GameDialog selectBox(String buttonText, ChangeListener listener) {
-        getContentTable().row();
-        SelectBox selectBox = new SelectBox(Assets.getSkin());
-        selectBox.addListener(listener);
-        selectBox.setItems("Host Game", "Connect to host");
-        getContentTable().add(selectBox).height(60).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
 
-    public GameDialog list(String buttonText, ClickListener listener) {
-
-        Object[] listEntries = {"This is a list entry1", "And another one1", "The meaning of life1"};
-
-        List list = new List(Assets.getSkin());
-        list.setItems(listEntries);
-        list.getSelection().setMultiple(false);
-        list.getSelection().setRequired(false);
-        list.addListener(listener);
-        getContentTable().add(list).height(90).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
 
     @Override
     public float getPrefWidth() {
@@ -94,7 +76,7 @@ public class GameDialog extends Dialog {
     @Override
     public float getPrefHeight() {
         // force dialog height
-        return (Constants.GAME_HEIGHT * 0.50f);
+        return (Constants.GAME_HEIGHT * 0.65f);
     }
 
 
