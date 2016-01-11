@@ -23,10 +23,12 @@ public class GameDialog extends Dialog {
 
     private void initialize() {
         padTop(60); // set padding on top of the dialog title
+        padLeft(60);
+        padRight(60);
         setModal(true);
         setMovable(false);
         setResizable(false);
-        getContentTable().defaults().expandX();
+
     }
 
 
@@ -56,45 +58,23 @@ public class GameDialog extends Dialog {
     public GameDialog content(String buttonText, InputListener listener) {
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
-        getContentTable().add(button).height(60).fill().left().top().center();
+        getContentTable().add(button).height(60).fill().top().expandX().right();
         getContentTable().row();
         return this;
     }
 
-    public GameDialog selectBox(String buttonText, ChangeListener listener) {
-        getContentTable().row();
-        SelectBox selectBox = new SelectBox(Assets.getSkin());
-        selectBox.addListener(listener);
-        selectBox.setItems("Host Game", "Connect to host");
-        getContentTable().add(selectBox).height(60).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
 
-    public GameDialog list(String buttonText, ClickListener listener) {
-
-        Object[] listEntries = {"This is a list entry1", "And another one1", "The meaning of life1"};
-
-        List list = new List(Assets.getSkin());
-        list.setItems(listEntries);
-        list.getSelection().setMultiple(false);
-        list.getSelection().setRequired(false);
-        list.addListener(listener);
-        getContentTable().add(list).height(90).fill().left().top().center();
-        getContentTable().row();
-        return this;
-    }
 
     @Override
     public float getPrefWidth() {
         // force dialog width
-        return (Constants.GAME_WIDTH * 0.85f);
+        return (Constants.GAME_WIDTH * 0.90f);
     }
 
     @Override
     public float getPrefHeight() {
         // force dialog height
-        return (Constants.GAME_HEIGHT * 0.50f);
+        return (Constants.GAME_HEIGHT * 0.60f);
     }
 
 

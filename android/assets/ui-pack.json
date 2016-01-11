@@ -27,24 +27,23 @@
       default: { up: button-blue, down: button-bluedown, checked: button-bluedown, disabled: button-greydown, font: normaltext, fontColor: white }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
-      default: { background: panel-beigeLight, titleFont: normaltext, titleFontColor: red }
+      dialog: {background: panel-beigeLight, titleFont: normaltext, titleFontColor: red },
+      default: {background: panel-beigeLight, titleFont: normaltext, titleFontColor: red }
     },
-<<<<<<< HEAD
     com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle:{
       default: {background: green_textfield,font: normaltext, fontColor: black}
-=======
-      com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
+    },
+    com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
        default: { vScroll: validCell, hScrollKnob: validCell, background: validCell, hScroll: validCell, vScrollKnob: validCell }
     },
     com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
       default: {
-        font: normaltext, fontColor: red, background: beige_plain,
+        font: normaltext, fontColor: red, background: select_box,
         scrollStyle: default,
         listStyle: { font: normaltext, selection: validCell }
       }
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
-      default: { fontColorUnselected: red, selection: validCell, fontColorSelected: white, font: normaltext }
->>>>>>> c9878da0ff904731ef3622fde457b96404c1b543
+      default: { background: panel-beigeLight, fontColorUnselected: red, selection: validCell, fontColorSelected: white, font: normaltext }
     }
 }

@@ -37,6 +37,7 @@ import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
+import com.pennywise.checkers.screens.dialogs.NetDialog;
 import com.pennywise.managers.GameManager;
 import com.pennywise.managers.NetworkListener;
 
@@ -903,7 +904,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     }
 
     public void startGame(int level) {
-        gameDialog.hide();
+        //gameDialog.hide();
         timer = true;
         startTime = System.nanoTime();
         this.level = level;
@@ -911,7 +912,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     public void level() {
 
-        gameDialog = new GameDialog("") // this is the dialog title
+        /*gameDialog = new GameDialog("") // this is the dialog title
                 .content("Easy", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         startGame(Constants.EASY);
@@ -937,7 +938,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                     }
                 });
 
-        gameDialog.show(dialogStage); // actually show the dialog
+        gameDialog.show(dialogStage); // actually show the dialog*/
     }
 
     public void gameOver(String text) {
@@ -960,17 +961,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     }
 
     public void network() {
-
-        new GameDialog("LAN Game") // this is the dialog title
-                .text("Your wifi needs to be on to play LAN game.")
+        new NetDialog("") // this is the dialog title
+                .title("2 Player Game")
                 .selectBox("Connect to host", new ChangeListener() {
                     public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                        //System.out.println(selectBox.getSelected());
+
                     }
                 })
                 .list("", new ClickListener() {
-                    
                 })
+                .button("Join Game")
                 .show(dialogStage); // actually show the dialog
     }
 
