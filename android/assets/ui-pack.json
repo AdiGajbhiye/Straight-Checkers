@@ -11,16 +11,16 @@
       black: { hex: "000000" }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
-      default: { font: normaltext, fontColor: white },
-      normal-text: { font: normaltext, fontColor: white },
-      title-text: { font: titletext, fontColor: red }
+      default: { font: normaltext, fontColor: black },
+      normal-text: { font: normaltext, fontColor: black },
+      title-text: { font: titletext, fontColor: black }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
       default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
       transparent: { }
     },
-    com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
-      default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
+    com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+      default: { checkboxOff: grey_box, checkboxOn: red_boxchecked, font: normaltext, fontColor: black },
       transparent: { }
     },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
@@ -29,6 +29,10 @@
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
       default: { background: panel-beigeLight, titleFont: normaltext, titleFontColor: red }
     },
+<<<<<<< HEAD
+    com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle:{
+      default: {background: green_textfield,font: normaltext, fontColor: black}
+=======
       com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
        default: { vScroll: validCell, hScrollKnob: validCell, background: validCell, hScroll: validCell, vScrollKnob: validCell }
     },
@@ -41,5 +45,6 @@
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
       default: { fontColorUnselected: red, selection: validCell, fontColorSelected: white, font: normaltext }
+>>>>>>> c9878da0ff904731ef3622fde457b96404c1b543
     }
 }
