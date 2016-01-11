@@ -19,31 +19,31 @@
       default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
       transparent: { }
     },
-    com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
-      default: { checkboxOff: grey_box, checkboxOn: red_boxchecked, font: normaltext, fontColor: black },
-      transparent: { }
-    },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
       default: { up: button-blue, down: button-bluedown, checked: button-bluedown, disabled: button-greydown, font: normaltext, fontColor: white }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
-      dialog: {background: panel-beigeLight, titleFont: normaltext, titleFontColor: red },
-      default: {background: panel-beigeLight, titleFont: normaltext, titleFontColor: red }
+      default: { background: panel-beigelight, titleFont: normaltext, titleFontColor: red }
     },
-    com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle:{
-      default: {background: green_textfield,font: normaltext, fontColor: black}
+
+    com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+      default: {
+        background: green_field,
+        font: normaltext,
+        fontColor: black
+        }
     },
     com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
        default: { vScroll: validCell, hScrollKnob: validCell, background: validCell, hScroll: validCell, vScrollKnob: validCell }
     },
     com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
       default: {
-        font: normaltext, fontColor: red, background: select_box,
+        font: normaltext, fontColor: black, background: select_box,
         scrollStyle: default,
-        listStyle: { font: normaltext, selection: validCell }
+        listStyle: { font: normaltext, selection: blue_highlight ,background: blue_outline,fontColorUnselected: black, fontColorSelected: white }
       }
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
-      default: { background: panel-beigeLight, fontColorUnselected: red, selection: validCell, fontColorSelected: white, font: normaltext }
+      default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
     }
 }

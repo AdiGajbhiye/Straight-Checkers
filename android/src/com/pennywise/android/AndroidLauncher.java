@@ -148,7 +148,7 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
             public void run() {
                 adView.setVisibility(View.VISIBLE);
                 AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-                adRequestBuilder.addTestDevice("A171181E4E254A38F6E617040D216CC8");
+                adRequestBuilder.addTestDevice("85253FE6D4C2A3DEBA982785D93C3ABF");
                 adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
                 adView.loadAd(adRequestBuilder.build());
             }

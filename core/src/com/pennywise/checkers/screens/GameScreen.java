@@ -904,7 +904,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     }
 
     public void startGame(int level) {
-        //gameDialog.hide();
+        gameDialog.hide();
         timer = true;
         startTime = System.nanoTime();
         this.level = level;
@@ -912,7 +912,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     public void level() {
 
-        /*gameDialog = new GameDialog("") // this is the dialog title
+        gameDialog = new GameDialog("") // this is the dialog title
                 .content("Easy", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         startGame(Constants.EASY);
@@ -938,7 +938,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                     }
                 });
 
-        gameDialog.show(dialogStage); // actually show the dialog*/
+        gameDialog.show(dialogStage); // actually show the dialog
     }
 
     public void gameOver(String text) {
@@ -961,17 +961,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     }
 
     public void network() {
-        new NetDialog("") // this is the dialog title
-                .title("2 Player Game")
-                .selectBox("Connect to host", new ChangeListener() {
-                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
 
-                    }
-                })
-                .list("", new ClickListener() {
-                })
-                .button("Join Game")
-                .show(dialogStage); // actually show the dialog
+        NetDialog netDialog = new NetDialog("LAN Game"); // this is the dialog title
+        netDialog.selectBox("Connect to host", new ChangeListener() {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                //System.out.println(selectBox.getSelected());
+            }
+        });
+        netDialog.list("", new ClickListener() {
+
+        });
+        netDialog.button("Join", new InputListener() {
+        });
+        netDialog.button("Cancel", new InputListener() {
+        });
+        netDialog.show(dialogStage); // actually show the dialog*/
     }
 
     @Override

@@ -23,12 +23,14 @@ public class GameDialog extends Dialog {
 
     private void initialize() {
         padTop(60); // set padding on top of the dialog title
-        padLeft(60);
-        padRight(60);
+        padLeft(30);
+        padRight(30);
+        padBottom(30);
+
         setModal(true);
         setMovable(false);
         setResizable(false);
-
+        getContentTable().defaults().expandX().pad(5);
     }
 
 
@@ -58,7 +60,7 @@ public class GameDialog extends Dialog {
     public GameDialog content(String buttonText, InputListener listener) {
         TextButton button = new TextButton(buttonText, Assets.getSkin());
         button.addListener(listener);
-        getContentTable().add(button).height(60).fill().top().expandX().right();
+        getContentTable().add(button).height(60).fill().left().top().center();
         getContentTable().row();
         return this;
     }
@@ -68,13 +70,13 @@ public class GameDialog extends Dialog {
     @Override
     public float getPrefWidth() {
         // force dialog width
-        return (Constants.GAME_WIDTH * 0.90f);
+        return (Constants.GAME_WIDTH * 0.85f);
     }
 
     @Override
     public float getPrefHeight() {
         // force dialog height
-        return (Constants.GAME_HEIGHT * 0.60f);
+        return (Constants.GAME_HEIGHT * 0.65f);
     }
 
 

@@ -80,7 +80,7 @@ public class Assets {
     }
 
     public static void loadImages() {
-        img_background = getAtlas().createPatch("panelInset_beigeLight");
+        img_background = getAtlas().createPatch("panelinset_beigelight");
         img_board_bg = getAtlas().createPatch("panel_brown");
         img_selected_cell_dark = getDrawable("selecteddarkcell");
         img_selected_cell_lite = getDrawable("selectedlitecell");
