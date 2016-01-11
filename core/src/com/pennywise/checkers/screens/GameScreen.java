@@ -969,7 +969,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                     }
                 })
                 .list("", new ClickListener() {
-                    
+
                 })
                 .show(dialogStage); // actually show the dialog
     }
