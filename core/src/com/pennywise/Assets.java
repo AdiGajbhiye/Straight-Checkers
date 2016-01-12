@@ -18,7 +18,7 @@ import com.pennywise.checkers.core.Util;
 public class Assets {
 
     private final static String FILE_IMAGE_ATLAS = "ui-pack.atlas";
-    private final static String FILE_UI_SKIN = "ui-pack.json";
+
     private static TextureAtlas imageAtlas;
     private static Skin skin;
 
@@ -49,14 +49,6 @@ public class Assets {
             imageAtlas = new TextureAtlas(Gdx.files.internal(FILE_IMAGE_ATLAS));
         }
         return imageAtlas;
-    }
-
-    public static Skin getSkin() {
-        if (skin == null) {
-            FileHandle skinFile = Gdx.files.internal(FILE_UI_SKIN);
-            skin = new Skin(skinFile);
-        }
-        return skin;
     }
 
     public static void loadAll() {

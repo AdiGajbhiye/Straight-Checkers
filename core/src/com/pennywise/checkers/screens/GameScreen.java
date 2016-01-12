@@ -38,7 +38,6 @@ import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
 import com.pennywise.checkers.screens.dialogs.GameOver;
-import com.pennywise.checkers.screens.dialogs.NetDialog;
 import com.pennywise.managers.MultiplayerDirector;
 import com.pennywise.multiplayer.TransmissionPackage;
 import com.pennywise.multiplayer.TransmissionPackagePool;
@@ -918,7 +917,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public void level() {
 
-        gameDialog = new GameDialog("") // this is the dialog title
+        gameDialog = new GameDialog("", getSkin()) // this is the dialog title
                 .content("Easy", new InputListener() { // button to exit app
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                         startGame(Constants.EASY);
@@ -951,7 +950,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         timer = false;
 
-        final GameOver gameOver = new GameOver(text + " WIN!"); // this is the dialog title
+        final GameOver gameOver = new GameOver(text + " WIN!", getSkin()); // this is the dialog title
         gameOver.text("Game Over");
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -968,29 +967,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         });
         gameOver.show(dialogStage); // actually show the dialog
-    }
-
-    public void network() {
-
-        NetDialog netDialog = new NetDialog("LAN Game"); // this is the dialog title
-        netDialog.checkBox("Host game", new InputListener() {
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                //System.out.println(selectBox.getSelected());
-            }
-        });
-        netDialog.checkBox("Join Game", new InputListener() {
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                //System.out.println(selectBox.getSelected());
-            }
-        });
-        netDialog.list("", new ClickListener() {
-
-        });
-        netDialog.button("Join", new InputListener() {
-        });
-        netDialog.button("Cancel", new InputListener() {
-        });
-        netDialog.show(dialogStage); // actually show the dialog*/
     }
 
     public Label getInfoLabel() {

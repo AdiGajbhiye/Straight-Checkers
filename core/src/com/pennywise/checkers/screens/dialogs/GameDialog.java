@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -16,8 +17,10 @@ import com.pennywise.checkers.core.Constants;
  */
 public class GameDialog extends Dialog {
 
-    public GameDialog(String title) {
-        super(title, Assets.getSkin());
+    Skin skin;
+    public GameDialog(String title,Skin skin) {
+        super(title,skin);
+        this.skin = skin;
         initialize();
     }
 
@@ -36,7 +39,7 @@ public class GameDialog extends Dialog {
 
     @Override
     public GameDialog text(String text) {
-        super.text(new Label(text, Assets.getSkin()));
+        super.text(new Label(text, skin));
         return this;
     }
 
@@ -46,7 +49,7 @@ public class GameDialog extends Dialog {
      * @param listener the input listener that will be attached to the button.
      */
     public GameDialog button(String buttonText, InputListener listener) {
-        TextButton button = new TextButton(buttonText, Assets.getSkin());
+        TextButton button = new TextButton(buttonText, skin);
         button.addListener(listener);
         button(button);
         return this;
@@ -58,7 +61,7 @@ public class GameDialog extends Dialog {
      * @param listener the input listener that will be attached to the button.
      */
     public GameDialog content(String buttonText, InputListener listener) {
-        TextButton button = new TextButton(buttonText, Assets.getSkin());
+        TextButton button = new TextButton(buttonText, skin);
         button.addListener(listener);
         getContentTable().add(button).height(60).fill().left().top().center();
         getContentTable().row();

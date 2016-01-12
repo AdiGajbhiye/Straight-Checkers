@@ -2,16 +2,13 @@ package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
 import com.pennywise.Checkers;
-import com.pennywise.checkers.core.Constants;
 
 /**
  * Created by Joshua.Nabongo on 6/8/2015.
@@ -19,6 +16,7 @@ import com.pennywise.checkers.core.Constants;
 public abstract class AbstractScreen implements Screen {
 
     public static final String LOG = AbstractScreen.class.getSimpleName();
+    private final static String FILE_UI_SKIN = "ui-pack.json";
 
     protected Checkers game;
     private Table table;
@@ -39,10 +37,12 @@ public abstract class AbstractScreen implements Screen {
 
     public Skin getSkin() {
         if (skin == null) {
-            skin = Assets.getSkin();
+            FileHandle skinFile = Gdx.files.internal(FILE_UI_SKIN);
+            skin = new Skin(skinFile);
         }
         return skin;
     }
+
 
     public Table getTable() {
         if (table == null) {
@@ -61,6 +61,7 @@ public abstract class AbstractScreen implements Screen {
         if (skin != null)
             skin.dispose();
     }
+
 
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);

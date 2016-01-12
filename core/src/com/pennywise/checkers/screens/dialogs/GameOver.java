@@ -3,6 +3,7 @@ package com.pennywise.checkers.screens.dialogs;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.pennywise.Assets;
 import com.pennywise.checkers.core.Constants;
@@ -12,8 +13,11 @@ import com.pennywise.checkers.core.Constants;
  */
 public class GameOver extends Dialog {
 
-    public GameOver(String title) {
-        super(title, Assets.getSkin());
+    Skin skin;
+
+    public GameOver(String title, Skin skin) {
+        super(title, skin);
+        this.skin = skin;
         initialize();
     }
 
@@ -32,7 +36,7 @@ public class GameOver extends Dialog {
 
     @Override
     public GameOver text(String text) {
-        super.text(new Label(text, Assets.getSkin()));
+        super.text(new Label(text, skin));
         return this;
     }
 
@@ -42,7 +46,7 @@ public class GameOver extends Dialog {
      * @param listener the input listener that will be attached to the button.
      */
     public GameOver button(String buttonText, InputListener listener) {
-        TextButton button = new TextButton(buttonText, Assets.getSkin());
+        TextButton button = new TextButton(buttonText, skin);
         button.addListener(listener);
         button(button);
         return this;
@@ -54,13 +58,12 @@ public class GameOver extends Dialog {
      * @param listener the input listener that will be attached to the button.
      */
     public GameOver content(String buttonText, InputListener listener) {
-        TextButton button = new TextButton(buttonText, Assets.getSkin());
+        TextButton button = new TextButton(buttonText, skin);
         button.addListener(listener);
         getContentTable().add(button).height(60).fill().left().top().center();
         getContentTable().row();
         return this;
     }
-
 
 
     @Override

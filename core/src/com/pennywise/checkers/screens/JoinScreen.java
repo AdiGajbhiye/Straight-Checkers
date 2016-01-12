@@ -1,7 +1,6 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.multiplayer.BluetoothInterface;
 
@@ -34,7 +32,7 @@ public class JoinScreen extends AbstractScreen {
 
     public JoinScreen(Checkers game) {
         super(game);
-        skin = Assets.getSkin();
+        skin = getSkin();
         bluetoothInterface = game.getBluetoothInterface();
     }
 
