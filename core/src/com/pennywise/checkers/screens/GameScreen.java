@@ -64,7 +64,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     private float cellsize = 0;
     private float gridHeight = 0;
     private ImageButton pauseGame, undoMove;
-    private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel panel;
@@ -74,7 +73,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     private Tile fromTile;
     private Tile toTile;
 
-    private boolean gameOver = false, incomplete = false;
+    private boolean gameOver = false, completed = true, humanTurn = true;
     String strTime = "";
 
     private Checker engine;
@@ -160,7 +159,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
     }
 
-
     @Override
     public void show() {
 
@@ -175,12 +173,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
         batch = new SpriteBatch();
 
-        initGame();
+        level();
 
+        initGame();
     }
 
     protected void initGame() {
-        level();
         setupScreen();
         newGame();
     }
@@ -208,45 +206,55 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
             }.start();
         }
 
-        if (Gdx.input.isTouched() && !isBusy) {
+        if (Gdx.input.isTouched() && humanTurn) {
+
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
-            Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-            if (incomplete) {
-                Gdx.app.log("FFF", "INCOMPLETE");
-                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
+            if (completed) {
+                Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-                if (actor.getName().equals(toTile.getName())) {
-                    Gdx.app.log("Tiles", "SAME TILE TERMINATE");
-                    actor = null;
-                }
-            }
+                if (actor2 != null && actor2 instanceof Piece) {
+                    humanPiece = (Piece) actor2;
+                    if (humanPiece.getPlayer() == humanPlayer) {
+                        humanPiece.setSelected(true);
+                        fromTile = (Tile) actor;
+                        if (actor instanceof Tile) {
+                            Tile tile = (((Tile) actor));
+                            if (tile.getCellEntry() == Checker.REDNORMAL)
+                                tile.getStyle().background = Assets.img_selected_cell_dark;
 
-            if (actor2 != null && actor2 instanceof Piece) {
-                humanPiece = (Piece) actor2;
-                if (humanPiece.getPlayer() == humanPlayer) {
-                    humanPiece.setSelected(true);
-                    fromTile = (Tile) actor;
-                    if (actor instanceof Tile) {
-                        Tile tile = (((Tile) actor));
-                        if (tile.getCellEntry() == Checker.REDNORMAL)
-                            tile.getStyle().background = Assets.img_selected_cell_dark;
+                        }
+                    } else
+                        humanPiece = null;
+                } else {
 
-                    }
-                } else
-                    humanPiece = null;
-            } else {
+                    if (humanPiece != null && actor != null) {
+                        if (actor instanceof Tile) {
 
-                if (humanPiece != null && actor != null) {
-                    if (actor instanceof Tile) {
+                            toTile = ((Tile) actor);
 
-                        toTile = ((Tile) actor);
-
-                        if (toTile.getCellEntry() == Checker.REDNORMAL) {
-                            movePiece();
+                            if (toTile.getCellEntry() == Checker.REDNORMAL) {
+                                movePiece();
+                            }
                         }
                     }
+                }
+            } else { //move not complete multi capture
+                //Gdx.app.log("FFF", "INCOMPLETE");
+                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
+
+                if (!(actor.getName().equals(toTile.getName()))) {
+                    if (humanPiece != null && actor != null) {
+                        if (actor instanceof Tile) {
+                            toTile = ((Tile) actor);
+                            if (toTile.getCellEntry() == Checker.REDNORMAL) {
+                                movePiece();
+                            }
+                        }
+                    }
+                } else {
+                    Gdx.app.log("Tiles", "ILLEGAL MOVE");
                 }
             }
         }
@@ -302,8 +310,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     private void setupScreen() {
         // build all layers
-        Table layerPuzzle = buildBoard();
+
         stage.clear();
+        boardStage.clear();
+
+        Table layerPuzzle = buildBoard();
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
@@ -357,6 +368,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
 
         float posY = (float) (0.25 * Constants.GAME_HEIGHT);
+
 
         panel.setOrigin(0, posY);
         panel.setWidth(Constants.GAME_WIDTH);
@@ -443,18 +455,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
-        moveAction.setDuration(0.5f);
+        moveAction.setDuration(0.35f);
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                if (!incomplete) {
+                if (completed) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
                     if (isKingTile(toTile, humanPiece.getPlayer()) &&
                             !humanPiece.isKing()) {
                         crownPiece(humanPiece);
                     }
-                    isBusy = false;
+                    humanTurn = false;
                     opponentMove = true;
                 }
             }
@@ -495,8 +507,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     }
 
     private void checkBlackPieceCollision(Piece piece) {
-
-
         if (piece.isSelected())
             //find the piece
             for (Actor a : boardStage.getActors()) {
@@ -558,8 +568,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     protected void movePiece() {
 
-        isBusy = true;
-
         int from = Integer.parseInt(fromTile.getName());
         int dst = Integer.parseInt(toTile.getName());
 
@@ -568,7 +576,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
         Coord src = Util.toCoord(from);
         Coord dest = Util.toCoord(dst);
 
-        if (incomplete && (dst == to)) {
+        if (!completed && (dst == to)) {
             Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
             to = 0;
             return;
@@ -581,20 +589,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                 humanPiece = null;
                 fromTile = null;
                 toTile = null;
-                isBusy = false;
+                completed = true;
+                humanTurn = true;
                 break;
             case Checker.LEGALMOVE:
                 humanPiece.setName(toTile.getName());
-                incomplete = false;
+                completed = true;
+                humanTurn = false;
                 move();
                 break;
             case Checker.INCOMLETEMOVE:
                 move();
                 fromTile = toTile;
                 Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
-                incomplete = true;
+                completed = false;
                 to = dst;
-                isBusy = false;
                 break;
         }
     }
@@ -687,8 +696,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
             float posX = destTile.getX();
             float posY = destTile.getY();
 
-            sequenceAction.addAction(delay(0.5f));
-            sequenceAction.addAction(moveTo(posX, posY, 0.5f));
+            sequenceAction.addAction(delay(0.35f));
+            sequenceAction.addAction(moveTo(posX, posY, 0.35f));
 
             startx = endx % 10;
             starty = endy % 10;
@@ -708,15 +717,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
                                     !cpuPiece.isKing()) {
                                 crownPiece(cpuPiece);
                             }
+                            humanTurn = true;
                         }
                     }
-
                 ));
 
         //update name
-        if (cpuPiece != null)
-
-        {
+        if (cpuPiece != null) {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
@@ -907,7 +914,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     public void startGame(int level) {
         gameDialog.hide();
         timer = true;
-        startTime = System.nanoTime();
+        startTime = 0;
         this.level = level;
     }
 
@@ -944,10 +951,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     public void gameOver(String text) {
 
+        timer = false;
+
         final GameOver gameOver = new GameOver(text + " WIN!"); // this is the dialog title
         gameOver.text("Game Over");
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                initGame();
                 level();
                 gameOver.hide();
                 return true;
