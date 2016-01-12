@@ -1,7 +1,9 @@
 package com.pennywise.checkers.screens.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -53,6 +55,14 @@ public class NetDialog extends Dialog {
         return this;
     }
 
+    public NetDialog checkBox(String text, InputListener listener) {
+        CheckBox button = new CheckBox(text, Assets.getSkin());
+        button.addListener(listener);
+        getContentTable().add(button).center().pad(5).maxWidth(360);
+        getContentTable().row();
+        return this;
+    }
+
     /**
      * Adds a text button to the button table.
      *
@@ -86,7 +96,8 @@ public class NetDialog extends Dialog {
         list.getSelection().setMultiple(false);
         list.getSelection().setRequired(false);
         list.addListener(listener);
-        getContentTable().add(list).expand().center().expand().top().maxHeight(400).maxWidth(360);
+        list.setVisible(false);
+        getContentTable().add(list).expand().center().top().maxHeight(400).maxWidth(360);
         getContentTable().row();
 
     }

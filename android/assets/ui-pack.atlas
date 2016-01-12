@@ -32,6 +32,13 @@ blackpawn
   orig: 128, 128
   offset: 0, 0
   index: -1
+blue_checked
+  rotate: false
+  xy: 932, 340
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
 blue_field
   rotate: false
   xy: 586, 466
@@ -149,6 +156,13 @@ grey_box
   orig: 38, 36
   offset: 0, 0
   index: -1
+grey_unchecked
+  rotate: false
+  xy: 885, 302
+  size: 36, 36
+  orig: 36, 36
+  offset: 0, 0
+  index: -1
 line_dark
   rotate: false
   xy: 215, 231
@@ -233,7 +247,7 @@ select_box
   rotate: false
   xy: 196, 332
   size: 190, 45
-  split: 33, 153, 14, 27
+  split: 44, 138, 16, 26
   orig: 190, 45
   offset: 0, 0
   index: -1

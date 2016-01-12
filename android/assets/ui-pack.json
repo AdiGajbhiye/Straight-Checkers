@@ -38,12 +38,15 @@
     },
     com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
       default: {
-        font: normaltext, fontColor: black, background: select_box,
+        font: normaltext, fontColor: black, background: select_box_orig,
         scrollStyle: default,
         listStyle: { font: normaltext, selection: blue_highlight ,background: blue_outline,fontColorUnselected: black, fontColorSelected: white }
       }
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
       default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
+    },
+    com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+      default: { checkboxOn: blue_checked, checkboxOff: grey_unchecked, font: normaltext, fontColor: black }
     }
 }
