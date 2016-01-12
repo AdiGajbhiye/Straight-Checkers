@@ -39,8 +39,9 @@ import com.pennywise.checkers.objects.Tile;
 import com.pennywise.checkers.screens.dialogs.GameDialog;
 import com.pennywise.checkers.screens.dialogs.GameOver;
 import com.pennywise.checkers.screens.dialogs.NetDialog;
-import com.pennywise.managers.GameManager;
-import com.pennywise.managers.NetworkListener;
+import com.pennywise.managers.MultiplayerDirector;
+import com.pennywise.multiplayer.TransmissionPackage;
+import com.pennywise.multiplayer.TransmissionPackagePool;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -51,7 +52,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
  */
-public class GameScreen extends AbstractScreen implements InputProcessor, NetworkListener {
+public class GameScreen extends AbstractScreen implements InputProcessor, MultiplayerDirector {
 
 
     private final Stage stage;
@@ -59,6 +60,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     private final Stage dialogStage;
     private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
+    private Label infoLabel;
+    protected TransmissionPackagePool transmissionPackagePool;
 
     SpriteBatch batch;
     private float cellsize = 0;
@@ -94,7 +97,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
     int preToMove3;
     private int undoCount = 0;
     private GameDialog gameDialog;
-    private GameManager manager;
 
     public void newGame() {                            //creates a new game
 
@@ -139,10 +141,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
 
     public GameScreen(Checkers game) {
         super(game);
-
-        manager = game.getGameManager();
-        manager.receiver(this);
-        manager.showBannerAd();
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
@@ -995,28 +993,25 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Networ
         netDialog.show(dialogStage); // actually show the dialog*/
     }
 
-    @Override
-    public void onReceive(String msg) {
+    public Label getInfoLabel() {
+        return infoLabel;
+    }
 
+    public void setInfoLabel(Label infoLabel) {
+        this.infoLabel = infoLabel;
     }
 
     @Override
-    public void onConnect() {
+    public void updatePeer() {
 
+        TransmissionPackage transmissionPackage = transmissionPackagePool
+                .obtain();
+        game.getBluetoothInterface().transmitPackage(transmissionPackage);
+        transmissionPackagePool.free(transmissionPackage);
     }
 
     @Override
-    public void onDisconnect() {
-
-    }
-
-    @Override
-    public void onDiscovery() {
-
-    }
-
-    @Override
-    public void discovering() {
+    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage) {
 
     }
 }

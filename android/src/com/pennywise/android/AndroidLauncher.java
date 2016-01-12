@@ -1,69 +1,58 @@
 package com.pennywise.android;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.pennywise.Checkers;
-import com.pennywise.managers.GameManager;
-import com.pennywise.managers.NetworkListener;
+import com.pennywise.android.bluetooth.BluetoothManager;
+import com.pennywise.managers.AdManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class AndroidLauncher extends AndroidApplication implements GameManager,
-        WifiP2pManager.ChannelListener, DeviceActionListener {
+public class AndroidLauncher extends AndroidApplication implements AdManager {
 
     protected AdView adView;
 
     private final int SHOW_ADS = 1;
     private final int HIDE_ADS = 0;
-    protected static final int PORT = 32300;
+    private BluetoothManager mBluetoothManager;
+    private Checkers checkers;
 
-    public static final String TAG = "wifidirectdemo";
-    private WifiP2pManager manager;
-    private boolean isWifiP2pEnabled = false;
-    private boolean retryChannel = false;
+    public static final String LOG = AndroidLauncher.class.getSimpleName();
 
-    private final IntentFilter intentFilter = new IntentFilter();
-    private WifiP2pManager.Channel channel;
-    private NetworkListener networkListener;
 
-    private List<WifiP2pDevice> peerList = new ArrayList<WifiP2pDevice>();
-    private WifiP2pDevice targetDevice;
-    private Handler mUpdateHandler;
-    private WifiP2pInfo wifiInfo;
-    private boolean serverThreadActive = false;
-    private ServerService serverService;
-    private ClientService clientService;
-    private WiFiClientBroadcastReceiver clientReceiver = null;
-    private WiFiServerBroadcastReceiver serverReceiver = null;
-    private boolean connectedAndReadyToSendFile;
-    private boolean clientThreadActive = false;
+    public Checkers getCheckers() {
+        return checkers;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+        mBluetoothManager = new BluetoothManager(this);
+
+        // Register for BluetoothAdapter broadcasts
+        IntentFilter filter = new IntentFilter(
+                BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        this.registerReceiver(mReceiver, filter);
 
         // Create the layout
         RelativeLayout layout = new RelativeLayout(this);
@@ -74,8 +63,10 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
+        checkers = new Checkers(mBluetoothManager, this);
+
         // Create the libgdx View
-        View gameView = initializeForView(new Checkers(this), config);
+        View gameView = initializeForView(checkers, config);
 
         setupAds();
 
@@ -91,44 +82,6 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
 
         setContentView(layout);
 
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
-
-        mUpdateHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                String chatLine = msg.getData().getString("msg");
-            }
-        };
-    }
-
-    public void discover(String gameName) {
-
-        if (!isWifiP2pEnabled) {
-            Toast.makeText(AndroidLauncher.this, R.string.wireless_off,
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-
-            @Override
-            public void onSuccess() {
-                Toast.makeText(AndroidLauncher.this, "Discovery Initiated",
-                        Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int reasonCode) {
-                Toast.makeText(AndroidLauncher.this, "Discovery Failed : " + reasonCode,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
     }
 
@@ -165,59 +118,6 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
         });
     }
 
-    @Override
-    public void advertise() {
-
-    }
-
-    @Override
-    public void discover() {
-
-    }
-
-    @Override
-    public void connect() {
-
-    }
-
-    @Override
-    public void send(String data) {
-
-    }
-
-    @Override
-    public void receiver(NetworkListener listener) {
-        this.networkListener = listener;
-    }
-
-    @Override
-    public void startClient() {
-
-        if (!clientThreadActive) {
-            clientReceiver = new WiFiClientBroadcastReceiver(manager, channel, this);
-            registerReceiver(clientReceiver, intentFilter);
-            //Create new thread, open socket, wait for connection, and transfer file
-            clientService = new ClientService(mUpdateHandler);
-            clientService.connectToServer(wifiInfo.groupOwnerAddress, PORT);
-            clientThreadActive = true;
-        }
-    }
-
-    @Override
-    public void startServer() {
-        //If server is already listening on port or transfering data, do not attempt to start server service
-        if (!serverThreadActive) {
-            serverReceiver = new WiFiServerBroadcastReceiver(manager, channel, this);
-            registerReceiver(serverReceiver, intentFilter);
-            //Create new thread, open socket, wait for connection, and transfer file
-            serverService = new ServerService(mUpdateHandler, PORT);
-            serverThreadActive = true;
-        }
-    }
-
-    public void stopServer(View view) {
-        serverService.tearDown();
-    }
 
     @Override
     public void onResume() {
@@ -229,175 +129,88 @@ public class AndroidLauncher extends AndroidApplication implements GameManager,
         super.onPause();
     }
 
-    /**
-     * Remove all peers and clear all fields. This is called on
-     * BroadcastReceiver receiving a state change event.
-     */
-    public void resetData() {
-        peerList.clear();
-    }
 
-    public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
-        this.isWifiP2pEnabled = isWifiP2pEnabled;
-    }
+    // Receives Bluetooth events
+    BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
 
+            // BT discoverability state change
+            if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(
+                        BluetoothAdapter.EXTRA_SCAN_MODE,
+                        BluetoothAdapter.ERROR);
 
-    @Override
-    public void connect(WifiP2pConfig config) {
-        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-
-            @Override
-            public void onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+                switch (state) {
+                    // BT is discoverable
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                        Gdx.app.log(LOG,
+                                "BroadcastReceiver: SCAN_MODE_CONNECTABLE_DISCOVERABLE");
+                        checkers.notify_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE();
+                        break;
+                    // BT is NOT discoverable
+                    case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+                        Gdx.app.log(LOG, "BroadcastReceiver: SCAN_MODE_CONNECTABLE");
+                        checkers.notify_BT_SCAN_MODE_CONNECTABLE();
+                        break;
+                    // BT is NOT discoverable
+                    case BluetoothAdapter.SCAN_MODE_NONE:
+                        Gdx.app.log(LOG, "BroadcastReceiver: SCAN_MODE_NONE");
+                        checkers.notify_BT_SCAN_MODE_NONE();
+                        break;
+                }
             }
+            // BT state change
+            else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(
+                        BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
-            @Override
-            public void onFailure(int reason) {
-                Toast.makeText(AndroidLauncher.this, "Connect failed. Retry.",
-                        Toast.LENGTH_SHORT).show();
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        Gdx.app.log(LOG, "BroadcastReceiver: STATE_OFF");
+                        checkers.notify_BT_STATE_OFF();
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        Gdx.app.log(LOG, "BroadcastReceiver: STATE_TURNING_OFF");
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        Gdx.app.log(LOG, "BroadcastReceiver: STATE_ON");
+                        checkers.notify_BT_STATE_ON();
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        Gdx.app.log(LOG, "BroadcastReceiver: STATE_TURNING_ON");
+                        break;
+                }
             }
-        });
-    }
-
-    @Override
-    public void disconnect() {
-        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
-
-            @Override
-            public void onFailure(int reasonCode) {
-                Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
+            // When discovery finds a device
+            else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                Gdx.app.log(LOG, "BroadcastReceiver: ACTION_FOUND");
+                // Get the BluetoothDevice object from the Intent
+                BluetoothDevice device = intent
+                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Gdx.app.log(LOG, "DETECTED DEVICE = " + device);
+                // Add the discovered device to bluetooth manager's list of
+                // discovered devices
+                mBluetoothManager.addDiscoveredDevice(device);
+                // Notify game that a device was found
+                checkers.notify_BT_DEVICE_FOUND();
             }
-
-            @Override
-            public void onSuccess() {
+            // When discovery starts
+            else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                Gdx.app.log(LOG, "BroadcastReceiver: ACTION_DISCOVERY_STARTED");
+                checkers.notify_BT_ACTION_DISCOVERY_STARTED();
             }
-
-        });
-    }
-
-    @Override
-    public void onChannelDisconnected() {
-        // we will try once more
-        if (manager != null && !retryChannel) {
-            Toast.makeText(this, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
-            resetData();
-            retryChannel = true;
-            manager.initialize(this, getMainLooper(), this);
-        } else {
-            Toast.makeText(this,
-                    "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void showDetails(WifiP2pDevice device) {
-
-    }
-
-    @Override
-    public void cancelDisconnect() {
-
-        if (manager != null) {
-            if (getDevice() == null
-                    || getDevice().status == WifiP2pDevice.CONNECTED) {
-                disconnect();
-            } else if (getDevice().status == WifiP2pDevice.AVAILABLE
-                    || getDevice().status == WifiP2pDevice.INVITED) {
-
-                manager.cancelConnect(channel, new WifiP2pManager.ActionListener() {
-
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(AndroidLauncher.this, "Aborting connection",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(AndroidLauncher.this,
-                                "Connect abort request failed. Reason Code: " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+            // When discovery finishes
+            else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                Gdx.app.log(LOG, "BroadcastReceiver: ACTION_DISCOVERY_FINISHED");
+                checkers.notify_BT_ACTION_DISCOVERY_FINISHED();
             }
         }
-    }
+    };
 
-    private static String getDeviceStatus(int deviceStatus) {
-        Log.d(AndroidLauncher.TAG, "Peer status :" + deviceStatus);
-        switch (deviceStatus) {
-            case WifiP2pDevice.AVAILABLE:
-                return "Available";
-            case WifiP2pDevice.INVITED:
-                return "Invited";
-            case WifiP2pDevice.CONNECTED:
-                return "Connected";
-            case WifiP2pDevice.FAILED:
-                return "Failed";
-            case WifiP2pDevice.UNAVAILABLE:
-                return "Unavailable";
-            default:
-                return "Unknown";
-
-        }
-    }
-
-    public void displayPeers(WifiP2pDeviceList peers) {
-        peerList.clear();
-        peerList.addAll(peers.getDeviceList());
-        if (peerList.size() == 0) {
-            Log.d(TAG, "No devices found");
-        }
-    }
-
-    public WifiP2pDevice getDevice() {
-        return targetDevice;
-    }
-
-    public void setDevice(WifiP2pDevice device) {
-        this.targetDevice = device;
-    }
-
-    public void setTransferStatus(boolean status) {
-        connectedAndReadyToSendFile = status;
-    }
-
-    public void setNetworkToReadyState(boolean status, WifiP2pInfo info, WifiP2pDevice device) {
-        wifiInfo = info;
-        targetDevice = device;
-        connectedAndReadyToSendFile = status;
-    }
-
-    private void stopClient() {
-        try {
-            clientService.tearDown();
-        } catch (IllegalArgumentException e) {
-            //This will happen if the server was never running and the stop button was pressed.
-            //Do nothing in this case.
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (clientReceiver != null) {
-            unregisterReceiver(clientReceiver);
-            stopClient();
-        }
-        if (serverReceiver != null) {
-            unregisterReceiver(serverReceiver);
-            stopServer(null);
-        }
-
-
-    }
-
-    public void setServerWifiStatus(String s) {
-    }
-
-    public void setServerStatus(String s) {
+    public void onBTMStateChange() {
+        checkers.notify_BMT_STATE_CHANGE();
     }
 
 
