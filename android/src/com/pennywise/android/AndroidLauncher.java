@@ -63,12 +63,11 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
-        checkers = new Checkers(mBluetoothManager, this);
+        setupAds();
 
+        checkers = new Checkers(mBluetoothManager, this);
         // Create the libgdx View
         View gameView = initializeForView(checkers, config);
-
-        setupAds();
 
         // Add the libgdx view
         layout.addView(gameView, ViewGroup.LayoutParams.MATCH_PARENT,
@@ -101,7 +100,7 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
             public void run() {
                 adView.setVisibility(View.VISIBLE);
                 AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-                adRequestBuilder.addTestDevice("85253FE6D4C2A3DEBA982785D93C3ABF");
+                adRequestBuilder.addTestDevice("04E31A82E4F59C0A4B5C7435726123DD");
                 adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
                 adView.loadAd(adRequestBuilder.build());
             }
@@ -122,11 +121,24 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
     @Override
     public void onResume() {
         super.onResume();
+        adView.resume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        adView.pause();
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (adView != null)
+            adView.destroy();
+        // Unregister broadcast listener
+        this.unregisterReceiver(mReceiver);
+
+        Gdx.app.log(LOG, "== onDestroy ==");
     }
 
 

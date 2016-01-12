@@ -1,6 +1,7 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -185,5 +186,4 @@ public class JoinScreen extends AbstractScreen {
         super.dispose();
         Gdx.app.log(LOG, "Disposing JoinScreen");
     }
-
 }

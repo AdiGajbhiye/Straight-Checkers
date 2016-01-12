@@ -1,6 +1,7 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -25,13 +26,13 @@ public class MultiplayerScreen extends AbstractScreen {
 		getTable().row();
 
 		multiplayerLabel = new Label("== Sail with a friend! ==", getSkin());
-		getTable().add(multiplayerLabel).spaceBottom(10);
+		getTable().add(multiplayerLabel).spaceBottom(20);
 		getTable().row();
 
 		// If there is a bluetooth interface (that is, if we play on Android).
 		if (Checkers.BLUETOOTH_INTERFACE_EXISTS) {
 			final TextButton hostButton = new TextButton("Host", getSkin());
-			getTable().add(hostButton).size(200, 40).uniform().spaceBottom(5);
+			getTable().add(hostButton).size(320, 60).uniform().spaceBottom(10);
 			hostButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -41,7 +42,7 @@ public class MultiplayerScreen extends AbstractScreen {
 			getTable().row();
 
 			final TextButton joinButton = new TextButton("Join", getSkin());
-			getTable().add(joinButton).size(200, 40).uniform().spaceBottom(5);
+			getTable().add(joinButton).size(320, 60).uniform().spaceBottom(10);
 			joinButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -61,7 +62,7 @@ public class MultiplayerScreen extends AbstractScreen {
 		}
 
 		final TextButton backButton = new TextButton("Back", getSkin());
-		getTable().add(backButton).colspan(2).size(200, 40).uniform();
+		getTable().add(backButton).colspan(2).size(320, 60).uniform();
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

@@ -1,6 +1,7 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -10,7 +11,6 @@ import com.pennywise.Checkers;
 public class MenuScreen extends AbstractScreen {
 
     public static final String LOG = MenuScreen.class.getSimpleName();
-
     private Label welcomeLabel;
 
     public MenuScreen(Checkers game) {
@@ -20,12 +20,12 @@ public class MenuScreen extends AbstractScreen {
     @Override
     public void show() {
         getTable().row();
-        welcomeLabel = new Label("== Welcome on board captain ==", getSkin());
-        getTable().add(welcomeLabel).spaceBottom(10);
+        welcomeLabel = new Label("== Welcome to Checkers ==", getSkin());
+        getTable().add(welcomeLabel).spaceBottom(20);
         getTable().row();
 
         final TextButton game1Button = new TextButton("Singleplayer", getSkin());
-        getTable().add(game1Button).size(200, 40).uniform().spaceBottom(5);
+        getTable().add(game1Button).size(320, 60).uniform().spaceBottom(10);
         game1Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -36,7 +36,7 @@ public class MenuScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton game2Button = new TextButton("Multiplayer", getSkin());
-        getTable().add(game2Button).size(200, 40).uniform().spaceBottom(5);
+        getTable().add(game2Button).size(320, 60).uniform().spaceBottom(10);
         game2Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -47,43 +47,18 @@ public class MenuScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton game3Button = new TextButton("Help", getSkin());
-        getTable().add(game3Button).size(200, 40).uniform();
+        getTable().add(game3Button).size(320, 60).uniform();
         /*game3Button.addListener(new ChangeListener() {
-			@Override
+            @Override
 			public void changed(ChangeEvent event, Actor actor) {
 				game.setScreen(new HelpScreen(game));
 			}
 		});*/
     }
 
-    @Override
-    public void render(float delta) {
-
-    }
-
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
 
     public void dispose() {
         super.dispose();
-        Gdx.app.log(LOG, "Disposing MenuScreen");
     }
 
 }
