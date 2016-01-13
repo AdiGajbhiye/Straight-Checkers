@@ -100,7 +100,7 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
             public void run() {
                 adView.setVisibility(View.VISIBLE);
                 AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-                adRequestBuilder.addTestDevice("04E31A82E4F59C0A4B5C7435726123DD");
+                adRequestBuilder.addTestDevice("85253FE6D4C2A3DEBA982785D93C3ABF");
                 adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
                 adView.loadAd(adRequestBuilder.build());
             }

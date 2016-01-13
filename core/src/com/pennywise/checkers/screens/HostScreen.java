@@ -49,7 +49,7 @@ public class HostScreen extends AbstractScreen {
 
 		backButton = new TextButton("Back", getSkin());
 		backButton.setVisible(false);
-		getTable().add(backButton).size(200, 40).expandX().uniform();
+		getTable().add(backButton).size(320, 60).expandX().uniform();
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

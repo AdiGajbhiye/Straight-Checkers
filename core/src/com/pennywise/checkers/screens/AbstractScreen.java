@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.pennywise.Assets;
 import com.pennywise.Checkers;
 
 /**
@@ -22,9 +21,11 @@ public abstract class AbstractScreen implements Screen {
     private Table table;
     private Skin skin;
     private Stage uiStage;
+    public boolean isMultiplayer;
 
     public AbstractScreen(Checkers game) {
         this.game = game;
+        isMultiplayer = false;
     }
 
     public Stage getUIStage() {
@@ -48,7 +49,7 @@ public abstract class AbstractScreen implements Screen {
         if (table == null) {
             table = new Table(getSkin());
             table.setFillParent(true);
-            table.center();
+            table.center().top().padTop(120);
             getUIStage().addActor(getTable());
         }
         return table;

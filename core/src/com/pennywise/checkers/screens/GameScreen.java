@@ -22,8 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
@@ -273,7 +271,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         dialogStage.draw();
 
         renderHud(batch, delta);
-        //renderFPS(batch);
 
         removeCapturedPieces();
     }
@@ -804,7 +801,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         return board;
     }
 
-
     @Override
     public boolean keyDown(int keycode) {
         return false;
@@ -936,12 +932,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         return true;
                     }
                 });
-                /*.content("2 Player", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        network();
-                        return true;
-                    }
-                });*/
 
         gameDialog.show(dialogStage); // actually show the dialog
     }

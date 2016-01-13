@@ -1,154 +1,93 @@
 package com.pennywise.multiplayer;
 
-import java.io.Serializable;
 import com.badlogic.gdx.utils.Pool.Poolable;
+
+import java.io.Serializable;
 
 public class TransmissionPackage implements Serializable, Poolable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1790798304239358707L;
+    private static final long serialVersionUID = -1790798304239358707L;
 
-	public static final String LOG = TransmissionPackage.class.getSimpleName();
+    public static final String LOG = TransmissionPackage.class.getSimpleName();
 
-	/* Submarine Data */
-	// private float submarineX = -1;
-	private float submarineY = -1;
-	private float rotation = -1;
-	private boolean crashed = false;
+    /* Data */
+    private String message;
+    private String name;
+    private boolean gameOver = false;
 
-	/* Tunnel Data */
-	private int[] randomPointXDistance = null;
-	private int[] randomPointYDistance = null;
-	private int[] randomYObstacleDistance = null;
+    /*board state*/
+    private int[][] gameboard = null;
+    private int[] move = null;
+    private int color = 0;
 
-	public TransmissionPackage() {
-	}
+    public TransmissionPackage() {
+    }
 
-	// public float getSubmarineX() {
-	// return submarineX;
-	// }
-	//
-	// public void setSubmarineX(float submarineX) {
-	// this.submarineX = submarineX;
-	// }
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
-	public float getSubmarineY() {
-		return submarineY;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public void setSubmarineY(float submarineY) {
-		this.submarineY = submarineY;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public float getRotation() {
-		return rotation;
-	}
+    public boolean isGameOver() {
+        return gameOver;
+    }
 
-	public void setRotation(float rotation) {
-		this.rotation = rotation;
-	}
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
 
-	public boolean isCrashed() {
-		return crashed;
-	}
+    public int[][] getGameboard() {
+        return gameboard;
+    }
 
-	public void setCrashed(boolean crashed) {
-		this.crashed = crashed;
-	}
+    public void setGameboard(int[][] gameboard) {
+        this.gameboard = gameboard;
+    }
 
-	public int[] getRandomPointXDistance() {
-		return randomPointXDistance;
-	}
+    public int[] getMove() {
+        return move;
+    }
 
-	public void setRandomPointXDistance(int[] randomPointXDistance) {
-		this.randomPointXDistance = randomPointXDistance;
-	}
+    public void setMove(int[] move) {
+        this.move = move;
+    }
 
-	public int[] getRandomPointYDistance() {
-		return randomPointYDistance;
-	}
+    public int getColor() {
+        return color;
+    }
 
-	public void setRandomPointYDistance(int[] randomPointYDistance) {
-		this.randomPointYDistance = randomPointYDistance;
-	}
+    public void setColor(int color) {
+        this.color = color;
+    }
 
-	public int[] getRandomYObstacleDistance() {
-		return randomYObstacleDistance;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setRandomYObstacleDistance(int[] randomYObstacleDistance) {
-		this.randomYObstacleDistance = randomYObstacleDistance;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public void reset() {
-		// submarineX = -1;
-		submarineY = -1;
-		rotation = -1;
-		crashed = false;
-		randomPointXDistance = null;
-		randomPointYDistance = null;
-		randomYObstacleDistance = null;
-	}
+    @Override
+    public void reset() {
+        // submarineX = -1;
+        gameOver = false;
+        color = 0;
+        move = null;
+        message = null;
+        name = null;
+        gameboard = null;
+    }
 
-	public String toString() {
-		String retValue;
-
-		retValue =
-		// "submarineX = " + submarineX + "\n"
-		"submarineY = " + submarineY + "\n" + "rotation = " + rotation + "\n"
-				+ "crashed = " + crashed + "\n" + "randomPointXDistance = "
-				+ printRandomPointXDistance() + "\n"
-				+ "randomPointYDistance = " + printRandomPointYDistance()
-				+ "\n" + "randomYObstacleDistance = "
-				+ printRandomYObstacleDistance();
-
-		return retValue;
-
-	}
-
-	public String printRandomPointXDistance() {
-		String retValue = "";
-
-		if (randomPointXDistance != null) {
-			for (int i = 0; i < randomPointXDistance.length; i++) {
-				retValue += randomPointXDistance[i] + ", ";
-			}
-		} else {
-			retValue += "null";
-		}
-
-		return retValue;
-	}
-
-	public String printRandomPointYDistance() {
-		String retValue = "";
-
-		if (randomPointYDistance != null) {
-			for (int i = 0; i < randomPointYDistance.length; i++) {
-				retValue += randomPointYDistance[i] + ", ";
-			}
-		} else {
-			retValue += "null";
-		}
-
-		return retValue;
-	}
-
-	public String printRandomYObstacleDistance() {
-		String retValue = "";
-
-		if (randomYObstacleDistance != null) {
-			for (int i = 0; i < randomYObstacleDistance.length; i++) {
-				retValue += randomYObstacleDistance[i] + ", ";
-			}
-		} else {
-			retValue += "null";
-		}
-
-		return retValue;
-	}
-
+    public String printMove() {
+        String retValue = "";
+        return retValue;
+    }
 }

@@ -80,8 +80,8 @@ public class JoinScreen extends AbstractScreen {
         devicesList.setItems(new Array<Object>());
         devicesListScrollPane = new ScrollPane(devicesList, skin);
         devicesListScrollPane.setOverscroll(false, false);
-        getTable().add(devicesListScrollPane).colspan(3).align(Align.center)
-                .spaceBottom(10);
+        getTable().add(devicesListScrollPane).colspan(3).center()
+                .spaceBottom(5).maxWidth(480).maxHeight(560);
         getTable().row();
 
         backButton = new TextButton("Back", skin);
@@ -156,7 +156,7 @@ public class JoinScreen extends AbstractScreen {
                         "isBluetoothEnabled = "
                                 + bluetoothInterface.isBluetoothEnabled());
                 infoLabel
-                        .setText("Bluetooth is enabled! Select device to connect!");
+                        .setText("Select device to connect!");
                 backButton.setVisible(true);
                 scanButton.setVisible(true);
                 connectButton.setVisible(true);
@@ -166,7 +166,7 @@ public class JoinScreen extends AbstractScreen {
         // The Android device does not support bluetooth.
         else {
             infoLabel
-                    .setText("Can't play multiplayer dude.\nBluetooth not supported on this device.");
+                    .setText("Bluetooth not supported on this device.");
         }
     }
 
@@ -175,8 +175,7 @@ public class JoinScreen extends AbstractScreen {
      */
     public void listDevices() {
         Set<String> devices = bluetoothInterface.getDevices();
-        Gdx.app.log(LOG,
-                "Number of devices (paired+discovered) = " + devices.size());
+        Gdx.app.log(LOG,"Number of devices (paired+discovered) = " + devices.size());
         devicesList.setItems(devices.toArray());
     }
 
