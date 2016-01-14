@@ -1,6 +1,7 @@
 package com.pennywise;
 
 import com.badlogic.gdx.Game;
+import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.screens.GameScreen;
 import com.pennywise.checkers.screens.HostScreen;
 import com.pennywise.checkers.screens.JoinScreen;
@@ -141,7 +142,7 @@ public class Checkers extends Game {
                 ((JoinScreen) getScreen()).getConnectButton().setText(
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
-                setScreen(new GameScreen(this));
+                setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()
                         .setText("Waiting for host to start the game...\nBe prepared!\nThe red boat is yours ;)");
@@ -158,7 +159,7 @@ public class Checkers extends Game {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Some dude is connecting...");
             } else if (bluetoothInterface.isConnected()) {
-                setScreen(new GameScreen(this));
+                setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()
                         .setText("Touch screen to start the game!\nFellow captain is waiting...\nThe red boat is yours ;)");

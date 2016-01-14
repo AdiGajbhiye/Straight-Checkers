@@ -136,7 +136,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         toMove = preToMove3;
     }
 
-    public GameScreen(Checkers game) {
+    public GameScreen(Checkers game, int difficulty) {
         super(game);
 
         camera = new OrthographicCamera();
@@ -152,6 +152,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
+
+        this.level = difficulty;
     }
 
     @Override
@@ -167,8 +169,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
 
         batch = new SpriteBatch();
-
-        level();
 
         initGame();
     }
@@ -904,38 +904,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         batch.end();
     }
 
-    public void startGame(int level) {
-        gameDialog.hide();
-        timer = true;
-        startTime = 0;
-        this.level = level;
-    }
-
-    public void level() {
-
-        gameDialog = new GameDialog("", getSkin()) // this is the dialog title
-                .content("Easy", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        startGame(Constants.EASY);
-                        return true;
-                    }
-                })
-                .content("Normal", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        startGame(Constants.NORMAL);
-                        return true;
-                    }
-                })
-                .content("Hard", new InputListener() { // button to exit app
-                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        startGame(Constants.HARD);
-                        return true;
-                    }
-                });
-
-        gameDialog.show(dialogStage); // actually show the dialog
-    }
-
     public void gameOver(String text) {
 
         timer = false;
@@ -944,9 +912,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         gameOver.text("Game Over");
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                initGame();
-                level();
                 gameOver.hide();
+                game.setScreen(new LevelScreen(game));
                 return true;
             }
         });

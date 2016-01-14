@@ -25,14 +25,14 @@ public class MultiplayerScreen extends AbstractScreen {
 		//getTable().add(getLogoImage()).spaceBottom(10);
 		getTable().row();
 
-		multiplayerLabel = new Label("== Sail with a friend! ==", getSkin());
-		getTable().add(multiplayerLabel).spaceBottom(20);
+		multiplayerLabel = new Label("Human Challenger", getSkin());
+		getTable().add(multiplayerLabel).spaceBottom(30);
 		getTable().row();
 
 		// If there is a bluetooth interface (that is, if we play on Android).
 		if (Checkers.BLUETOOTH_INTERFACE_EXISTS) {
 			final TextButton hostButton = new TextButton("Host", getSkin());
-			getTable().add(hostButton).size(320, 60).uniform().spaceBottom(10);
+			getTable().add(hostButton).size(320, 60).uniform().spaceBottom(15);
 			hostButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -42,7 +42,7 @@ public class MultiplayerScreen extends AbstractScreen {
 			getTable().row();
 
 			final TextButton joinButton = new TextButton("Join", getSkin());
-			getTable().add(joinButton).size(320, 60).uniform().spaceBottom(10);
+			getTable().add(joinButton).size(320, 60).uniform().spaceBottom(15);
 			joinButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -57,7 +57,7 @@ public class MultiplayerScreen extends AbstractScreen {
 					"Can't play multiplayer dude.\nBluetooth not supported on desktop.",
 					getSkin());
 			infoLabel.setAlignment(Align.center);
-			getTable().add(infoLabel).colspan(2).spaceBottom(10);
+			getTable().add(infoLabel).colspan(2).spaceBottom(15);
 			getTable().row();
 		}
 
