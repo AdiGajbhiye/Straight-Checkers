@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import com.pennywise.Checkers;
 import com.pennywise.multiplayer.BluetoothInterface;
 
+import java.util.Iterator;
 import java.util.Set;
 
 
@@ -29,6 +30,7 @@ public class JoinScreen extends AbstractScreen {
     private TextButton scanButton;
     private TextButton connectButton;
     private Skin skin;
+    Set<String> devices;
 
     public JoinScreen(Checkers game) {
         super(game);
@@ -81,30 +83,14 @@ public class JoinScreen extends AbstractScreen {
         devicesListScrollPane = new ScrollPane(devicesList, skin);
         devicesListScrollPane.setOverscroll(false, false);
         getTable().add(devicesListScrollPane).colspan(3).center()
-                .spaceBottom(5).maxWidth(480).maxHeight(560);
+                .spaceBottom(20).maxWidth(480).maxHeight(560);
         getTable().row();
 
-        backButton = new TextButton("Back", skin);
-        backButton.setVisible(false);
-        getTable().add(backButton).size(150, 40).expand().bottom()
-                .spaceBottom(5).spaceRight(5);
-        backButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                // If connection is in progress, do nothing
-                if (bluetoothInterface.isConnecting()
-                        || bluetoothInterface.isDiscovering())
-                    return;
-                bluetoothInterface.cancelDiscovery();
-                bluetoothInterface.stopConnectionToHost();
-                game.setScreen(new MultiplayerScreen(game));
-            }
-        });
 
         scanButton = new TextButton("Scan", skin);
         scanButton.setVisible(false);
-        getTable().add(scanButton).size(150, 40).expand().bottom()
-                .spaceBottom(5).spaceLeft(5).spaceRight(5);
+        getTable().add(scanButton).size(140, 60).expand().bottom()
+                .padBottom(80).spaceLeft(5).spaceRight(5);
         scanButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -119,8 +105,8 @@ public class JoinScreen extends AbstractScreen {
 
         connectButton = new TextButton("Connect", skin);
         connectButton.setVisible(false);
-        getTable().add(connectButton).size(150, 40).expand().bottom()
-                .spaceBottom(5).spaceLeft(5);
+        getTable().add(connectButton).size(140, 60).expand().bottom()
+                .padBottom(80).spaceLeft(5).spaceRight(5);
         connectButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -140,6 +126,24 @@ public class JoinScreen extends AbstractScreen {
                 }
             }
         });
+
+        backButton = new TextButton("Back", skin);
+        backButton.setVisible(false);
+        getTable().add(backButton).size(140, 60).expand().bottom()
+                .padBottom(80).spaceLeft(5).spaceRight(5);
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // If connection is in progress, do nothing
+                if (bluetoothInterface.isConnecting()
+                        || bluetoothInterface.isDiscovering())
+                    return;
+                bluetoothInterface.cancelDiscovery();
+                bluetoothInterface.stopConnectionToHost();
+                game.setScreen(new MultiplayerScreen(game));
+            }
+        });
+
 
         // Check if the Android device supports bluetooth.
         if (bluetoothInterface.isBluetoothSupported()) {
@@ -174,9 +178,20 @@ public class JoinScreen extends AbstractScreen {
      * Fetches the devices and places them on the screen.
      */
     public void listDevices() {
-        Set<String> devices = bluetoothInterface.getDevices();
-        Gdx.app.log(LOG,"Number of devices (paired+discovered) = " + devices.size());
-        devicesList.setItems(devices.toArray());
+        devices = bluetoothInterface.getDevices();
+        Gdx.app.log(LOG, "Number of devices (paired+discovered) = " + devices.size());
+        int count = devices.size();
+        String[] deviceNames = new String[count];
+        Iterator<String> iter = devices.iterator();
+        int i = 0;
+
+        while (iter.hasNext()) {
+            String name = iter.next();
+            int index = name.indexOf(",");
+            deviceNames[i++] = name.substring(0, index);
+        }
+
+        devicesList.setItems(deviceNames);
     }
 
     public void dispose() {

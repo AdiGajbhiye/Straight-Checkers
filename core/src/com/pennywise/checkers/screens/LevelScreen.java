@@ -58,7 +58,7 @@ public class LevelScreen extends AbstractScreen {
         });
 
         getTable().row();
-        
+
         final TextButton quit = new TextButton("Continue Saved", getSkin());
         getTable().add(quit).size(320, 60).uniform();
     }

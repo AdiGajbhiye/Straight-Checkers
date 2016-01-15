@@ -122,7 +122,7 @@ public class Checkers extends Game {
     public void notify_BT_ACTION_DISCOVERY_FINISHED() {
         if (getScreen() instanceof JoinScreen) {
             ((JoinScreen) getScreen()).getInfoLabel().setText(
-                    "Scan completed. Select device to connect!");
+                    "Chooose your opponent");
             ((JoinScreen) getScreen()).getScanButton().setText("Scan");
         }
     }
@@ -145,7 +145,7 @@ public class Checkers extends Game {
                 setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()
-                        .setText("Waiting for host to start the game...\nBe prepared!\nThe red boat is yours ;)");
+                        .setText("Waiting for host to start the game...");
             }
         } else if (getScreen() instanceof HostScreen) {
             if (bluetoothInterface.isIdle()) {
@@ -153,11 +153,11 @@ public class Checkers extends Game {
                         "There seems to be a problem. Please try again :)");
             } else if (bluetoothInterface.isListening()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
-                        "Game hosted! Tell your buddy to connect!");
+                        "Waiting for opponent...");
                 ((HostScreen) getScreen()).getBackButton().setVisible(true);
             } else if (bluetoothInterface.isConnecting()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
-                        "Some dude is connecting...");
+                        "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
                 setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())

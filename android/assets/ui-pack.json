@@ -34,7 +34,7 @@
         }
     },
     com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
-       default: { vScroll: scroll, hScrollKnob: blue_knob, background: scroll_background, hScroll: scroll, vScrollKnob: blue_knob }
+       default: { vScroll: vScroll, hScrollKnob: blue_knob, background: scroll_background, hScroll: hScroll, vScrollKnob: blue_knob }
     },
     com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
       default: {
