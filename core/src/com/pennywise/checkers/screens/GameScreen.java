@@ -176,6 +176,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     protected void initGame() {
         setupScreen();
         newGame();
+        timer = true;
     }
 
     private final Vector2 stageCoords = new Vector2();

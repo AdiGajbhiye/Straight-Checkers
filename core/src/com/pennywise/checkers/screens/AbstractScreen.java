@@ -4,10 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Constants;
 
 /**
  * Created by Joshua.Nabongo on 6/8/2015.
@@ -20,6 +23,7 @@ public abstract class AbstractScreen implements Screen {
     protected Checkers game;
     private Table table;
     private Skin skin;
+    private OrthographicCamera uiCam;
     private Stage uiStage;
     public boolean isMultiplayer;
 
@@ -31,6 +35,12 @@ public abstract class AbstractScreen implements Screen {
     public Stage getUIStage() {
         if (uiStage == null) {
             uiStage = new Stage();
+            uiCam = new OrthographicCamera();
+            uiCam.position.set(0, 0, 0);
+            uiCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+            uiCam.update();
+
+            uiStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, uiCam));
             Gdx.input.setInputProcessor(uiStage);
         }
         return uiStage;

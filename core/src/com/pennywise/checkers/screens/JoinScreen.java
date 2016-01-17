@@ -118,8 +118,9 @@ public class JoinScreen extends AbstractScreen {
                     String selectedDevice = (String) devicesList.getSelected();
 
                     if (selectedDevice != null) {
-                        String mac = selectedDevice.substring(selectedDevice
-                                .length() - 17);
+                        selectedDevice = selectedDevice.trim();
+
+                        String mac = mac(selectedDevice);
                         Gdx.app.log(LOG, "Selected MAC =" + mac + ".");
                         bluetoothInterface.startConnectionToHost(mac);
                     }
@@ -172,6 +173,27 @@ public class JoinScreen extends AbstractScreen {
             infoLabel
                     .setText("Bluetooth not supported on this device.");
         }
+    }
+
+    private String mac(String deviceName) {
+
+        int count = devices.size();
+        String[] deviceNames = new String[count];
+        Iterator<String> iter = devices.iterator();
+        int i = 0;
+        String addr = "", name = "";
+
+        while (iter.hasNext()) {
+            String entry = iter.next();
+            int index = entry.indexOf(",");
+            name = entry.substring(0, index);
+            name = name.trim();
+            if (name.equals(deviceName)) {
+                addr = entry.substring(entry.length() - 17);
+            }
+        }
+
+        return addr;
     }
 
     /**

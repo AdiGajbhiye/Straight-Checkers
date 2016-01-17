@@ -26,6 +26,7 @@ public class LevelScreen extends AbstractScreen {
         getTable().add(welcomeLabel).spaceBottom(30);
         getTable().row();
 
+
         final TextButton easy = new TextButton("Easy", getSkin());
         getTable().add(easy).size(320, 60).uniform().spaceBottom(15);
         easy.addListener(new ChangeListener() {
