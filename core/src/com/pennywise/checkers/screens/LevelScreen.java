@@ -17,6 +17,8 @@ public class LevelScreen extends AbstractScreen {
 
     public LevelScreen(Checkers game) {
         super(game);
+        game.setMultiplayer(false);
+        game.setHost(false);
     }
 
     @Override

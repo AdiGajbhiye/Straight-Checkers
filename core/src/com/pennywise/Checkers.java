@@ -16,7 +16,8 @@ public class Checkers extends Game {
 
     private AdManager adManager;
     public static boolean BLUETOOTH_INTERFACE_EXISTS;
-    private boolean isMultiplayer;
+    private boolean multiplayer;
+    private boolean host;
     private BluetoothInterface bluetoothInterface;
 
     public Checkers() {
@@ -27,7 +28,8 @@ public class Checkers extends Game {
         this.bluetoothInterface = bluetoothInterface;
         this.adManager = adManager;
         BLUETOOTH_INTERFACE_EXISTS = true;
-        isMultiplayer = false;
+        multiplayer = false;
+        host = false;
         adManager.showBannerAd();
     }
 
@@ -45,9 +47,22 @@ public class Checkers extends Game {
         this.bluetoothInterface = bluetoothInterface;
     }
 
-    public boolean isMultiplayer() {
-        return isMultiplayer;
+    public boolean isHost() {
+        return host;
     }
+
+    public void setHost(boolean host) {
+        this.host = host;
+    }
+
+    public boolean isMultiplayer() {
+        return multiplayer;
+    }
+
+    public void setMultiplayer(boolean multiplayer) {
+        this.multiplayer = multiplayer;
+    }
+
 
     /*
      * Event notifications on Bluetooth coming from MainActivity -->
@@ -148,7 +163,6 @@ public class Checkers extends Game {
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
                 setScreen(new GameScreen(this, Constants.NONE));
-                ((GameScreen) getScreen()).setMultiplayer(true);
                 ((GameScreen) getScreen())
                         .getInfoLabel()
                         .setText("Waiting for host to start the game...");

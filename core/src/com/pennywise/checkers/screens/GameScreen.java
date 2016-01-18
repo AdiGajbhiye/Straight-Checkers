@@ -100,6 +100,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     int[][] move;
     int moveCounter = 0;
+    private boolean inverted = false;
+    private boolean multiplayer = false;
 
     public void newGame() {                            //creates a new game
 
@@ -121,7 +123,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         Checker.printboard(board);
 
-        humanPlayer = Checker.REDNORMAL;
 
         for (int i = 0; i < 8; i++) {
             System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
@@ -162,6 +163,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
 
         this.level = difficulty;
+
+        transmissionPackagePool = new TransmissionPackagePool();
+
     }
 
     @Override
@@ -180,6 +184,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     protected void initGame() {
+        inverted = !game.isHost();
+        multiplayer = game.isMultiplayer();
+        humanPlayer = inverted ? Checker.REDNORMAL : Checker.YELLOWNORMAL;
         setupScreen();
         newGame();
         timer = true;
@@ -199,7 +206,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 startTime = System.nanoTime();
             }
 
-        if (opponentMove && !isMultiplayer()) {
+        if (opponentMove && !multiplayer) {
             opponentMove = false;
             new Thread("Opponent") {
                 public void run() {
@@ -261,12 +268,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         }
 
-        if (humanPiece != null)
-            checkBlackPieceCollision(humanPiece);
+        if (inverted) {
+            if (cpuPiece != null)
+                checkBlackPieceCollision(cpuPiece);
 
-        if (cpuPiece != null)
-            checkWhitePieceCollision(cpuPiece);
+            if (humanPiece != null)
+                checkWhitePieceCollision(humanPiece);
+        } else {
+            if (humanPiece != null)
+                checkBlackPieceCollision(humanPiece);
 
+            if (cpuPiece != null)
+                checkWhitePieceCollision(cpuPiece);
+        }
 
         stage.act();
         stage.draw();
@@ -308,23 +322,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     }
 
-
     private void setupScreen() {
         // build all layers
-
         stage.clear();
         boardStage.clear();
 
-        boolean invert = true;
-
-        Table layerPuzzle = buildBoard(invert);
+        Table layerPuzzle = buildBoard(inverted);
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(hud());
         stack.add(layerPuzzle);
         stage.addActor(stack);
-        boardStage.addActor(drawPieces(height, width, invert));
+        boardStage.addActor(drawPieces(height, width, inverted));
     }
 
     private Table backGround() {
@@ -578,11 +588,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
 
-        if (isMultiplayer()) {
-            move[moveCounter++][0] = src.x;
-            move[moveCounter++][1] = src.y;
-            move[moveCounter++][2] = dest.x;
-            move[moveCounter++][3] = dest.y;
+        if (multiplayer) {
+
+            move[moveCounter] = new int[4];
+            move[moveCounter][0] = src.x;
+            move[moveCounter][1] = src.y;
+            move[moveCounter][2] = dest.x;
+            move[moveCounter][3] = dest.y;
+            moveCounter++;
         }
 
         switch (result) {
@@ -592,7 +605,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 toTile = null;
                 completed = true;
                 humanTurn = true;
-                if (isMultiplayer() && moveCounter > 1) {
+                if (multiplayer && moveCounter > 1) {
                     moveCounter--;
                 }
                 break;
@@ -601,7 +614,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 completed = true;
                 humanTurn = false;
                 move();
-                if (isMultiplayer()) {
+                if (multiplayer) {
                     updatePeer(move);
                     moveCounter = 0;
                 }
@@ -758,7 +771,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         board.setHeight(bHeight);
 
         if (inverted) {
-            for (int row = 7; row >=  0; row--) {
+            for (int row = 0; row < rows; row++) {
                 for (int col = 7; col >= 0; col--) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
@@ -951,7 +964,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         TransmissionPackage transmissionPackage = transmissionPackagePool
                 .obtain();
         transmissionPackage.reset();
-        transmissionPackage.setColor(isHost() ? Checker.YELLOWNORMAL : Checker.REDNORMAL);
+        transmissionPackage.setColor(inverted ? Checker.REDNORMAL : Checker.YELLOWNORMAL);
         transmissionPackage.setGameboard(board);
         transmissionPackage.setGameOver(gameOver);
         transmissionPackage.setMessage("");
@@ -975,10 +988,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Tile destTile = null;
         SequenceAction sequenceAction = new SequenceAction();
 
-        if (Checker.noMovesLeft(board, toMove)) {
-            gameOver("Black");
-            timer = false;
-        }
+        //if (Checker.noMovesLeft(board, toMove)) {
+        //    gameOver("Black");
+        //    timer = false;
+        //}
 
         int startx = mv[0][0];
         int starty = mv[0][1];
@@ -994,7 +1007,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         else
             cpuPiece.setSelected(true);
 
-        for (int i = 1; i < mv.length; i += 2) {
+        for (int i = 0; i < 1; i++) {
             if (mv[i] == null)
                 break;
 
