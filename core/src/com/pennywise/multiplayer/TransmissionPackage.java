@@ -17,7 +17,7 @@ public class TransmissionPackage implements Serializable, Poolable {
 
     /*board state*/
     private int[][] gameboard = null;
-    private int[] move = null;
+    private int[][] move = null;
     private int color = 0;
 
     public TransmissionPackage() {
@@ -51,11 +51,11 @@ public class TransmissionPackage implements Serializable, Poolable {
         this.gameboard = gameboard;
     }
 
-    public int[] getMove() {
+    public int[][] getMove() {
         return move;
     }
 
-    public void setMove(int[] move) {
+    public void setMove(int[][] move) {
         this.move = move;
     }
 

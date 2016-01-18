@@ -22,6 +22,7 @@ public class HostScreen extends AbstractScreen {
 	public HostScreen(Checkers game) {
 		super(game);
 		bluetoothInterface = game.getBluetoothInterface();
+		setHost(true);
 	}
 
 	public Label getInfoLabel() {
@@ -76,7 +77,7 @@ public class HostScreen extends AbstractScreen {
 		// The Android device does not support bluetooth.
 		else {
 			infoLabel
-					.setText("Can't play multiplayer dude.\nBluetooth not supported on this device.");
+					.setText("Bluetooth not supported on this device.");
 		}
 	}
 

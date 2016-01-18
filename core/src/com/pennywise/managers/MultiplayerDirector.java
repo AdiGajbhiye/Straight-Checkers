@@ -7,7 +7,7 @@ import com.pennywise.multiplayer.TransmissionPackage;
  */
 public interface MultiplayerDirector {
 
-    public  void updatePeer();
+    public void updatePeer(int[][] move);
 
-    public  void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
+    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
 }
