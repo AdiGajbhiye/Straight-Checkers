@@ -10,10 +10,10 @@ public class Checker {
     public final static int ILLEGALMOVE = 2;
     public final static int INCOMLETEMOVE = 3;
 
-    public static final int REDNORMAL = 1;
-    public static final int YELLOWNORMAL = 2;
-    public static final int REDKING = 3;
-    public static final int YELLOWKING = 4;
+    public static final int BLACKNORMAL = 1;
+    public static final int WHITENORMAL = 2;
+    public static final int BLACKKING = 3;
+    public static final int WHITEKING = 4;
     public static final int EMPTY = 0;
 
     static int [] getIndex(int x,int y)
@@ -46,16 +46,16 @@ public class Checker {
             {
                 if ( (float)(i+j)/2 != (i+j)/2 )
                 {
-                    if (toMove == REDNORMAL &&
-                            (board[i][j] == REDNORMAL ||
-                                    board[i][j] == REDKING))
+                    if (toMove == BLACKNORMAL &&
+                            (board[i][j] == BLACKNORMAL ||
+                                    board[i][j] == BLACKKING))
                     {
                         if (canWalk(board,i,j)) return false;
                         else if (canCapture(board,i,j)) return false;
                     }
-                    else if (toMove == YELLOWNORMAL &&
-                            (board[i][j] == YELLOWNORMAL ||
-                                    board[i][j] == YELLOWKING))
+                    else if (toMove == WHITENORMAL &&
+                            (board[i][j] == WHITENORMAL ||
+                                    board[i][j] == WHITEKING))
                     {
                         if (canWalk(board,i,j)) return false;
                         else if (canCapture(board,i,j)) return false;
@@ -99,14 +99,14 @@ public class Checker {
             }
 
             // check for new king
-            if ( board[endI][endJ] == REDNORMAL && endJ == 7)
+            if ( board[endI][endJ] == BLACKNORMAL && endJ == 7)
             {
-                board[endI][endJ] = REDKING;
+                board[endI][endJ] = BLACKKING;
             }
 
-            else if ( board[endI][endJ] == YELLOWNORMAL && endJ == 0)
+            else if ( board[endI][endJ] == WHITENORMAL && endJ == 0)
             {
-                board[endI][endJ] = YELLOWKING;
+                board[endI][endJ] = WHITEKING;
             }
 
 
@@ -135,27 +135,27 @@ public class Checker {
             // first see if any captures are possible
             switch (piece)
             {
-                case REDNORMAL:
-                case REDKING:
+                case BLACKNORMAL:
+                case BLACKKING:
                     for (int i=0;i<8;i++)
                     {
                         for (int j=0;j<8;j++)
                         {
-                            if ((board[i][j] == REDNORMAL ||
-                                    board[i][j] == REDKING)
+                            if ((board[i][j] == BLACKNORMAL ||
+                                    board[i][j] == BLACKKING)
                                     && canCapture(board,i,j))
                                 return ILLEGALMOVE;
                         }
                     }
                     break;
-                case YELLOWNORMAL:
-                case YELLOWKING:
+                case WHITENORMAL:
+                case WHITEKING:
                     for (int i=0;i<8;i++)
                     {
                         for (int j=0;j<8;j++)
                         {
-                            if ((board[i][j] == YELLOWNORMAL ||
-                                    board[i][j] == YELLOWKING)
+                            if ((board[i][j] == WHITENORMAL ||
+                                    board[i][j] == WHITEKING)
                                     && canCapture(board,i,j))
                                 return ILLEGALMOVE;
                         }
@@ -165,14 +165,14 @@ public class Checker {
 
             switch (piece)
             {
-                case REDNORMAL:
+                case BLACKNORMAL:
                     if (endJ - srtJ == 1) return LEGALMOVE;       //Normal checkers only can go forward
                     break;
-                case YELLOWNORMAL:
+                case WHITENORMAL:
                     if (endJ - srtJ == -1) return LEGALMOVE;
                     break;
-                case REDKING:
-                case YELLOWKING:
+                case BLACKKING:
+                case WHITEKING:
                     if ( Math.abs(endJ - srtJ) == 1 ) return LEGALMOVE;    //Kings can go in any direction
                     break;
             }
@@ -186,29 +186,29 @@ public class Checker {
             int cap_j = (srtJ + endJ) / 2;
             int cap_piece = board[cap_i][cap_j];
 
-            if (turn == REDNORMAL)         //when you try to cut a piece it should be a peice of opposite side.
+            if (turn == BLACKNORMAL)         //when you try to cut a piece it should be a peice of opposite side.
             //otherwise it is an illegal move.
             {
-                if (!(cap_piece == YELLOWNORMAL ||
-                        cap_piece == YELLOWKING))
+                if (!(cap_piece == WHITENORMAL ||
+                        cap_piece == WHITEKING))
                     return ILLEGALMOVE;
             }
-            else if (!(cap_piece == REDNORMAL ||       //same for yellowers
-                    cap_piece == REDKING))
+            else if (!(cap_piece == BLACKNORMAL ||       //same for yellowers
+                    cap_piece == BLACKKING))
                 return ILLEGALMOVE;
 
             switch (piece)              //if u are going to cut a piece the move must have the length two
             {
-                case REDNORMAL:
+                case BLACKNORMAL:
                     if (endJ - srtJ != 2)
                         return ILLEGALMOVE;
                     break;
-                case YELLOWNORMAL:
+                case WHITENORMAL:
                     if (endJ - srtJ != -2)
                         return ILLEGALMOVE;
                     break;
-                case REDKING:
-                case YELLOWKING:
+                case BLACKKING:
+                case WHITEKING:
                     if (Math.abs(endJ - srtJ) != 2)
                         return ILLEGALMOVE;
             }
@@ -230,14 +230,14 @@ public class Checker {
         {
             switch (piece)
             {
-                case REDNORMAL:
+                case BLACKNORMAL:
                     if (endJ - srtJ == 1) return LEGALMOVE;
                     break;
-                case YELLOWNORMAL:
+                case WHITENORMAL:
                     if (endJ - srtJ == -1) return LEGALMOVE;
                     break;
-                case REDKING:
-                case YELLOWKING:
+                case BLACKKING:
+                case WHITEKING:
                     if ( Math.abs(endJ - srtJ) == 1 ) return LEGALMOVE;
                     break;
             }
@@ -263,48 +263,48 @@ public class Checker {
     {
         switch (board[i][j])
         {
-            case REDNORMAL:
+            case BLACKNORMAL:
                 //check if (red)checkers go out of the board
                 if (i+2<8 && j+2<8)
-                    if ( (board[i+1][j+1] == YELLOWNORMAL ||
-                            board[i+1][j+1] == YELLOWKING)
+                    if ( (board[i+1][j+1] == WHITENORMAL ||
+                            board[i+1][j+1] == WHITEKING)
                             &&
                             (board[i+2][j+2] == EMPTY))
                         return true;
                 // other posiible move direction
                 if (i-2>-1 && j+2<8)
-                    if ( (board[i-1][j+1] == YELLOWNORMAL ||
-                            board[i-1][j+1] == YELLOWKING)
+                    if ( (board[i-1][j+1] == WHITENORMAL ||
+                            board[i-1][j+1] == WHITEKING)
                             &&
                             board[i-2][j+2] == EMPTY)
                         return true;
                 break;
-            case YELLOWNORMAL:
+            case WHITENORMAL:
                 if (i+2<8 && j-2>-1)
-                    if ( (board[i+1][j-1] == REDNORMAL ||
-                            board[i+1][j-1] == REDKING)
+                    if ( (board[i+1][j-1] == BLACKNORMAL ||
+                            board[i+1][j-1] == BLACKKING)
                             &&
                             board[i+2][j-2] == EMPTY)
                         return true;
                 if (i-2>-1 && j-2>-1)
-                    if ( (board[i-1][j-1] == REDNORMAL ||
-                            board[i-1][j-1] == REDKING)
+                    if ( (board[i-1][j-1] == BLACKNORMAL ||
+                            board[i-1][j-1] == BLACKKING)
                             &&
                             board[i-2][j-2] == EMPTY)
                         return true;
                 break;
-            case REDKING:   //should check all four directions
+            case BLACKKING:   //should check all four directions
                 if (i+2<8)
                 {
                     if (j+2<8)
-                        if ( (board[i+1][j+1] == YELLOWNORMAL ||
-                                board[i+1][j+1] == YELLOWKING )
+                        if ( (board[i+1][j+1] == WHITENORMAL ||
+                                board[i+1][j+1] == WHITEKING )
                                 &&
                                 board[i+2][j+2] == EMPTY)
                             return true;
                     if (j-2>-1)
-                        if ( (board[i+1][j-1] == YELLOWNORMAL ||
-                                board[i+1][j-1] == YELLOWKING )
+                        if ( (board[i+1][j-1] == WHITENORMAL ||
+                                board[i+1][j-1] == WHITEKING )
                                 &&
                                 board[i+2][j-2] == EMPTY)
                             return true;
@@ -312,31 +312,31 @@ public class Checker {
                 if (i-2>-1)
                 {
                     if (j+2<8)
-                        if ( (board[i-1][j+1] == YELLOWNORMAL ||
-                                board[i-1][j+1] == YELLOWKING )
+                        if ( (board[i-1][j+1] == WHITENORMAL ||
+                                board[i-1][j+1] == WHITEKING )
                                 &&
                                 board[i-2][j+2] == EMPTY)
                             return true;
                     if (j-2>-1)
-                        if ( (board[i-1][j-1] == YELLOWNORMAL ||
-                                board[i-1][j-1] == YELLOWKING )
+                        if ( (board[i-1][j-1] == WHITENORMAL ||
+                                board[i-1][j-1] == WHITEKING )
                                 &&
                                 board[i-2][j-2] == EMPTY)
                             return true;
                 }
                 break;
-            case YELLOWKING:
+            case WHITEKING:
                 if (i+2<8)
                 {
                     if (j+2<8)
-                        if ( (board[i+1][j+1] == REDNORMAL ||
-                                board[i+1][j+1] == REDKING )
+                        if ( (board[i+1][j+1] == BLACKNORMAL ||
+                                board[i+1][j+1] == BLACKKING )
                                 &&
                                 board[i+2][j+2] == EMPTY)
                             return true;
                     if (j-2>-1)
-                        if ( (board[i+1][j-1] == REDNORMAL ||
-                                board[i+1][j-1] == REDKING )
+                        if ( (board[i+1][j-1] == BLACKNORMAL ||
+                                board[i+1][j-1] == BLACKKING )
                                 &&
                                 board[i+2][j-2] == EMPTY)
                             return true;
@@ -344,14 +344,14 @@ public class Checker {
                 if (i-2>-1)
                 {
                     if (j+2<8)
-                        if ( (board[i-1][j+1] == REDNORMAL ||
-                                board[i-1][j+1] == REDKING )
+                        if ( (board[i-1][j+1] == BLACKNORMAL ||
+                                board[i-1][j+1] == BLACKKING )
                                 &&
                                 board[i-2][j+2] == EMPTY)
                             return true;
                     if (j-2>-1)
-                        if ( (board[i-1][j-1] == REDNORMAL  ||
-                                board[i-1][j-1] == REDKING )
+                        if ( (board[i-1][j-1] == BLACKNORMAL  ||
+                                board[i-1][j-1] == BLACKKING )
                                 &&
                                 board[i-2][j-2] == EMPTY)
                             return true;
@@ -368,16 +368,16 @@ public class Checker {
     {
         switch ( board[i][j] )
         {
-            case REDNORMAL:
+            case BLACKNORMAL:
                 if ( isEmpty(board,i+1,j+1) || isEmpty(board,i-1,j+1) )
                     return true;
                 break;
-            case YELLOWNORMAL:
+            case WHITENORMAL:
                 if ( isEmpty(board,i+1,j-1) || isEmpty(board,i-1,j-1) )
                     return true;
                 break;
-            case REDKING:
-            case YELLOWKING:
+            case BLACKKING:
+            case WHITEKING:
                 if ( isEmpty(board,i+1,j+1) || isEmpty(board,i+1,j-1)
                         || isEmpty(board,i-1,j+1) || isEmpty(board,i-1,j-1) )
                     return true;
@@ -399,12 +399,12 @@ public class Checker {
     {
         switch (piece)
         {
-            case REDNORMAL:
-            case REDKING:
-                return REDNORMAL;
-            case YELLOWNORMAL:
-            case YELLOWKING:
-                return YELLOWNORMAL;
+            case BLACKNORMAL:
+            case BLACKKING:
+                return BLACKNORMAL;
+            case WHITENORMAL:
+            case WHITEKING:
+                return WHITENORMAL;
         }
         return EMPTY;
     }
@@ -541,13 +541,13 @@ public class Checker {
         {
             for(int j=0;j<8;j++)
             {
-                if(board[j][i]==REDNORMAL)
+                if(board[j][i]==BLACKNORMAL)
                     System.out.print("B ");
-                else if(board[j][i]==YELLOWNORMAL)
+                else if(board[j][i]==WHITENORMAL)
                     System.out.print("W ");
-                else if(board[j][i]==REDKING)
+                else if(board[j][i]==BLACKKING)
                     System.out.print("B+");
-                else if(board[j][i]==YELLOWKING)
+                else if(board[j][i]==WHITEKING)
                     System.out.print("W+");
                 else
                     System.out.print("  ");
@@ -563,15 +563,15 @@ public class Checker {
             for (int c = 0; c < 8; c++) {
                 if (b[c][r] == EMPTY)
                     System.out.print("- ");
-                else if (b[c][r] == YELLOWNORMAL)
+                else if (b[c][r] == WHITENORMAL)
                     System.out.print("W ");
-                else if (b[c][r] == REDNORMAL)
+                else if (b[c][r] == BLACKNORMAL)
                     System.out.print("B ");
                 else if (b[c][r] == EMPTY)
                     System.out.print("- ");
-                else if (b[c][r] == REDKING)
+                else if (b[c][r] == BLACKKING)
                     System.out.print("B+");
-                else if (b[c][r] == YELLOWKING)
+                else if (b[c][r] == WHITEKING)
                     System.out.print("W+");
                 else
                     System.out.print(b[c][r] + " ");
