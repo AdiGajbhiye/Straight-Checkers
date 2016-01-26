@@ -2,13 +2,16 @@ package com.pennywise.checkers.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.pennywise.checkers.core.engine.Coord;
 
@@ -296,11 +299,10 @@ public class Util {
     }
 
     // return board number for coordinates
-    public static int  toNumber ( int x, int y)
-    {
+    public static int toNumber(int x, int y) {
         // board coordinates are [y][x]!
         // ENGLISH
-        int [][] en = new int [][] {
+        int[][] en = new int[][]{
                 {0, 1, 0, 2, 0, 3, 0, 4},
                 {5, 0, 6, 0, 7, 0, 8, 0},
                 {0, 9, 0, 10, 0, 11, 0, 12},
@@ -308,11 +310,49 @@ public class Util {
                 {0, 17, 0, 18, 0, 19, 0, 20},
                 {21, 0, 22, 0, 23, 0, 24, 0},
                 {0, 25, 0, 26, 0, 27, 0, 28},
-                {29, 0, 30, 0,31, 0, 32, 0},
+                {29, 0, 30, 0, 31, 0, 32, 0},
         };
 
 
         return en[y][x];
 
     }
+
+    private SpriteDrawable getTexture(Skin skin, String id) {
+        Sprite sprite = skin.getSprite(id);
+        SpriteDrawable drawable = new SpriteDrawable(sprite);
+        return drawable;
+    }
+
+    private NinePatch getPatch(Skin skin, String id) {
+        NinePatch patch = skin.getPatch(id);
+        return patch;
+    }
+
+    public static Pixmap getPixmapRoundedRectangle(int width, int height, int radius, int color) {
+
+        Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+
+        // Pink rectangle
+        pixmap.fillRectangle(0, radius, pixmap.getWidth(), pixmap.getHeight() - 2 * radius);
+
+// Green rectangle
+        pixmap.fillRectangle(radius, 0, pixmap.getWidth() - 2 * radius, pixmap.getHeight());
+
+
+// Bottom-left circle
+        pixmap.fillCircle(radius, radius, radius);
+
+// Top-left circle
+        pixmap.fillCircle(radius, pixmap.getHeight() - radius, radius);
+
+// Bottom-right circle
+        pixmap.fillCircle(pixmap.getWidth() - radius, radius, radius);
+
+// Top-right circle
+        pixmap.fillCircle(pixmap.getWidth() - radius, pixmap.getHeight() - radius, radius);
+        return pixmap;
+    }
+
 }
