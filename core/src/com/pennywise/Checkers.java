@@ -35,7 +35,8 @@ public class Checkers extends Game {
 
     @Override
     public void create() {
-        Assets.loadAll();
+        Assets assets = new Assets();
+        assets.loadAll();
         setScreen(new MenuScreen(this));
     }
 

@@ -5,9 +5,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
@@ -65,11 +67,15 @@ public abstract class AbstractScreen implements Screen {
     }
 
     public void dispose() {
+
         Gdx.app.log(LOG, "Disposing AbstractScreen");
+
         if (uiStage != null)
             uiStage.dispose();
         if (skin != null)
             skin.dispose();
+
+        skin = null;
     }
 
 
