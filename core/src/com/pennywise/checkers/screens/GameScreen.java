@@ -107,19 +107,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         {
             for (int j = 0; j < 8; j++)
                 board[i][j] = Checker.EMPTY;
-
-            for (int j = 0; j < 3; j++)
-                if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.REDNORMAL;
-
-            for (int j = 5; j < 8; j++)
-                if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.YELLOWNORMAL;
         }
+//black side
+        board[0][1] = board[0][3] = board[0][5] = board[0][7] = Checker.REDNORMAL;
+        board[1][0] = board[1][2] = board[1][4] = board[1][6] = Checker.REDNORMAL;
+        board[2][1] = board[2][3] = board[2][5] = board[2][7] = Checker.REDNORMAL;
+//white side
+        board[5][0] = board[5][2] = board[5][4] = board[5][6] = Checker.YELLOWNORMAL;
+        board[6][1] = board[6][3] = board[6][5] = board[6][7] = Checker.YELLOWNORMAL;
+        board[7][0] = board[7][2] = board[7][4] = board[7][6] = Checker.YELLOWNORMAL;
 
         move = new int[8][4];
 
         Checker.printboard(board);
+        Checker.printBoard(board);
 
         humanPlayer = Checker.REDNORMAL;
 
@@ -132,8 +133,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     }
 
-    private boolean isPossibleSquare(int i, int j) {
-        return (i + j) % 2 == 1;
+    private boolean isPossibleSquare(int row, int col) {
+        return (row + col) % 2 == 1;
     }
 
     public void undo() {            //undo function
@@ -149,12 +150,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
-        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        camera.setToOrtho(true, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
         camera.update();
 
         hudCam = new OrthographicCamera();
         hudCam.position.set(0, 0, 0);
-        hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        hudCam.setToOrtho(true, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
         hudCam.update();
 
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
@@ -180,8 +181,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     protected void initGame() {
-        setupScreen();
         newGame();
+        setupScreen();
         timer = true;
     }
 
@@ -315,7 +316,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         stage.clear();
         boardStage.clear();
 
-        boolean invert = true;
+        boolean invert = false;
 
         Table layerPuzzle = buildBoard(invert);
 
@@ -348,11 +349,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table buildBoard(boolean invert) {
         Table layer = new Table();
-        layer.addActor(board(height, width, invert));
+        layer.addActor(board(height, width));
         return layer;
     }
 
-    private Group board(int rows, int cols, boolean inverted) {
+    private Group board(int rows, int cols) {
 
         panel = new Panel(Assets.img_board_bg);
         panel.setTouchable(Touchable.childrenOnly);
@@ -367,78 +368,43 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
-        int index, y, x = 0;
-
+        int index = 0;
 
         float posY = (float) (0.25 * Constants.GAME_HEIGHT);
-
 
         panel.setOrigin(0, posY);
         panel.setWidth(Constants.GAME_WIDTH);
         float bHeight = (cellsize * rows) + (padding * 2);
         panel.setHeight(bHeight);
-
         int text = 0;
         int count = 1;
 
-        if (inverted) {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
+                position[index] = new Vector2((col * cellsize) + padding,
+                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-            for (int row = 0; row < rows; row++) {
-                for (int col = 7; col >= 0; col--) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
+                if (isPossibleSquare(row, col)) {
+                    style.background = Assets.img_cell_dark;
+                    backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
+                    text = (count += 2) / 2;
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
-
-                    } else {
-                        text = 0;
-                        style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
-                    }
-
-                    backgroundTiles[index].setSize(cellsize, cellsize);
-                    backgroundTiles[index].setAlignment(Align.center);
-                    backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    backgroundTiles[index].setName(text + "");
-                    //backgroundTiles[index].setText(text + "");
-                    panel.addActor(backgroundTiles[index]);
+                } else {
+                    style.background = Assets.img_cell_light;
+                    backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
                 }
-            }
-        } else {
 
 
-            for (int row = 7; row >= 0; row--) {
-                for (int col = 0; col < cols; col++) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
-
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Checker.REDNORMAL, new Label.LabelStyle(style));
-
-                    } else {
-                        text = 0;
-                        style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Checker.YELLOWNORMAL, new Label.LabelStyle(style));
-                    }
-
-                    backgroundTiles[index].setSize(cellsize, cellsize);
-                    backgroundTiles[index].setAlignment(Align.center);
-                    backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    backgroundTiles[index].setName(text + "");
-                    panel.addActor(backgroundTiles[index]);
-                }
+                backgroundTiles[index].setSize(cellsize, cellsize);
+                backgroundTiles[index].setAlignment(Align.center);
+                backgroundTiles[index].setPosition(position[index].x, position[index].y);
+                backgroundTiles[index].setName(text + "");
+                panel.addActor(backgroundTiles[index]);
             }
         }
+
         return panel;
-
-
     }
 
     protected void move() {
@@ -576,13 +542,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             return;
         }
 
-        int result = Checker.ApplyMove(board, src.x, src.y, dest.x, dest.y);
+        int result = Checker.ApplyMove(board, src.row, src.col, dest.row, dest.col);
 
         if (isMultiplayer()) {
-            move[moveCounter++][0] = src.x;
-            move[moveCounter++][1] = src.y;
-            move[moveCounter++][2] = dest.x;
-            move[moveCounter++][3] = dest.y;
+            move[moveCounter++][0] = src.row;
+            move[moveCounter++][1] = src.col;
+            move[moveCounter++][2] = dest.row;
+            move[moveCounter++][3] = dest.col;
         }
 
         switch (result) {
@@ -669,7 +635,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             if (loser != Checker.EMPTY) {
                 return;
             }
-            this.toMove = Checker.REDNORMAL;
+            this.toMove = Checker.YELLOWNORMAL;
 
             if (Checker.noMovesLeft(board, toMove)) {
                 gameOver("Black");
@@ -736,8 +702,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
-        Group board = new Group();
-        board.setTouchable(Touchable.childrenOnly);
+        Group group = new Group();
+        group.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -752,19 +718,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         float posY = (float) (0.25 * Constants.GAME_HEIGHT);
 
-        board.setOrigin(0, posY);
-        board.setWidth(Constants.GAME_WIDTH);
+        group.setOrigin(0, posY);
+        group.setWidth(Constants.GAME_WIDTH);
         float bHeight = (cellsize * rows) + (padding * 2);
-        board.setHeight(bHeight);
+        group.setHeight(bHeight);
 
         if (inverted) {
-            for (int row = 7; row >=  0; row--) {
-                for (int col = 7; col >= 0; col--) {
+            for (int row = 0; row < cols; row++) {
+                for (int col = 0; col < cols; col++) {
                     index = col + (row * cols);
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
+                    if (isPossibleSquare(row, col)) {
                         text = (count += 2) / 2;
                         if (row >= 5)
                             pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
@@ -777,11 +743,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         pieces[index].setSize((cellsize - 2), (cellsize - 2));
                         pieces[index].setPosition(position[index].x, position[index].y);
                         pieces[index].setName(text + "");
-                        board.addActor(pieces[index]);
+                        group.addActor(pieces[index]);
                     }
                 }
             }
-
         } else {
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
@@ -789,27 +754,25 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     position[index] = new Vector2((col * cellsize) + padding,
                             padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Checker.REDNORMAL);
-                        else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
+                    if (board[row][col] == Checker.REDNORMAL)
+                        pieces[index] = new Piece(Assets.img_pawn_black, Checker.REDNORMAL);
+                    else if (board[row][col] == Checker.YELLOWNORMAL)
+                        pieces[index] = new Piece(Assets.img_pawn_white, Checker.YELLOWNORMAL);
+                    else//empty slot
+                        continue;
 
-                        if (pieces[index] == null)
-                            continue;
+                    text = (count += 2) / 2;
 
-                        pieces[index].setSize((cellsize - 2), (cellsize - 2));
-                        pieces[index].setPosition(position[index].x, position[index].y);
-                        pieces[index].setName(text + "");
-                        board.addActor(pieces[index]);
-                    }
+                    pieces[index].setSize((cellsize - 2), (cellsize - 2));
+                    pieces[index].setPosition(position[index].x, position[index].y);
+                    pieces[index].setName(text + "");
+                    group.addActor(pieces[index]);
                 }
             }
         }
 
 
-        return board;
+        return group;
     }
 
     @Override

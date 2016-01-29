@@ -141,22 +141,22 @@ public class Util {
     }
 
     public static int coordtonumber(Coord coord) {
-        // given board coordinates x and y, this function returns the board number in
+        // given board coordinates col and row, this function returns the board number in
         // standard checkers notation
         int number;
 
         number = 0;
-        number += 4 * (coord.y + 1);
-        number -= (coord.x / 2);
+        number += 4 * (coord.row + 1);
+        number -= (coord.col / 2);
 
         return number;
     }
 
-    public static int coordstonumber(int x, int y) {
-        // takes coordinates x and y, gametype, and returns the associated board number
+    public static int coordstonumber(int col, int row) {
+        // takes coordinates col and row, gametype, and returns the associated board number
         Coord c = new Coord();
-        c.x = x;
-        c.y = y;
+        c.col = col;
+        c.row = row;
         return (coordtonumber(c));
     }
 
@@ -166,132 +166,132 @@ public class Util {
 
         switch (n) {
             case 1:
-                c.x = 1;
-                c.y = 0;
+                c.row = 0;
+                c.col = 1;
                 break;
             case 2:
-                c.x = 3;
-                c.y = 0;
+                c.col = 3;
+                c.row = 0;
                 break;
             case 3:
-                c.x = 5;
-                c.y = 0;
+                c.col = 5;
+                c.row = 0;
                 break;
             case 4:
-                c.x = 7;
-                c.y = 0;
+                c.col = 7;
+                c.row = 0;
                 break;
             case 5:
-                c.x = 0;
-                c.y = 1;
+                c.col = 0;
+                c.row = 1;
                 break;
             case 6:
-                c.x = 2;
-                c.y = 1;
+                c.col = 2;
+                c.row = 1;
                 break;
             case 7:
-                c.x = 4;
-                c.y = 1;
+                c.col = 4;
+                c.row = 1;
                 break;
             case 8:
-                c.x = 6;
-                c.y = 1;
+                c.col = 6;
+                c.row = 1;
                 break;
             case 9:
-                c.x = 1;
-                c.y = 2;
+                c.col = 1;
+                c.row = 2;
                 break;
             case 10:
-                c.x = 3;
-                c.y = 2;
+                c.col = 3;
+                c.row = 2;
                 break;
             case 11:
-                c.x = 5;
-                c.y = 2;
+                c.col = 5;
+                c.row = 2;
                 break;
             case 12:
-                c.x = 7;
-                c.y = 2;
+                c.col = 7;
+                c.row = 2;
                 break;
             case 13:
-                c.x = 0;
-                c.y = 3;
+                c.col = 0;
+                c.row = 3;
                 break;
             case 14:
-                c.x = 2;
-                c.y = 3;
+                c.col = 2;
+                c.row = 3;
                 break;
             case 15:
-                c.x = 4;
-                c.y = 3;
+                c.col = 4;
+                c.row = 3;
                 break;
             case 16:
-                c.x = 6;
-                c.y = 3;
+                c.col = 6;
+                c.row = 3;
                 break;
             case 17:
-                c.x = 1;
-                c.y = 4;
+                c.col = 1;
+                c.row = 4;
                 break;
             case 18:
-                c.x = 3;
-                c.y = 4;
+                c.col = 3;
+                c.row = 4;
                 break;
             case 19:
-                c.x = 5;
-                c.y = 4;
+                c.col = 5;
+                c.row = 4;
                 break;
             case 20:
-                c.x = 7;
-                c.y = 4;
+                c.col = 7;
+                c.row = 4;
                 break;
             case 21:
-                c.x = 0;
-                c.y = 5;
+                c.col = 0;
+                c.row = 5;
                 break;
             case 22:
-                c.x = 2;
-                c.y = 5;
+                c.col = 2;
+                c.row = 5;
                 break;
             case 23:
-                c.x = 4;
-                c.y = 5;
+                c.col = 4;
+                c.row = 5;
                 break;
             case 24:
-                c.x = 6;
-                c.y = 5;
+                c.col = 6;
+                c.row = 5;
                 break;
             case 25:
-                c.x = 1;
-                c.y = 6;
+                c.col = 1;
+                c.row = 6;
                 break;
             case 26:
-                c.x = 3;
-                c.y = 6;
+                c.col = 3;
+                c.row = 6;
                 break;
             case 27:
-                c.x = 5;
-                c.y = 6;
+                c.col = 5;
+                c.row = 6;
                 break;
             case 28:
-                c.x = 7;
-                c.y = 6;
+                c.col = 7;
+                c.row = 6;
                 break;
             case 29:
-                c.x = 0;
-                c.y = 7;
+                c.col = 0;
+                c.row = 7;
                 break;
             case 30:
-                c.x = 2;
-                c.y = 7;
+                c.col = 2;
+                c.row = 7;
                 break;
             case 31:
-                c.x = 4;
-                c.y = 7;
+                c.col = 4;
+                c.row = 7;
                 break;
             case 32:
-                c.x = 6;
-                c.y = 7;
+                c.col = 6;
+                c.row = 7;
                 break;
         }
 
@@ -299,8 +299,8 @@ public class Util {
     }
 
     // return board number for coordinates
-    public static int toNumber(int x, int y) {
-        // board coordinates are [y][x]!
+    public static int toNumber(int row, int col) {
+        // board coordinates are [row][col]!
         // ENGLISH
         int[][] en = new int[][]{
                 {0, 1, 0, 2, 0, 3, 0, 4},
@@ -314,7 +314,7 @@ public class Util {
         };
 
 
-        return en[y][x];
+        return en[row][col];
 
     }
 
