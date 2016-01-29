@@ -38,13 +38,13 @@ public class GameEngine {
 
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
-                if (board[i][j] == Checker.REDNORMAL)
+                if (board[i][j] == Checker.BLACKNORMAL)
                 {
                     score-=normal;
                     score-=pos*j*j;
                 }
 
-                else if (board[i][j] ==Checker.REDKING)
+                else if (board[i][j] ==Checker.BLACKKING)
                 {
                     score-=king;
                     if (i==0 || i==7)
@@ -53,13 +53,13 @@ public class GameEngine {
                         score += edge;
                 }
 
-                else if (board[i][j] == Checker.YELLOWNORMAL)
+                else if (board[i][j] == Checker.WHITENORMAL)
                 {
                     score+=normal;
                     score+=pos*(7-j)*(7-j);
                 }
 
-                else if (board[i][j] == Checker.YELLOWKING)
+                else if (board[i][j] == Checker.WHITEKING)
                 {
                     score+=king;
                     if (i==0 || i==7)
@@ -134,7 +134,7 @@ public class GameEngine {
                 int temp[] = new int[4];
                 score= MinMax(newBoard, depth+1, maxDepth, temp, getOpponent(turn), counter, yellowBest, redBest);
 
-                if (turn==Checker.YELLOWNORMAL && score > bestScore)
+                if (turn==Checker.WHITENORMAL && score > bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -147,7 +147,7 @@ public class GameEngine {
                     }
                 }
 
-                else if (turn==Checker.REDNORMAL && score < bestScore)
+                else if (turn==Checker.BLACKNORMAL && score < bestScore)
                 {
                     bestMove = (int[])movesList.elementAt(i);
                     bestScore = score;
@@ -177,11 +177,11 @@ public class GameEngine {
 
     static int getOpponent(int turn)
     {                  //returns the opponent
-        return turn==Checker.YELLOWNORMAL ? Checker.REDNORMAL : Checker.YELLOWNORMAL;
+        return turn==Checker.WHITENORMAL ? Checker.BLACKNORMAL : Checker.WHITENORMAL;
     }
 
     static int getTurn(int turn)
     {                     //returns the turn
-        return Checker.colour(turn)==Checker.YELLOWNORMAL ? -inf : inf;
+        return Checker.colour(turn)==Checker.WHITENORMAL ? -inf : inf;
     }
 }

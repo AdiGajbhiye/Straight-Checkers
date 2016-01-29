@@ -12,79 +12,80 @@ import com.pennywise.multiplayer.BluetoothInterface;
 
 public class HostScreen extends AbstractScreen {
 
-	public static final String LOG = HostScreen.class.getSimpleName();
+    public static final String LOG = HostScreen.class.getSimpleName();
 
-	private BluetoothInterface bluetoothInterface;
+    private BluetoothInterface bluetoothInterface;
 
-	private Label infoLabel;
-	private TextButton backButton;
+    private Label infoLabel;
+    private TextButton backButton;
 
-	public HostScreen(Checkers game) {
-		super(game);
-		bluetoothInterface = game.getBluetoothInterface();
-		setHost(true);
-	}
+    public HostScreen(Checkers game) {
+        super(game);
+        bluetoothInterface = game.getBluetoothInterface();
+        game.setHost(true);
+        game.setMultiplayer(true);
+    }
 
-	public Label getInfoLabel() {
-		return infoLabel;
-	}
+    public Label getInfoLabel() {
+        return infoLabel;
+    }
 
-	public void setInfoLabel(Label infoLabel) {
-		this.infoLabel = infoLabel;
-	}
+    public void setInfoLabel(Label infoLabel) {
+        this.infoLabel = infoLabel;
+    }
 
-	public TextButton getBackButton() {
-		return backButton;
-	}
+    public TextButton getBackButton() {
+        return backButton;
+    }
 
-	public void setBackButton(TextButton backButton) {
-		this.backButton = backButton;
-	}
+    public void setBackButton(TextButton backButton) {
+        this.backButton = backButton;
+    }
 
-	@Override
-	public void show() {
-		infoLabel = new Label("", getSkin());
-		infoLabel.setAlignment(Align.center);
-		getTable().add(infoLabel).spaceBottom(20);
-		getTable().row();
+    @Override
+    public void show() {
+        infoLabel = new Label("", getSkin());
+        infoLabel.setAlignment(Align.center);
+        getTable().add(infoLabel).spaceBottom(20);
+        getTable().row();
 
-		backButton = new TextButton("Back", getSkin());
-		backButton.setVisible(false);
-		getTable().add(backButton).size(320, 60).expandX().uniform();
-		backButton.addListener(new ChangeListener() {
-			@Override
-			public void changed(ChangeEvent event, Actor actor) {
-				bluetoothInterface.stopConnectionListening();
-				game.setScreen(new MultiplayerScreen(game));
-			}
-		});
+        backButton = new TextButton("Back", getSkin());
+        backButton.setVisible(false);
+        getTable().add(backButton).size(320, 60).expandX().uniform();
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                bluetoothInterface.stopConnectionListening();
+                game.setScreen(new MultiplayerScreen(game));
+            }
+        });
 
-		// Check if the Android device supports bluetooth.
-		if (bluetoothInterface.isBluetoothSupported()) {
-			// Check if bluetooth is discoverable. If not, make it discoverable.
-			// This will also enable it, if it is disabled.
-			if (!bluetoothInterface.isBluetoothDiscoverable()) {
-				Gdx.app.log(LOG, "isBluetoothDiscoverable = "
-						+ bluetoothInterface.isBluetoothDiscoverable());
-				bluetoothInterface.enableBluetoothDiscoverability();
-			} else {
-				Gdx.app.log(LOG, "isBluetoothDiscoverable = "
-						+ bluetoothInterface.isBluetoothDiscoverable());
-				backButton.setVisible(true);
-				bluetoothInterface.startConnectionListening();
-			}
-		}
-		// The Android device does not support bluetooth.
-		else {
-			infoLabel
-					.setText("Bluetooth not supported on this device.");
-		}
-	}
+        // Check if the Android device supports bluetooth.
+        if (bluetoothInterface.isBluetoothSupported()) {
+            // Check if bluetooth is discoverable. If not, make it discoverable.
+            // This will also enable it, if it is disabled.
+            if (!bluetoothInterface.isBluetoothDiscoverable()) {
+                Gdx.app.log(LOG, "isBluetoothDiscoverable = "
+                        + bluetoothInterface.isBluetoothDiscoverable());
+                bluetoothInterface.enableBluetoothDiscoverability();
+            } else {
+                Gdx.app.log(LOG, "isBluetoothDiscoverable = "
+                        + bluetoothInterface.isBluetoothDiscoverable());
+                backButton.setVisible(true);
+                bluetoothInterface.startConnectionListening();
+            }
+        }
+        // The Android device does not support bluetooth.
+        else {
+            infoLabel
+                    .setText("Bluetooth not supported on this device.");
+        }
+    }
 
-	public void dispose() {
-		super.dispose();
-		Gdx.app.log(LOG, "Disposing HostScreen");
-	}
+    public void dispose() {
+        super.dispose();
+        Gdx.app.log(LOG, "Disposing HostScreen");
+    }
 
 
 }

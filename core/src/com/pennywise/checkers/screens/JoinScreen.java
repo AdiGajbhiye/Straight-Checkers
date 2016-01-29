@@ -36,6 +36,8 @@ public class JoinScreen extends AbstractScreen {
         super(game);
         skin = getSkin();
         bluetoothInterface = game.getBluetoothInterface();
+        game.setHost(false);
+        game.setMultiplayer(true);
     }
 
     public Label getInfoLabel() {

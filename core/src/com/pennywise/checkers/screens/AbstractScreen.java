@@ -27,8 +27,6 @@ public abstract class AbstractScreen implements Screen {
     private Skin skin;
     private OrthographicCamera uiCam;
     private Stage uiStage;
-    private boolean multiplayer = false;
-    private boolean host = false;
 
 
     public AbstractScreen(Checkers game) {
@@ -110,21 +108,5 @@ public abstract class AbstractScreen implements Screen {
     @Override
     public void resume() {
 
-    }
-
-    public boolean isMultiplayer() {
-        return multiplayer;
-    }
-
-    public void setMultiplayer(boolean multiplayer) {
-        this.multiplayer = multiplayer;
-    }
-
-    public boolean isHost() {
-        return host;
-    }
-
-    public void setHost(boolean host) {
-        this.host = host;
     }
 }

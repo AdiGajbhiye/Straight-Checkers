@@ -31,6 +31,7 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
     private final int HIDE_ADS = 0;
     private BluetoothManager mBluetoothManager;
     private Checkers checkers;
+    private boolean host = false;
 
     public static final String LOG = AndroidLauncher.class.getSimpleName();
 
@@ -227,4 +228,11 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
     }
 
 
+    public boolean isHost() {
+        return host;
+    }
+
+    public void setHost(boolean host) {
+        this.host = host;
+    }
 }
