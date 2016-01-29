@@ -18,6 +18,10 @@ public class Checker {
 
     public static int[] getIndex(float x, float  y, float cellsize) {
         int[] index = new int[2];
+
+        index[0] = ((int)(x / cellsize));
+        index[1] = ((int)(y / cellsize));
+
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (((i * cellsize) < x)
@@ -198,17 +202,21 @@ public class Checker {
             return ILLEGALMOVE;
 
         int piece = board[srtI][srtJ];
+
         if (Math.abs(srtI - endI) == 1) {
             switch (piece) {
                 case BLACKNORMAL:
-                    if (endJ - srtJ == 1) return LEGALMOVE;
+                    if (endJ - srtJ == 1)
+                        return LEGALMOVE;
                     break;
                 case WHITENORMAL:
-                    if (endJ - srtJ == -1) return LEGALMOVE;
+                    if (endJ - srtJ == -1)
+                        return LEGALMOVE;
                     break;
                 case BLACKKING:
                 case WHITEKING:
-                    if (Math.abs(endJ - srtJ) == 1) return LEGALMOVE;
+                    if (Math.abs(endJ - srtJ) == 1)
+                        return LEGALMOVE;
                     break;
             }
             return ILLEGALMOVE;

@@ -4,10 +4,14 @@ package com.pennywise.checkers.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -23,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Assets;
 import com.pennywise.Checkers;
@@ -102,6 +107,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     int moveCounter = 0;
     private boolean invert = false;
     private boolean multiplayer = false;
+    private float[] boardPosition = null;
+    private boolean ready = false;
+    private float xx, yy;
 
     public void newGame() {                            //creates a new game
 
@@ -269,6 +277,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         }
 
+
         if (invert) {
             if (cpuPiece != null)
                 checkBlackPieceCollision(cpuPiece);
@@ -295,6 +304,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         renderHud(batch, delta);
 
         removeCapturedPieces();
+
+        drawRect();
     }
 
     @Override
@@ -328,12 +339,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         stage.clear();
         boardStage.clear();
 
-        Table layerPuzzle = drawBoard();
+        Table layerBoard = drawBoard();
+
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(hud());
-        stack.add(layerPuzzle);
+        stack.add(layerBoard);
         stage.addActor(stack);
         boardStage.addActor(drawPieces(height, width, invert));
     }
@@ -359,7 +371,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table drawBoard() {
         Table layer = new Table();
-        layer.addActor(board(height, width));
+        Group g = board(height, width);
+        boardPosition = new float[2];
+        boardPosition[0] = g.getOriginX();
+        boardPosition[1] = g.getOriginY();
+        layer.addActor(g);
         return layer;
     }
 
@@ -393,8 +409,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
-                position[index] = new Vector2((col * cellsize) + padding,
-                        padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
+                position[index] = new Vector2((row * cellsize) + padding,
+                        padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
                 if (isPossibleSquare(row, col)) {
                     text = (count += 2) / 2;
@@ -410,9 +426,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 backgroundTiles[index].setSize(cellsize, cellsize);
                 backgroundTiles[index].setAlignment(Align.center);
                 backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                backgroundTiles[index].setName(text + "");
-                if (text != 0)
+
+                if (text != 0) {
+                    backgroundTiles[index].setName(text + "");
                     backgroundTiles[index].setText(text + "");
+                }
+
                 panel.addActor(backgroundTiles[index]);
             }
         }
@@ -434,7 +453,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (completed) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
-                    if (isKingTile(toTile, humanPiece.getPlayer()) &&
+                    if (isKingTile(humanPiece, humanPiece.getPlayer()) &&
                             !humanPiece.isKing()) {
                         crownPiece(humanPiece);
                     }
@@ -445,37 +464,23 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         })));
     }
 
-    protected boolean isKingTile(Tile tile, int color) {
+    protected boolean isKingTile(Piece piece, int color) {
+
+        int[] position = Checker.getIndex((piece.getX() + 2) - boardPosition[0], (piece.getY() + 2) - boardPosition[1] + 2, cellsize);
 
         if (color == Checker.BLACKNORMAL) {
             //32  31  30  29
-            if (tile.getName().equals("32")
-                    || tile.getName().equals("31")
-                    || tile.getName().equals("30")
-                    || tile.getName().equals("29")) {
+            if ((position[1] == 7)) {
                 return true;
             }
         } else {
             //4   3   2   1
-            if (tile.getName().equals("1")
-                    || tile.getName().equals("2")
-                    || tile.getName().equals("3")
-                    || tile.getName().equals("4")) {
+            if (position[1] == 0) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private boolean isMoveLegal(Piece piece, int from, int to) {
-        if (piece.isKing())
-            return true;
-
-        if (((to - from) < 0))
-            return false;
-
-        return true;
     }
 
     private void checkBlackPieceCollision(Piece piece) {
@@ -540,8 +545,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void movePiece() {
 
-        int[] from = Checker.getIndex(fromTile.getX(), fromTile.getY(), cellsize);
-        int[] dest = Checker.getIndex(toTile.getX(), toTile.getY(), cellsize);
+        int[] from = Checker.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
+        int[] dest = Checker.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
         //int dst = Integer.parseInt(toTile.getName());
 
         Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + dest);
@@ -618,16 +623,66 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         return null;
     }
 
-    protected Piece getPiece(int n) {
+    protected void drawRect() {
+        if (ready) {
+            ShapeRenderer shapeRenderer = new ShapeRenderer();
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.setColor(Color.RED);
 
-        Actor a = boardStage.getRoot();
-        Actor actor = null;
+            shapeRenderer.setAutoShapeType(true);
+            shapeRenderer.begin();
+            shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.rect(xx, yy, cellsize, cellsize);
+            shapeRenderer.end();
+        }
+    }
+
+
+    protected Piece getPiece(int x, int y) {
+
+        Piece selected = null;
+        float[] position = new float[2];
+        position[0] = (cellsize * x);
+        position[1] = (cellsize * y);
+
+        Group pp = null;
+
+        Actor a = boardStage.getActors().first();
+
         if (a instanceof Group) {
-            Group g = ((Group) a);
-            actor = g.findActor(String.valueOf(n));
+            pp = (Group) a;
         }
 
-        return ((Piece) actor);
+        Rectangle rect1 = new Rectangle(position[0] + 2,
+                position[1] + boardPosition[1] + 2,
+                cellsize - 2,
+                cellsize - 2);
+
+        //xx = rect1.x;
+        //yy = rect1.y;
+
+        //ready = true;
+
+        SnapshotArray<Actor> actors = pp.getChildren();
+
+        for (int i = 0; i < actors.size; i++) {
+            if (actors.get(i) instanceof Piece) {
+                selected = (Piece) actors.get(i);
+                Rectangle rect2 = Util.getRectangleOfActor(selected);
+                //xx = rect2.getX();
+                //yy = rect2.getY();
+                if (Intersector.overlaps(rect2, rect1)) {
+                    break;
+                }
+
+            }
+
+        }
+
+
+        //ready = false;
+
+        return selected;
     }
 
     protected void moveOpponentPiece() {
@@ -642,7 +697,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int[] counter = new int[1];
         counter[0] = 0;
 
-        tempScore = GameEngine.MinMax(board, 0, level, move, Checker.WHITENORMAL, counter);
+        tempScore = GameEngine.MinMax(board, 0, level, move, Checker.BLACKNORMAL, counter);
 
         if (move[0] == 0 && move[1] == 0)
             loser = Checker.BLACKNORMAL;
@@ -651,7 +706,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             if (loser != Checker.EMPTY) {
                 return;
             }
-            this.toMove = Checker.BLACKNORMAL;
+            this.toMove = Checker.WHITENORMAL;
 
             if (Checker.noMovesLeft(board, toMove)) {
                 gameOver("Black");
@@ -665,7 +720,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int endy = move[3];
 
         int from = Util.toNumber(startx, starty);
-        cpuPiece = getPiece(from);
+        cpuPiece = getPiece(startx, starty);
 
         if (cpuPiece == null)
             return;
@@ -678,11 +733,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
             Gdx.app.log("BLACK MOVE", "FROM => " + from + " TO => " + to);
 
-            destTile = getTile(to + "");
-            cpuPiece.setName(to + "");
+            float posX = (endx * cellsize) + 4;
+            float posY = (endy * cellsize + boardPosition[1]) + 4;
 
-            float posX = destTile.getX();
-            float posY = destTile.getY();
+            xx = posX;
+            yy = posY;
+
+            ready = true;
 
             sequenceAction.addAction(delay(0.35f));
             sequenceAction.addAction(moveTo(posX, posY, 0.35f));
@@ -690,6 +747,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             endx /= 10;
             endy /= 10;
         }
+
+        ready = false;
 
         final Tile end = destTile;
 
@@ -699,7 +758,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         public void run() {
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
-                            if (isKingTile(end, cpuPiece.getPlayer()) &&
+                            if (isKingTile(cpuPiece, cpuPiece.getPlayer()) &&
                                     !cpuPiece.isKing()) {
                                 crownPiece(cpuPiece);
                             }
@@ -965,7 +1024,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         int from = Util.toNumber(startx, starty);
 
-        cpuPiece = getPiece(from);
+        cpuPiece = getPiece(startx, starty);
 
         if (cpuPiece == null)
             return;
@@ -1002,7 +1061,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         public void run() {
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
-                            if (isKingTile(end, cpuPiece.getPlayer()) &&
+                            if (isKingTile(cpuPiece, cpuPiece.getPlayer()) &&
                                     !cpuPiece.isKing()) {
                                 crownPiece(cpuPiece);
                             }
