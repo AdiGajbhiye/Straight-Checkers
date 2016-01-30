@@ -59,6 +59,7 @@ public class Assets {
 
     private SpriteDrawable getDrawable(String name) {
         Sprite sprite = getAtlas().createSprite(name);
+        sprite.flip(false, true);
         SpriteDrawable drawable = new SpriteDrawable(sprite);
         return drawable;
     }
