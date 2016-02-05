@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 
 /**
  * Created by Joshua.Nabongo on 1/14/2016.
@@ -62,8 +63,16 @@ public class LevelScreen extends AbstractScreen {
 
         getTable().row();
 
-        final TextButton quit = new TextButton("Continue Saved", getSkin());
-        getTable().add(quit).size(320, 60).uniform();
+        if (SaveUtil.exists()) {
+            final TextButton continew = new TextButton("Continue Saved", getSkin());
+            getTable().add(continew).size(320, 60).uniform();
+            continew.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    game.setScreen(new GameScreen(game, Constants.HARD));
+                }
+            });
+        }
     }
 
 

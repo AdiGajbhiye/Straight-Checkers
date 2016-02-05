@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.pennywise.checkers.core.engine.Coord;
+import com.pennywise.checkers.core.persistence.GameObject;
 
 /**
  * Created by Joshua.Nabongo on 9/18/2015.
@@ -353,6 +354,10 @@ public class Util {
 // Top-right circle
         pixmap.fillCircle(pixmap.getWidth() - radius, pixmap.getHeight() - radius, radius);
         return pixmap;
+    }
+
+    public void save(GameObject game){
+
     }
 
 }

@@ -130,9 +130,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         move = new int[8][4];
 
-        Checker.printboard(board);
-
-
         for (int i = 0; i < 8; i++) {
             System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
             System.arraycopy(preBoard1[i], 0, preBoard2[i], 0, 8);
@@ -194,11 +191,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     protected void initGame() {
+
         invert = false;
         multiplayer = game.isMultiplayer();
         humanPlayer = playerTurn;
         newGame();
+
         setupScreen();
+
         timer = true;
     }
 
@@ -790,31 +790,32 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         group.setHeight(bHeight);
 
 
-            for (int row = 0; row < rows; row++) {
-                for (int col = 0; col < cols; col++) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((row * cellsize) + padding,
-                            padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
+                position[index] = new Vector2((row * cellsize) + padding,
+                        padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
-                    if (board[row][col] == Checker.BLACKNORMAL)
-                        pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACKNORMAL);
-                    if (board[row][col] == Checker.WHITENORMAL)
-                        pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITENORMAL);
-                    if (board[row][col] == Checker.EMPTY)
-                        continue;
+                if (board[row][col] == Checker.BLACKNORMAL)
+                    pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACKNORMAL);
+                if (board[row][col] == Checker.WHITENORMAL)
+                    pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITENORMAL);
+                if (board[row][col] == Checker.EMPTY)
+                    continue;
 
-                    text = (count += 2) / 2;
+                text = (count += 2) / 2;
 
-                    pieces[index].setSize((cellsize - 2), (cellsize - 2));
-                    pieces[index].setPosition(position[index].x, position[index].y);
-                    pieces[index].setName(text + "");
-                    group.addActor(pieces[index]);
-                }
+                pieces[index].setSize((cellsize - 2), (cellsize - 2));
+                pieces[index].setPosition(position[index].x, position[index].y);
+                pieces[index].setName(text + "");
+                group.addActor(pieces[index]);
             }
+        }
 
 
         return group;
     }
+
 
     @Override
     public boolean keyDown(int keycode) {
