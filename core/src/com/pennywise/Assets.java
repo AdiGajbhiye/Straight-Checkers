@@ -73,7 +73,7 @@ public class Assets {
         img_cell_light = getDrawable("litecell");
         img_pawn_black = getDrawable("blackpawn");
         img_pawn_white = getDrawable("whitepawn");
-        img_king_black = getDrawable("blackking");
+        img_king_black = getDrawable("blackKing");
         img_king_white = getDrawable("whiteking");
         img_dark_outline = getDrawable("line_dark");
         img_undo = getDrawable("undo");
