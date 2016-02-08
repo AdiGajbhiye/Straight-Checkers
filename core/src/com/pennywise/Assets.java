@@ -69,8 +69,8 @@ public class Assets {
         img_board_bg = getAtlas().createPatch("panel_brown");
         img_selected_cell_dark = getDrawable("selecteddarkcell");
         img_selected_cell_lite = getDrawable("selectedlitecell");
-        img_cell_dark = getDrawable("dark-tile");
-        img_cell_light = getDrawable("ligth-tile");
+        img_cell_dark = getDrawable("darkcell");
+        img_cell_light = getDrawable("litecell");
         img_pawn_black = getDrawable("blackpawn");
         img_pawn_white = getDrawable("whitepawn");
         img_king_black = getDrawable("blackking");
