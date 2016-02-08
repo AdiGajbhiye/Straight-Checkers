@@ -28,7 +28,7 @@
 
     com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
       default: {
-        background: green_field,
+        background: blue_field,
         font: normaltext,
         fontColor: black
         }
@@ -38,7 +38,7 @@
     },
     com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
       default: {
-        font: normaltext, fontColor: black, background: select_box_orig,
+        font: normaltext, fontColor: black, background: blue_field,
         scrollStyle: default,
         listStyle: { font: normaltext, selection: blue_highlight ,background: blue_outline,fontColorUnselected: black, fontColorSelected: white }
       }
@@ -47,6 +47,6 @@
       default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
     },
     com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
-      default: { checkboxOn: blue_checked, checkboxOff: grey_unchecked, font: normaltext, fontColor: black }
+      default: { checkboxOn: blue_outline, checkboxOff: blue_outline, font: normaltext, fontColor: black }
     }
 }
