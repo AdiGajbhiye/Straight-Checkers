@@ -84,6 +84,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     String strTime = "";
 
     private Checker engine;
+    private Group gameBoard;
     private long startTime = 0;
     private boolean timer = false;
     private long secondsTime = 0L;
@@ -101,6 +102,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     int[][] preBoard3 = new int[8][8];
     int preToMove3;
     private int undoCount = 0;
+    private int[] alive = new int[32];
+    private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
     private GameDialog gameDialog;
 
     int[][] move;
@@ -130,13 +133,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         move = new int[8][4];
 
-        for (int i = 0; i < 8; i++) {
-            System.arraycopy(board[i], 0, preBoard1[i], 0, 8);                       //for undo
-            System.arraycopy(preBoard1[i], 0, preBoard2[i], 0, 8);
-            System.arraycopy(preBoard2[i], 0, preBoard3[i], 0, 8);
-            preToMove3 = preToMove2 = preToMove1 = toMove;
-        }
+        copyBoard(board, preBoard1);
+        copyBoard(board, preBoard2);
+        copyBoard(board, preBoard3);
 
+        preToMove3 = preToMove2 = preToMove1 = toMove;
+
+
+    }
+
+    private void copyBoard(int[][] src, int[][] dst) {
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(src[i], 0, dst[i], 0, 8);                       //for undo
+        }
     }
 
     private boolean isPossibleSquare(int i, int j) {
@@ -145,9 +154,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public void undo() {            //undo function
         undoCount = 1;
+
         for (int i = 0; i < 8; i++) {
             System.arraycopy(preBoard3[i], 0, board[i], 0, 8);              //copies previous board
         }
+
         toMove = preToMove3;
     }
 
@@ -279,11 +290,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
 
 
-        if (humanPiece != null)
-            checkWhitePieceCollision(humanPiece);
+        //if (humanPiece != null)
+        //    checkWhitePieceCollision(humanPiece);
 
-        if (cpuPiece != null)
-            checkBlackPieceCollision(cpuPiece);
+        //if (cpuPiece != null)
+        //    checkBlackPieceCollision(cpuPiece);
 
 
         stage.act();
@@ -297,7 +308,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         renderHud(batch, delta);
 
-        removeCapturedPieces();
+        //removeCapturedPieces();
 
         drawRect();
     }
@@ -332,6 +343,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         // build all layers
         stage.clear();
         boardStage.clear();
+        //will hold pieces
+        gameBoard = new Group();
 
         Table layerBoard = drawBoard();
 
@@ -451,6 +464,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                             !humanPiece.isKing()) {
                         crownPiece(humanPiece);
                     }
+
+                    pruneGameBoard();
                     humanTurn = false;
                     opponentMove = true;
                 }
@@ -477,76 +492,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         return false;
     }
 
-    private void checkBlackPieceCollision(Piece piece) {
-        if (piece.isSelected())
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren()) {
-                        if (actor instanceof Piece) {
-                            Piece p = (Piece) actor;
-                            if (p.isSelected())
-                                continue;
-                            if ((p.getPlayer() == Checker.BLACKNORMAL)) {
-                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
-                                    p.setCaptured(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-    }
-
-    private void checkWhitePieceCollision(Piece piece) {
-
-        if (piece.isSelected()) {
-
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren()) {
-                        if (actor instanceof Piece) {
-                            Piece p = (Piece) actor;
-                            if (p.isSelected())
-                                continue;
-                            if ((p.getPlayer() == Checker.WHITENORMAL)) {
-                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
-                                    p.setCaptured(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected synchronized void removeCapturedPieces() {
-        for (Actor a : boardStage.getActors()) {
-            if (a instanceof Group) {
-                for (Actor actor : ((Group) a).getChildren()) {
-                    if (actor instanceof Piece) {
-                        Piece p = (Piece) actor;
-                        if (p.isCaptured()) {
-                            p.remove();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     protected void movePiece() {
 
         int[] from = Checker.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
         int[] dest = Checker.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
-        //int dst = Integer.parseInt(toTile.getName());
-
-        Gdx.app.log("WHITE MOVE", "FROM => " + from + " TO => " + dest);
-
-        //Coord src = Util.toCoord(from);
-        //Coord dest = Util.toCoord(dst);
 
         if (!completed && (((from[0] == dest[0]) && (from[1] == dest[1])))) {
             Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
@@ -663,8 +612,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         xx = rect1.x;
         yy = rect1.y;
 
-        ready = true;
-
         SnapshotArray<Actor> actors = pp.getChildren();
 
         for (int i = 0; i < actors.size; i++) {
@@ -673,14 +620,38 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 Rectangle rect2 = Util.getRectangleOfActor(selected);
                 if (Intersector.overlaps(rect2, rect1)) {
                     break;
+                } else
+                    selected = null;
+            }
+        }
+
+        return selected;
+    }
+
+    protected void pruneGameBoard() {
+
+        pieceCount[0] = 0;
+        pieceCount[1] = 0;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                if (board[row][col] == Checker.BLACKNORMAL) {
+                    pieceCount[0]++;
+                } else if (board[row][col] == Checker.WHITENORMAL) {
+                    pieceCount[1]++;
+                } else if (board[row][col] == Checker.EMPTY) {
+
+                    Piece actor = getPiece(row, col);
+
+                    if (actor == null)
+                        continue;
+
+                    actor.remove();
                 }
             }
         }
 
-        ready = false;
-
-        Gdx.app.log("SELECTED PIECE", "PLAYER =>" + selected.getPlayer());
-        return selected;
     }
 
     protected void moveOpponentPiece() {
@@ -744,14 +715,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 run(new Runnable() {
                         public void run() {
+
                             cpuPiece.setSelected(false);
+
                             cpuPiece.toBack();
+
                             if (isKingTile(cpuPiece, cpuPiece.getPlayer()) &&
                                     !cpuPiece.isKing()) {
                                 crownPiece(cpuPiece);
                             }
 
+                            pruneGameBoard();
+
                             playerTurn = getPlayer();
+
                             humanTurn = true;
 
                         }
@@ -768,8 +745,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected Group drawPieces(int rows, int cols, boolean inverted) {
 
-        Group group = new Group();
-        group.setTouchable(Touchable.childrenOnly);
+        gameBoard.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -784,10 +760,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         float posY = (float) (0.20 * Constants.GAME_HEIGHT);
 
-        group.setOrigin(0, posY);
-        group.setWidth(Constants.GAME_WIDTH);
+        gameBoard.setOrigin(0, posY);
+        gameBoard.setWidth(Constants.GAME_WIDTH);
         float bHeight = (cellsize * rows) + (padding * 2);
-        group.setHeight(bHeight);
+        gameBoard.setHeight(bHeight);
 
 
         for (int row = 0; row < rows; row++) {
@@ -808,14 +784,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 pieces[index].setSize((cellsize - 2), (cellsize - 2));
                 pieces[index].setPosition(position[index].x, position[index].y);
                 pieces[index].setName(text + "");
-                group.addActor(pieces[index]);
+                gameBoard.addActor(pieces[index]);
             }
         }
 
-
-        return group;
+        return gameBoard;
     }
-
 
     @Override
     public boolean keyDown(int keycode) {
