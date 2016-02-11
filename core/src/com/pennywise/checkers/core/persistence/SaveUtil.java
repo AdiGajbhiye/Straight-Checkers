@@ -15,7 +15,6 @@ public class SaveUtil {
         return Gdx.files.local(FILENAME).exists();
     }
 
-
     public static void save(GameObject obj) {
 
         FileHandle file = Gdx.files.local(FILENAME);

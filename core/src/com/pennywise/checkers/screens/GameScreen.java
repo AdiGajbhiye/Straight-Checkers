@@ -35,6 +35,8 @@ import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.Checker;
 import com.pennywise.checkers.core.engine.GameEngine;
+import com.pennywise.checkers.core.persistence.GameObject;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
@@ -43,6 +45,8 @@ import com.pennywise.checkers.screens.dialogs.GameOver;
 import com.pennywise.managers.MultiplayerDirector;
 import com.pennywise.multiplayer.TransmissionPackage;
 import com.pennywise.multiplayer.TransmissionPackagePool;
+
+import java.util.Date;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -54,7 +58,6 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
  * Created by Joshua.Nabongo on 4/15/2015.
  */
 public class GameScreen extends AbstractScreen implements InputProcessor, MultiplayerDirector {
-
 
     private final Stage stage;
     private final Stage boardStage;
@@ -102,9 +105,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     int[][] preBoard3 = new int[8][8];
     int preToMove3;
     private int undoCount = 0;
-    private int[] alive = new int[32];
     private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
     private GameDialog gameDialog;
+    private int saveCounter = 0;
 
     int[][] move;
     int moveCounter = 0;
@@ -306,7 +309,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         dialogStage.act();
         dialogStage.draw();
 
-        renderHud(batch, delta);
+        renderHud(batch);
+
+        save();
 
         //removeCapturedPieces();
 
@@ -345,6 +350,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         boardStage.clear();
         //will hold pieces
         gameBoard = new Group();
+        drawPieces(height, width);
 
         Table layerBoard = drawBoard();
 
@@ -354,7 +360,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         stack.add(hud());
         stack.add(layerBoard);
         stage.addActor(stack);
-        boardStage.addActor(drawPieces(height, width, true));
+
+        boardStage.addActor(gameBoard);
     }
 
     private Table backGround() {
@@ -460,36 +467,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (completed) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
-                    if (isKingTile(humanPiece, humanPiece.getPlayer()) &&
-                            !humanPiece.isKing()) {
-                        crownPiece(humanPiece);
-                    }
-
-                    pruneGameBoard();
+                    //update board
+                    drawPieces(8, 8);
                     humanTurn = false;
                     opponentMove = true;
                 }
             }
         })));
-    }
-
-    protected boolean isKingTile(Piece piece, int color) {
-
-        int[] position = Checker.getIndex((piece.getX() + 2) - boardPosition[0], (piece.getY() + 2) - boardPosition[1] + 2, cellsize);
-
-        if (color == Checker.BLACKNORMAL) {
-            //32  31  30  29
-            if ((position[1] == 7)) {
-                return true;
-            }
-        } else {
-            //4   3   2   1
-            if (position[1] == 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     protected void movePiece() {
@@ -498,7 +482,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int[] dest = Checker.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
 
         if (!completed && (((from[0] == dest[0]) && (from[1] == dest[1])))) {
-            Gdx.app.log("Tiles", "TO => " + to + " RETURNING ");
             to = null;
             return;
         }
@@ -553,16 +536,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 to = dest;
                 break;
         }
-    }
-
-    protected void crownPiece(Piece piece) {
-
-        if (piece.getPlayer() == Checker.BLACKNORMAL)
-            piece.setDrawable(Assets.img_king_black);
-        else
-            piece.setDrawable(Assets.img_king_white);
-
-        piece.Knight(true);
     }
 
     protected Tile getTile(String name) {
@@ -626,32 +599,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
 
         return selected;
-    }
-
-    protected void pruneGameBoard() {
-
-        pieceCount[0] = 0;
-        pieceCount[1] = 0;
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-
-                if (board[row][col] == Checker.BLACKNORMAL) {
-                    pieceCount[0]++;
-                } else if (board[row][col] == Checker.WHITENORMAL) {
-                    pieceCount[1]++;
-                } else if (board[row][col] == Checker.EMPTY) {
-
-                    Piece actor = getPiece(row, col);
-
-                    if (actor == null)
-                        continue;
-
-                    actor.remove();
-                }
-            }
-        }
-
     }
 
     protected void moveOpponentPiece() {
@@ -720,12 +667,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             cpuPiece.toBack();
 
-                            if (isKingTile(cpuPiece, cpuPiece.getPlayer()) &&
-                                    !cpuPiece.isKing()) {
-                                crownPiece(cpuPiece);
-                            }
-
-                            pruneGameBoard();
+                            drawPieces(8, 8);
 
                             playerTurn = getPlayer();
 
@@ -743,8 +685,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     }
 
-    protected Group drawPieces(int rows, int cols, boolean inverted) {
+    protected void drawPieces(int rows, int cols) {
 
+        gameBoard.clear();
         gameBoard.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
@@ -774,6 +717,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 if (board[row][col] == Checker.BLACKNORMAL)
                     pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACKNORMAL);
+                if (board[row][col] == Checker.BLACKKING)
+                    pieces[index] = new Piece(Assets.img_king_black, Checker.BLACKNORMAL);
+                if (board[row][col] == Checker.WHITEKING)
+                    pieces[index] = new Piece(Assets.img_king_white, Checker.WHITENORMAL);
                 if (board[row][col] == Checker.WHITENORMAL)
                     pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITENORMAL);
                 if (board[row][col] == Checker.EMPTY)
@@ -787,8 +734,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 gameBoard.addActor(pieces[index]);
             }
         }
-
-        return gameBoard;
     }
 
     @Override
@@ -847,19 +792,36 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int seconds = (int) (secondsTime % 60);
         int minutes = (int) ((secondsTime / 60) % 60);
         int hours = (int) ((secondsTime / 3600) % 24);
+
+
         String secondsStr = (seconds < 10 ? "0" : "") + seconds;
         String minutesStr = (minutes < 10 ? "0" : "") + minutes;
         String hoursStr = (hours < 10 ? "0" : "") + hours;
         return new String(hoursStr + ":" + minutesStr + ":" + secondsStr);
     }
 
+    public void save() {
 
-    private void renderHud(SpriteBatch batch, float gameTime) {
+        int minutes = (int) ((secondsTime / 60) % 60);
+
+        //save after every 1 minutes
+        if ((minutes - saveCounter) == 1) {
+
+            GameObject obj = new GameObject();
+            obj.setName("test");
+            obj.setBoard(board);
+            obj.setDate(new Date());
+            obj.setMultiplayer(multiplayer);
+            obj.setTurn(playerTurn);
+            SaveUtil.save(obj);
+
+            saveCounter++;
+        }
+    }
+
+    private void renderHud(SpriteBatch batch) {
 
         float y = Constants.GAME_HEIGHT * 0.05f;
-
-        float minutes = (float) Math.floor(gameTime / 60.0f);
-        float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
 
         strTime = getScreenTime();
 
@@ -996,15 +958,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         final Tile end = destTile;
 
         sequenceAction.addAction(
-
                 run(new Runnable() {
                         public void run() {
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
-                            if (isKingTile(cpuPiece, cpuPiece.getPlayer()) &&
-                                    !cpuPiece.isKing()) {
-                                crownPiece(cpuPiece);
-                            }
+                            drawPieces(8, 8);
                             humanTurn = true;
                         }
                     }
