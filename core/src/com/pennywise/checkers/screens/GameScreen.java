@@ -116,7 +116,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private float[] boardPosition = null;
     private boolean ready = false;
     private float xx, yy;
-    private int playerTurn = Checker.BLACKNORMAL;
+    private int playerTurn = Checker.WHITENORMAL;
 
     public void newGame() {                            //creates a new game
 
@@ -143,6 +143,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         preToMove3 = preToMove2 = preToMove1 = toMove;
 
 
+    }
+
+    private void clearBoard() {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                board[i][j] = Checker.EMPTY;
     }
 
     private void copyBoard(int[][] src, int[][] dst) {
@@ -254,9 +260,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         fromTile = (Tile) actor;
                         if (actor instanceof Tile) {
                             Tile tile = (((Tile) actor));
-                            if (tile.getCellEntry() == Checker.BLACKNORMAL)
-                                tile.getStyle().background = Assets.img_selected_cell_dark;
-
+                            //if (tile.getCellEntry() == Checker.BLACKNORMAL)
+                            //    tile.getStyle().background = Assets.img_selected_cell_dark;
                         }
                     } else
                         humanPiece = null;
@@ -292,14 +297,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         }
 
-
-        //if (humanPiece != null)
-        //    checkWhitePieceCollision(humanPiece);
-
-        //if (cpuPiece != null)
-        //    checkBlackPieceCollision(cpuPiece);
-
-
         stage.act();
         stage.draw();
 
@@ -312,8 +309,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         renderHud(batch);
 
         save();
-
-        //removeCapturedPieces();
 
         drawRect();
     }
@@ -358,6 +353,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
         stack.add(hud());
+        stack.add(backGround());
         stack.add(layerBoard);
         stage.addActor(stack);
 
@@ -366,7 +362,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(Assets.img_background);
+        Image bg = new Image(Assets.img_wood);
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
@@ -536,16 +532,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 to = dest;
                 break;
         }
-    }
-
-    protected Tile getTile(String name) {
-
-        for (Tile t : backgroundTiles) {
-            if (t.getName().equalsIgnoreCase(name))
-                return t;
-        }
-
-        return null;
     }
 
     protected void drawRect() {
@@ -908,13 +894,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     private void updateBoard(TransmissionPackage transmissionPackage) {
-        //board = transmissionPackage.getGameboard();
-        String message = transmissionPackage.getMessage();
+
+        copyBoard(transmissionPackage.getGameboard(), board);
+
         int[][] mv = transmissionPackage.getMove();
 
-        String name = transmissionPackage.getName();
-
-        Tile destTile = null;
         SequenceAction sequenceAction = new SequenceAction();
 
         int[] m = mv[0];
@@ -923,8 +907,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int starty = m[1];
         int endx = m[2];
         int endy = m[3];
-
-        int from = Util.toNumber(startx, starty);
 
         cpuPiece = getPiece(startx, starty);
 
@@ -937,15 +919,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             if (mv[i] == null)
                 break;
 
-            int to = Util.toNumber(endx, endy);
-
-            Gdx.app.log("BLACK MOVE", "FROM => " + from + " TO => " + to);
-
-            destTile = getTile(to + "");
-            cpuPiece.setName(to + "");
-
-            float posX = destTile.getX();
-            float posY = destTile.getY();
+            float posX = ((endx) * cellsize) + 4;
+            float posY = ((endy) * cellsize + boardPosition[1]) + 4;
 
             sequenceAction.addAction(delay(0.35f));
             sequenceAction.addAction(moveTo(posX, posY, 0.35f));
@@ -955,20 +930,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             endy = m[3];
         }
 
-        final Tile end = destTile;
-
         sequenceAction.addAction(
                 run(new Runnable() {
                         public void run() {
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
                             drawPieces(8, 8);
+                            playerTurn = getPlayer();
                             humanTurn = true;
                         }
                     }
                 ));
 
-        //update name
+        //update
         if (cpuPiece != null) {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
