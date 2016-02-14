@@ -6,7 +6,7 @@ filter: Nearest,Nearest
 repeat: none
 beige_plain
   rotate: false
-  xy: 151, 495
+  xy: 21, 133
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -34,7 +34,7 @@ blackpawn
   index: -1
 blue_button_down
   rotate: false
-  xy: 151, 448
+  xy: 21, 86
   size: 49, 45
   split: 21, 26, 22, 21
   orig: 49, 45
@@ -90,7 +90,7 @@ brown_knob
   index: -1
 brown_tile
   rotate: false
-  xy: 779, 1476
+  xy: 151, 401
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
@@ -111,14 +111,14 @@ button_pressed
   index: -1
 darkcell
   rotate: false
-  xy: 21, 133
+  xy: 942, 1766
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 green_button_down
   rotate: false
-  xy: 151, 401
+  xy: 21, 39
   size: 49, 45
   split: 18, 30, 22, 22
   orig: 49, 45
@@ -134,7 +134,7 @@ green_button_up
   index: -1
 grey_button_down
   rotate: false
-  xy: 21, 86
+  xy: 779, 1472
   size: 49, 45
   split: 22, 26, 15, 28
   orig: 49, 45
@@ -171,7 +171,7 @@ ic_laucher
   index: -1
 line_dark
   rotate: false
-  xy: 942, 1766
+  xy: 779, 1519
   size: 48, 48
   split: 10, 35, 17, 28
   orig: 48, 48
@@ -179,16 +179,16 @@ line_dark
   index: -1
 litecell
   rotate: false
-  xy: 779, 1519
+  xy: 830, 1570
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 orange_button_down
   rotate: false
-  xy: 21, 39
+  xy: 649, 1212
   size: 49, 45
-  split: 24, 23, 7, 36
+  split: 24, 23, 21, 22
   orig: 49, 45
   offset: 0, 0
   index: -1
@@ -196,7 +196,7 @@ orange_button_up
   rotate: false
   xy: 649, 1309
   size: 49, 49
-  split: 18, 29, 10, 38
+  split: 18, 29, 23, 24
   orig: 49, 49
   offset: 0, 0
   index: -1
@@ -226,7 +226,7 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 830, 1570
+  xy: 649, 1259
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -240,7 +240,7 @@ scroll_background
   index: -1
 undo
   rotate: false
-  xy: 649, 1259
+  xy: 700, 1310
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -261,7 +261,7 @@ vScroll_brown
   index: -1
 whitecell
   rotate: false
-  xy: 700, 1310
+  xy: 151, 444
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -285,6 +285,22 @@ wooden
   xy: 2, 767
   size: 645, 1047
   orig: 645, 1047
+  offset: 0, 0
+  index: -1
+yellow_button_down
+  rotate: false
+  xy: 649, 1165
+  size: 49, 45
+  split: 22, 25, 23, 20
+  orig: 49, 45
+  offset: 0, 0
+  index: -1
+yellow_button_up
+  rotate: false
+  xy: 151, 494
+  size: 49, 49
+  split: 21, 26, 23, 24
+  orig: 49, 49
   offset: 0, 0
   index: -1
 yellow_field

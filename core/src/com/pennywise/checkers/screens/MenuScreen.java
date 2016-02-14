@@ -34,7 +34,7 @@ public class MenuScreen extends AbstractScreen {
 
         getTable().row();
 
-        final TextButton game2Button = new TextButton("Multiplayer", getSkin());
+        final TextButton game2Button = new TextButton("Multiplayer", getSkin(),"green");
         getTable().add(game2Button).size(320, 60).uniform().spaceBottom(15);
         game2Button.addListener(new ChangeListener() {
             @Override
