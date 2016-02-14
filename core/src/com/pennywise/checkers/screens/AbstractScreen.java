@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 
@@ -43,8 +45,18 @@ public abstract class AbstractScreen implements Screen {
 
             uiStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, uiCam));
             Gdx.input.setInputProcessor(uiStage);
+
+            uiStage.addActor(backGround());
         }
         return uiStage;
+    }
+
+    private Table backGround() {
+        Table layer = new Table();
+        Image bg = new Image(getSkin().getDrawable("wooden"));
+        layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
+        layer.setFillParent(true);
+        return layer;
     }
 
     public Skin getSkin() {

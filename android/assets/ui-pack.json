@@ -16,11 +16,13 @@
       title-text: { font: titletext, fontColor: black }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
-      default: { up: button-green, down: button-greendown, checked: button-greendown, disabled: button-greydown },
+      default: { up: blue_button_up, down: blue_button_down, checked: blue_button_down, disabled: grey_button_up },
       transparent: { }
     },
     com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
-      default: { up: button-blue, down: button-bluedown, checked: button-bluedown, disabled: button-greydown, font: normaltext, fontColor: white }
+      default: { up: blue_button_up, down: blue_button_down, checked: blue_button_down, disabled: grey_button_up, font: normaltext, fontColor: white },
+      green: { up: green_button_up, down: green_button_down, checked: green_button_down, disabled: grey_button_up, font: normaltext, fontColor: white },
+      orange: { up: orange_button_up, down: orange_button_down, checked: orange_button_down, disabled: grey_button_up, font: normaltext, fontColor: white }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
       default: { background: panel-beigelight, titleFont: normaltext, titleFontColor: red }

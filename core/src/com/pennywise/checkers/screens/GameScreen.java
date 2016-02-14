@@ -362,7 +362,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(Assets.img_wood);
+        Image bg = new Image(getSkin().getDrawable("wooden"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }

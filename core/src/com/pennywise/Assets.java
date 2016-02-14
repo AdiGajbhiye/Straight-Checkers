@@ -72,7 +72,7 @@ public class Assets {
         img_king_black = getDrawable("blackking");
         img_king_white = getDrawable("whiteking");
         img_dark_outline = getDrawable("line_dark");
-        img_wood = getDrawable("wood");
+        img_wood = getDrawable("wooden");
         img_undo = getDrawable("undo");
 
     }

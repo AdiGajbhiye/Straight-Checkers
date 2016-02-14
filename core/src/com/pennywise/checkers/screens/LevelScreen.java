@@ -30,6 +30,19 @@ public class LevelScreen extends AbstractScreen {
         getTable().row();
 
 
+        if (SaveUtil.exists()) {
+            final TextButton continew = new TextButton("Continue", getSkin(), "orange");
+            getTable().add(continew).size(320, 60).uniform().spaceBottom(15);
+            continew.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    game.setScreen(new GameScreen(game, Constants.HARD));
+                }
+            });
+        }
+
+        getTable().row();
+
         final TextButton easy = new TextButton("Easy", getSkin());
         getTable().add(easy).size(320, 60).uniform().spaceBottom(15);
         easy.addListener(new ChangeListener() {
@@ -63,16 +76,7 @@ public class LevelScreen extends AbstractScreen {
 
         getTable().row();
 
-        if (SaveUtil.exists()) {
-            final TextButton continew = new TextButton("Continue Saved", getSkin());
-            getTable().add(continew).size(320, 60).uniform();
-            continew.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    game.setScreen(new GameScreen(game, Constants.HARD));
-                }
-            });
-        }
+
     }
 
 
