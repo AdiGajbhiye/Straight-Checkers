@@ -23,8 +23,8 @@ public class MenuScreen extends AbstractScreen {
         getTable().add(welcomeLabel).spaceBottom(30);
         getTable().row();
 
-        final TextButton game1Button = new TextButton("Singleplayer", getSkin());
-        getTable().add(game1Button).size(320, 60).uniform().spaceBottom(15);
+        final TextButton game1Button = new TextButton("Singleplayer", getSkin(),"orange");
+        getTable().add(game1Button).size(320, 75).uniform().spaceBottom(20);
         game1Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -35,7 +35,7 @@ public class MenuScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton game2Button = new TextButton("Multiplayer", getSkin(),"green");
-        getTable().add(game2Button).size(320, 60).uniform().spaceBottom(15);
+        getTable().add(game2Button).size(320, 75).uniform().spaceBottom(20);
         game2Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -46,7 +46,7 @@ public class MenuScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton help = new TextButton("Help", getSkin());
-        getTable().add(help).size(320, 60).uniform().spaceBottom(15);;
+        getTable().add(help).size(320, 75).uniform().spaceBottom(20);
         help.addListener(new ChangeListener() {
             @Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -57,7 +57,7 @@ public class MenuScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton quit = new TextButton("Quit", getSkin());
-        getTable().add(quit).size(320, 60).uniform();
+        getTable().add(quit).size(320, 75).uniform();
         quit.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

@@ -32,6 +32,13 @@ blackpawn
   orig: 128, 128
   offset: 0, 0
   index: -1
+blue_box_checked
+  rotate: false
+  xy: 466, 675
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
 blue_button_down
   rotate: false
   xy: 21, 86
@@ -116,6 +123,13 @@ darkcell
   orig: 48, 48
   offset: 0, 0
   index: -1
+green_box_checked
+  rotate: false
+  xy: 649, 1127
+  size: 38, 36
+  orig: 38, 36
+  offset: 0, 0
+  index: -1
 green_button_down
   rotate: false
   xy: 21, 39
@@ -130,6 +144,13 @@ green_button_up
   size: 49, 49
   split: 11, 37, 23, 24
   orig: 49, 49
+  offset: 0, 0
+  index: -1
+grey_box
+  rotate: false
+  xy: 881, 1641
+  size: 38, 36
+  orig: 38, 36
   offset: 0, 0
   index: -1
 grey_button_down
@@ -182,6 +203,13 @@ litecell
   xy: 830, 1570
   size: 48, 48
   orig: 48, 48
+  offset: 0, 0
+  index: -1
+orange_box_checked
+  rotate: false
+  xy: 506, 675
+  size: 38, 36
+  orig: 38, 36
   offset: 0, 0
   index: -1
 orange_button_down
@@ -285,6 +313,13 @@ wooden
   xy: 2, 767
   size: 645, 1047
   orig: 645, 1047
+  offset: 0, 0
+  index: -1
+yellow_box_checked
+  rotate: false
+  xy: 649, 1089
+  size: 38, 36
+  orig: 38, 36
   offset: 0, 0
   index: -1
 yellow_button_down

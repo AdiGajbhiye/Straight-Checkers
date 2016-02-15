@@ -23,6 +23,7 @@
       default: { up: blue_button_up, down: blue_button_down, checked: blue_button_down, disabled: grey_button_up, font: normaltext, fontColor: white },
       green: { up: green_button_up, down: green_button_down, checked: green_button_down, disabled: grey_button_up, font: normaltext, fontColor: white },
       orange: { up: orange_button_up, down: orange_button_down, checked: orange_button_down, disabled: grey_button_up, font: normaltext, fontColor: white }
+      yellow: { up: yellow_button_up, down: yellow_button_down, checked: yellow_button_down, disabled: grey_button_up, font: normaltext, fontColor: white }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
       default: { background: panel-beigelight, titleFont: normaltext, titleFontColor: red }
@@ -49,6 +50,9 @@
       default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
     },
     com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
-      default: { checkboxOn: blue_outline, checkboxOff: blue_outline, font: normaltext, fontColor: black }
+      default: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black }
+      yellow: { checkboxOn: blue_outline, checkboxOff: blue_outline, font: normaltext, fontColor: black }
+      orange: { checkboxOn: blue_outline, checkboxOff: blue_outline, font: normaltext, fontColor: black }
+      green: { checkboxOn: blue_outline, checkboxOff: blue_outline, font: normaltext, fontColor: black }
     }
 }

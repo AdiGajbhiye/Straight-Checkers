@@ -32,7 +32,7 @@ public class LevelScreen extends AbstractScreen {
 
         if (SaveUtil.exists()) {
             final TextButton continew = new TextButton("Continue", getSkin(), "orange");
-            getTable().add(continew).size(320, 60).uniform().spaceBottom(15);
+            getTable().add(continew).size(320, 75).uniform().spaceBottom(20);
             continew.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -44,7 +44,7 @@ public class LevelScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton easy = new TextButton("Easy", getSkin());
-        getTable().add(easy).size(320, 60).uniform().spaceBottom(15);
+        getTable().add(easy).size(320, 75).uniform().spaceBottom(20);
         easy.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -55,7 +55,7 @@ public class LevelScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton normal = new TextButton("Normal", getSkin());
-        getTable().add(normal).size(320, 60).uniform().spaceBottom(15);
+        getTable().add(normal).size(320, 75).uniform().spaceBottom(20);
         normal.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -66,7 +66,7 @@ public class LevelScreen extends AbstractScreen {
         getTable().row();
 
         final TextButton hard = new TextButton("Hard", getSkin());
-        getTable().add(hard).size(320, 60).uniform().spaceBottom(15);
+        getTable().add(hard).size(320, 75).uniform().spaceBottom(20);
         hard.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
