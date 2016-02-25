@@ -83,15 +83,13 @@ public class BluetoothManager implements BluetoothInterface {
                                 .deserialize(readBuf);
 
                         // Notify game about incoming data
-                        currentActivity.getCheckers().notify_PeerDataReceived(
-                                transmissionPackage);
+                        currentActivity.getCheckers().notify_PeerDataReceived(transmissionPackage);
 
                         // Add package to queue
                         // incomingPackages.add(transmissionPackage);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Gdx.app.log(LOG,
-                                "Deserialization problem ? " + e.getMessage());
+                        Gdx.app.log(LOG,"Deserialization problem ? " + e.getMessage());
                     }
 
                     break;

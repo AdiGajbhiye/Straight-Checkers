@@ -10,6 +10,9 @@ import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
 import com.pennywise.multiplayer.BluetoothInterface;
 
+import java.awt.Checkbox;
+import java.awt.TextField;
+
 public class HostScreen extends AbstractScreen {
 
     public static final String LOG = HostScreen.class.getSimpleName();
@@ -17,6 +20,8 @@ public class HostScreen extends AbstractScreen {
     private BluetoothInterface bluetoothInterface;
 
     private Label infoLabel;
+    private TextField playerName;
+    private Checkbox playerColor;
     private TextButton backButton;
 
     public HostScreen(Checkers game) {
@@ -44,6 +49,18 @@ public class HostScreen extends AbstractScreen {
 
     @Override
     public void show() {
+
+        playerName = new TextField("", getSkin());
+        infoLabel.setAlignment(Align.center);
+        getTable().add(infoLabel).spaceBottom(20);
+        getTable().row();
+
+        infoLabel = new Label("", getSkin());
+        infoLabel.setAlignment(Align.center);
+        getTable().add(infoLabel).spaceBottom(20);
+        getTable().row();
+
+
         infoLabel = new Label("", getSkin());
         infoLabel.setAlignment(Align.center);
         getTable().add(infoLabel).spaceBottom(20);
