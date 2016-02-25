@@ -27,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+     </application>
 
     <activity
         android:name="com.google.android.gms.ads.AdActivity"
