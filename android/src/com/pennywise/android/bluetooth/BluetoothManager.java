@@ -303,18 +303,4 @@ public class BluetoothManager implements BluetoothInterface {
         }
     }
 
-    // @Override
-    // public TransmissionPackage getNextIncomingPackage() {
-    // // TODO: Don't like this code...
-    // TransmissionPackage transmissionPackage = null;
-    //
-    // try {
-    // transmissionPackage = incomingPackages.removeIndex(0);
-    // } catch (Exception e) {
-    // // Gdx.app.log(LOG, "getNextIncomingPackage - " + e.getMessage());
-    // }
-    //
-    // return transmissionPackage;
-    // }
-
 }

@@ -3,8 +3,10 @@ package com.pennywise.checkers.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
@@ -17,6 +19,7 @@ public class HostScreen extends AbstractScreen {
     private BluetoothInterface bluetoothInterface;
 
     private Label infoLabel;
+    private TextField playerName;
     private TextButton backButton;
 
     public HostScreen(Checkers game) {
@@ -44,6 +47,13 @@ public class HostScreen extends AbstractScreen {
 
     @Override
     public void show() {
+
+
+        playerName = new TextField("Name:", getSkin());
+        playerName.setAlignment(Align.center);
+        getTable().add(playerName).size(320, 60).expandX().uniform().spaceBottom(20);
+        getTable().row();
+
         infoLabel = new Label("", getSkin());
         infoLabel.setAlignment(Align.center);
         getTable().add(infoLabel).spaceBottom(20);
