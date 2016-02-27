@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.Toast;
 
 import com.badlogic.gdx.Gdx;
 import com.pennywise.android.AndroidLauncher;
@@ -78,13 +79,15 @@ public class BluetoothManager implements BluetoothInterface {
                     byte[] readBuf = (byte[]) msg.obj;
 
                     try {
+
+           //             Toast.makeText(currentActivity, readBuf.toString(), Toast.LENGTH_SHORT);
+
                         // Deserialize bytes to Package
                         TransmissionPackage transmissionPackage = (TransmissionPackage) SerializationUtils
                                 .deserialize(readBuf);
 
                         // Notify game about incoming data
-                        currentActivity.getCheckers().notify_PeerDataReceived(
-                                transmissionPackage);
+                        currentActivity.getCheckers().notify_PeerDataReceived(transmissionPackage);
 
                         // Add package to queue
                         // incomingPackages.add(transmissionPackage);
@@ -293,6 +296,7 @@ public class BluetoothManager implements BluetoothInterface {
             // Serialize package to bytes
             byte[] data = SerializationUtils.serialize(transmissionPackage);
             // Transmit data
+         //   Toast.makeText(currentActivity, data.toString(), Toast.LENGTH_SHORT);
             connectedThread.write(data);
         } catch (Exception e) {
             Gdx.app.log(LOG, "transmitPackage() - " + e.getMessage());

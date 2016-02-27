@@ -64,7 +64,6 @@ public class Checkers extends Game {
         this.multiplayer = multiplayer;
     }
 
-
     /*
      * Event notifications on Bluetooth coming from MainActivity -->
 	 * BluetoothAdapter

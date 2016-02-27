@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import com.badlogic.gdx.Gdx;
 
 import android.bluetooth.BluetoothSocket;
+import android.widget.Toast;
 
 public class ConnectedThread extends Thread {
 
@@ -46,6 +47,7 @@ public class ConnectedThread extends Thread {
 			try {
 				// Read from the InputStream
 				mmInStream.read(buffer);
+
 				// Gdx.app.log(LOG, "RECEIVED: " + buffer.toString());
 
 				// Post a Runnable to the rendering thread that processes the
@@ -57,8 +59,7 @@ public class ConnectedThread extends Thread {
 						// bytes
 						mBluetoothManager
 								.getHandler()
-								.obtainMessage(BluetoothManager.MESSAGE_READ,
-										buffer).sendToTarget();
+								.obtainMessage(BluetoothManager.MESSAGE_READ,buffer).sendToTarget();
 					}
 				});
 			} catch (IOException e) {

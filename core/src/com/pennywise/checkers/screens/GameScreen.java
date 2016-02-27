@@ -116,7 +116,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private float[] boardPosition = null;
     private boolean ready = false;
     private float xx, yy;
-    private int playerTurn = Checker.WHITENORMAL;
+    private int playerTurn = Checker.BLACKNORMAL;
 
     public void newGame() {                            //creates a new game
 
