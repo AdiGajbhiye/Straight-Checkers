@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
 import com.pennywise.multiplayer.BluetoothInterface;
 
+
 public class HostScreen extends AbstractScreen {
 
     public static final String LOG = HostScreen.class.getSimpleName();

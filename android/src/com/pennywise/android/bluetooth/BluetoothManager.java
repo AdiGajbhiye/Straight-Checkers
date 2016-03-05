@@ -93,8 +93,7 @@ public class BluetoothManager implements BluetoothInterface {
                         // incomingPackages.add(transmissionPackage);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Gdx.app.log(LOG,
-                                "Deserialization problem ? " + e.getMessage());
+                        Gdx.app.log(LOG,"Deserialization problem ? " + e.getMessage());
                     }
 
                     break;

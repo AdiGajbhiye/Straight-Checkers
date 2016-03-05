@@ -263,8 +263,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         fromTile = (Tile) actor;
                         if (actor instanceof Tile) {
                             Tile tile = (((Tile) actor));
-                            //if (tile.getCellEntry() == Checker.BLACKNORMAL)
-                            //    tile.getStyle().background = Assets.img_selected_cell_dark;
                         }
                     } else
                         humanPiece = null;

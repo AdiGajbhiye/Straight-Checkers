@@ -12,5 +12,4 @@ eclipse.project {
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.4'
-    compile files('libs/kryonet.jar')
 }
