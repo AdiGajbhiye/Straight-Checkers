@@ -1,5 +1,7 @@
 package com.pennywise.checkers.core.engine;
 
+import com.badlogic.gdx.Gdx;
+
 import java.util.Vector;
 
 /**
@@ -16,11 +18,11 @@ public class Checker {
     public static final int WHITEKING = 4;
     public static final int EMPTY = 0;
 
-    public static int[] getIndex(float x, float  y, float cellsize) {
+    public static int[] getIndex(float x, float y, float cellsize) {
         int[] index = new int[2];
 
-        index[0] = ((int)(x / cellsize));
-        index[1] = ((int)(y / cellsize));
+        index[0] = ((int) (x / cellsize));
+        index[1] = ((int) (y / cellsize));
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -76,11 +78,16 @@ public class Checker {
             if (Math.abs(endI - srtI) == 1) {
                 board[endI][endJ] = board[srtI][srtJ];          //declare a checker there
                 board[srtI][srtJ] = EMPTY;             //clear the previous cell.
+                Gdx.app.log("BOARD", "AFTER ApplyMove => (" + endI + "," + srtI + ")" /*+ printboard(board)*/);
+
             } else // capture
             {
                 board[(srtI + endI) / 2][(srtJ + endJ) / 2] = EMPTY;
                 board[endI][endJ] = board[srtI][srtJ];
                 board[srtI][srtJ] = EMPTY;
+
+                Gdx.app.log("BOARD", "AFTER ApplyMove Capture => (" + endI + "," + srtI + ")" /*+ printboard(board)*/);
+
             }
 
             if (result == INCOMLETEMOVE) {
@@ -482,49 +489,59 @@ public class Checker {
     }
 
 
-    public static void printboard(int[][] board) {
+    public static String printboard(int[][] board) {
+
+        String layout = System.lineSeparator();
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (board[j][i] == BLACKNORMAL)
-                    System.out.print("B ");
+                    layout += "B ";
                 else if (board[j][i] == WHITENORMAL)
-                    System.out.print("W ");
+                    layout += "W ";
                 else if (board[j][i] == BLACKKING)
-                    System.out.print("B+");
+                    layout += "B+";
                 else if (board[j][i] == WHITEKING)
-                    System.out.print("W+");
+                    layout += "W+";
                 else
-                    System.out.print("  ");
+                    layout += "  ";
             }
-            System.out.println("");
+            layout += System.lineSeparator();
         }
-        System.out.println("");
+        layout += System.lineSeparator();
+
+        return layout;
     }
 
-    public static void printBoard(int[][] b) {
+    public static String printBoard(int[][] b) {
+
+        String layout = System.lineSeparator();
 
         for (int r = 7; r >= 0; r--) {
             for (int c = 0; c < 8; c++) {
                 if (b[c][r] == EMPTY)
-                    System.out.print("- ");
+                    layout += "- ";
                 else if (b[c][r] == WHITENORMAL)
-                    System.out.print("W ");
+                    layout += "W ";
                 else if (b[c][r] == BLACKNORMAL)
-                    System.out.print("B ");
+                    layout += "B ";
                 else if (b[c][r] == EMPTY)
-                    System.out.print("- ");
+                    layout += "- ";
                 else if (b[c][r] == BLACKKING)
-                    System.out.print("B+");
+                    layout += "B+";
                 else if (b[c][r] == WHITEKING)
-                    System.out.print("W+");
+                    layout += "W+";
                 else
-                    System.out.print(b[c][r] + " ");
+                    layout += b[c][r] + " ";
 
             }
-            System.out.println("");
+            layout += System.lineSeparator();
         }
 
-        System.out.println("");
+        layout += System.lineSeparator();
+
+        return layout;
     }
+
+
 }

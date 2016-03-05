@@ -32,7 +32,7 @@ public class MultiplayerScreen extends AbstractScreen {
 		// If there is a bluetooth interface (that is, if we play on Android).
 		if (Checkers.BLUETOOTH_INTERFACE_EXISTS) {
 			final TextButton hostButton = new TextButton("Host", getSkin());
-			getTable().add(hostButton).size(320, 60).uniform().spaceBottom(15);
+			getTable().add(hostButton).size(360, 70).uniform().spaceBottom(30);
 			hostButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -42,7 +42,7 @@ public class MultiplayerScreen extends AbstractScreen {
 			getTable().row();
 
 			final TextButton joinButton = new TextButton("Join", getSkin());
-			getTable().add(joinButton).size(320, 60).uniform().spaceBottom(15);
+			getTable().add(joinButton).size(360, 70).uniform().spaceBottom(30);
 			joinButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
@@ -57,12 +57,12 @@ public class MultiplayerScreen extends AbstractScreen {
 					"Can't play multiplayer dude.\nBluetooth not supported on desktop.",
 					getSkin());
 			infoLabel.setAlignment(Align.center);
-			getTable().add(infoLabel).colspan(2).spaceBottom(15);
+			getTable().add(infoLabel).colspan(2).spaceBottom(30);
 			getTable().row();
 		}
 
 		final TextButton backButton = new TextButton("Back", getSkin());
-		getTable().add(backButton).colspan(2).size(320, 60).uniform();
+		getTable().add(backButton).colspan(2).size(360, 70).uniform();
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {

@@ -112,7 +112,7 @@ public class Checkers extends Game {
     public void notify_BT_STATE_ON() {
         if (getScreen() instanceof JoinScreen) {
             ((JoinScreen) getScreen()).getInfoLabel().setText(
-                    "Bluetooth is enabled! Select device to connect!");
+                    "Select device to connect!");
             ((JoinScreen) getScreen()).getBackButton().setVisible(true);
             ((JoinScreen) getScreen()).getScanButton().setVisible(true);
             ((JoinScreen) getScreen()).getConnectButton().setVisible(true);
@@ -182,7 +182,7 @@ public class Checkers extends Game {
                 setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()
-                        .setText("Touch screen to start the game!\nFellow captain is waiting...\nThe red boat is yours ;)");
+                        .setText("Touch screen to start the game!");
             }
         }
     }

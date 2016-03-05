@@ -59,7 +59,7 @@ blue_field
   rotate: false
   xy: 224, 630
   size: 186, 41
-  split: 100, 82, 20, 17
+  split: 8, 9, 20, 17
   orig: 186, 41
   offset: 0, 0
   index: -1

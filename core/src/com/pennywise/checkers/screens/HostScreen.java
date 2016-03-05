@@ -20,7 +20,12 @@ public class HostScreen extends AbstractScreen {
 
     private Label infoLabel;
     private TextField playerName;
+    private CheckBox redPlayer;
+    private CheckBox blackPlayer;
     private TextButton backButton;
+    private TextButton hostButton;
+    private Label colorLabel;
+    private Label nameLabel;
 
     public HostScreen(Checkers game) {
         super(game);
@@ -48,20 +53,90 @@ public class HostScreen extends AbstractScreen {
     @Override
     public void show() {
 
-
-        playerName = new TextField("Name:", getSkin());
-        playerName.setAlignment(Align.center);
-        getTable().add(playerName).size(320, 60).expandX().uniform().spaceBottom(20);
+        nameLabel = new Label("Player name:", getSkin(), "white-text");
+        nameLabel.setAlignment(Align.center);
+        getTable().add(nameLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
 
-        infoLabel = new Label("", getSkin());
+        playerName = new TextField("Player 1", getSkin());
+        playerName.setCursorPosition(0);
+        playerName.setAlignment(Align.left);
+        getTable().add(playerName).size(360, 70).left().colspan(2).spaceBottom(30);
+        getTable().row();
+
+        colorLabel = new Label("Choose piece color", getSkin(), "white-text");
+        colorLabel.setAlignment(Align.center);
+        getTable().add(colorLabel).spaceBottom(15).left().colspan(2);
+        getTable().row();
+
+        redPlayer = new CheckBox("Red", getSkin(), "red");
+        redPlayer.setChecked(true);
+        redPlayer.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                CheckBox checkBox = (CheckBox) actor;
+                if (checkBox.isChecked())
+                    blackPlayer.setChecked(false);
+                else
+                    blackPlayer.setChecked(true);
+            }
+        });
+
+        getTable().add(redPlayer).size(180, 70).left().spaceBottom(30);
+
+
+        blackPlayer = new CheckBox("Black", getSkin());
+        blackPlayer.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                CheckBox checkBox = (CheckBox) actor;
+                if (checkBox.isChecked())
+                    redPlayer.setChecked(false);
+                else
+                    redPlayer.setChecked(true);
+            }
+        });
+        getTable().add(blackPlayer).size(180, 70).left().spaceBottom(30);
+
+        getTable().row();
+
+        infoLabel = new Label("", getSkin(), "white-text");
         infoLabel.setAlignment(Align.center);
-        getTable().add(infoLabel).spaceBottom(20);
+        getTable().add(infoLabel).spaceBottom(15).left().colspan(2);
+        getTable().row();
+
+        hostButton = new TextButton("Start Hosting", getSkin());
+        getTable().add(hostButton).size(360, 70).center().colspan(2).uniform().spaceBottom(30);
+        hostButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Check if the Android device supports bluetooth.
+                if (bluetoothInterface.isBluetoothSupported()) {
+                    // Check if bluetooth is discoverable. If not, make it discoverable.
+                    // This will also enable it, if it is disabled.
+                    if (!bluetoothInterface.isBluetoothDiscoverable()) {
+                        Gdx.app.log(LOG, "isBluetoothDiscoverable = "
+                                + bluetoothInterface.isBluetoothDiscoverable());
+                        bluetoothInterface.enableBluetoothDiscoverability();
+                    } else {
+                        Gdx.app.log(LOG, "isBluetoothDiscoverable = "
+                                + bluetoothInterface.isBluetoothDiscoverable());
+                        backButton.setVisible(true);
+                        bluetoothInterface.startConnectionListening();
+                    }
+                }
+                // The Android device does not support bluetooth.
+                else {
+                    infoLabel
+                            .setText("Bluetooth not supported on this device.");
+                }
+            }
+        });
+
         getTable().row();
 
         backButton = new TextButton("Back", getSkin());
-        backButton.setVisible(false);
-        getTable().add(backButton).size(320, 60).expandX().uniform();
+        getTable().add(backButton).size(360, 70).center().colspan(2).uniform();
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -70,26 +145,7 @@ public class HostScreen extends AbstractScreen {
             }
         });
 
-        // Check if the Android device supports bluetooth.
-        if (bluetoothInterface.isBluetoothSupported()) {
-            // Check if bluetooth is discoverable. If not, make it discoverable.
-            // This will also enable it, if it is disabled.
-            if (!bluetoothInterface.isBluetoothDiscoverable()) {
-                Gdx.app.log(LOG, "isBluetoothDiscoverable = "
-                        + bluetoothInterface.isBluetoothDiscoverable());
-                bluetoothInterface.enableBluetoothDiscoverability();
-            } else {
-                Gdx.app.log(LOG, "isBluetoothDiscoverable = "
-                        + bluetoothInterface.isBluetoothDiscoverable());
-                backButton.setVisible(true);
-                bluetoothInterface.startConnectionListening();
-            }
-        }
-        // The Android device does not support bluetooth.
-        else {
-            infoLabel
-                    .setText("Bluetooth not supported on this device.");
-        }
+
     }
 
     public void dispose() {

@@ -117,6 +117,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private boolean ready = false;
     private float xx, yy;
     private int playerTurn = Checker.BLACKNORMAL;
+    private Label nameLabel;
+    private int round = 0;
 
     public void newGame() {                            //creates a new game
 
@@ -245,6 +247,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }.start();
         }
 
+
         if (Gdx.input.isTouched() && humanTurn) {
 
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
@@ -282,17 +285,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 //Gdx.app.log("FFF", "INCOMPLETE");
                 Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
 
-                if (!(actor.getName().equals(toTile.getName()))) {
-                    if (humanPiece != null && actor != null) {
-                        if (actor instanceof Tile) {
-                            toTile = ((Tile) actor);
-                            if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
-                                movePiece();
+                if (actor != null && toTile != null) {
+                    if (!(actor.getName().equals(toTile.getName()))) {
+                        if (humanPiece != null && actor != null) {
+                            if (actor instanceof Tile) {
+                                toTile = ((Tile) actor);
+                                if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
+                                    movePiece();
+                                }
                             }
                         }
+                    } else {
+                        Gdx.app.log("Tiles", "ILLEGAL MOVE");
                     }
-                } else {
-                    Gdx.app.log("Tiles", "ILLEGAL MOVE");
                 }
             }
         }
@@ -352,8 +357,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        stack.add(hud());
         stack.add(backGround());
+        stack.add(hud());
+        stack.add(opponentHud());
         stack.add(layerBoard);
         stage.addActor(stack);
 
@@ -370,12 +376,29 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private Table hud() {
         Table layer = new Table();
         layer.bottom();
-        layer.right();
-        //layer.debugTable();
-        pauseGame = new ImageButton(Assets.img_btn_pause);
+        //layer.setWidth(Constants.GAME_WIDTH);
+        //layer.setDebug(true);
+
+        nameLabel = new Label("Player name:", getSkin(), "white-text");
+        nameLabel.setAlignment(Align.center);
+
+        layer.add(nameLabel).size(420, 60).center().padBottom(5);
+        layer.row();
         undoMove = new ImageButton(Assets.img_undo);
-        layer.add(undoMove).height(80).width(80).bottom().right().padRight(5).padBottom(10);
-        layer.add(pauseGame).height(80).width(80).bottom().right().padRight(10).padBottom(10);
+        layer.add(undoMove).size(80, 60).right().padRight(5).padBottom(20);
+        return layer;
+    }
+
+    private Table opponentHud() {
+        Table layer = new Table();
+        layer.top();
+        layer.padTop(80);
+        layer.setWidth(Constants.GAME_WIDTH);
+
+        nameLabel = new Label("Player name:", getSkin(), "white-text");
+        nameLabel.setAlignment(Align.center);
+
+        layer.add(nameLabel).size(420, 60).center().padTop(10);
         return layer;
     }
 
@@ -415,6 +438,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         int text = 0;
         int count = 1;
+
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -463,13 +487,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (completed) {
                     humanPiece.toBack();
                     humanPiece.setSelected(false);
-                    //update board
                     drawPieces(8, 8);
-                    humanTurn = false;
+                    gameOver();
                     opponentMove = true;
                 }
             }
         })));
+    }
+
+    protected void gameOver() {
+        if (Checker.noMovesLeft(board, getPlayer())) {
+            gameOver("Black");
+            timer = false;
+        }
     }
 
     protected void movePiece() {
@@ -482,10 +512,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             return;
         }
 
+        Gdx.app.log("BOARD", "FROM=> " + from[0] + "," + from[1] + " TO " + dest[0] + "," + dest[1]);
+
+        //Gdx.app.log("BOARD", "BEFORE => " + Checker.printboard(board));
+
         int result = Checker.ApplyMove(board, from[0], from[1], dest[0], dest[1]);
 
-        if (multiplayer) {
+        //Gdx.app.log("BOARD", "AFTER => " + Checker.printboard(board));
 
+
+        if (multiplayer) {
             move[moveCounter] = new int[4];
             move[moveCounter][0] = from[0];
             move[moveCounter][1] = from[1];
@@ -506,23 +542,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 }
                 break;
             case Checker.LEGALMOVE:
-                humanPiece.setName(toTile.getName());
                 completed = true;
+                Gdx.app.log("PLAYER", "HumanTurnLM => " + humanTurn);
                 humanTurn = false;
+                Gdx.app.log("PLAYER", "HumanTurnLM => " + humanTurn);
                 move();
 
-                if (Checker.noMovesLeft(board, getPlayer())) {
-                    gameOver("Black");
-                    timer = false;
-                } else {
-
-                    if (multiplayer) {
-                        updatePeer(move);
-                        moveCounter = 0;
-                    }
-
-                    playerTurn = getPlayer();
+                if (multiplayer) {
+                    updatePeer(move);
+                    moveCounter = 0;
                 }
+
+                playerTurn = getPlayer();
+
                 break;
             case Checker.INCOMLETEMOVE:
                 move();
@@ -589,17 +621,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void moveOpponentPiece() {
         SequenceAction sequenceAction = new SequenceAction();
-        int tempScore, loser = Checker.EMPTY;
+        int loser = Checker.EMPTY;
         int[] move = new int[4];
         int[] counter = new int[1];
         counter[0] = 0;
 
-        tempScore = GameEngine.MinMax(board, 0, level, move, playerTurn, counter);
+        GameEngine.MinMax(board, 0, level, move, playerTurn, counter);
 
         if (move[0] == 0 && move[1] == 0)
             loser = playerTurn;
         else {
+
+           // Gdx.app.log("BOARD", "BEFOREOM => " + Checker.printboard(board));
+
             Checker.moveComputer(board, move);
+
+            //Gdx.app.log("BOARD", "AFTEROM => " + Checker.printboard(board));
 
             if (loser != Checker.EMPTY) {
                 return;
@@ -649,6 +686,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 run(new Runnable() {
                         public void run() {
 
+                            Gdx.app.log("PLAYER", "CPU FINISHED " + round++);
+
                             cpuPiece.setSelected(false);
 
                             cpuPiece.toBack();
@@ -656,6 +695,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                             drawPieces(8, 8);
 
                             playerTurn = getPlayer();
+
+                            gameOver();
 
                             humanTurn = true;
 
@@ -950,6 +991,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     public int getPlayer() {
+        Gdx.app.log("PLAYER", "CHANGING TURN =>" + round);
         return playerTurn == Checker.BLACKNORMAL ? Checker.WHITENORMAL : Checker.BLACKNORMAL;
     }
 }
