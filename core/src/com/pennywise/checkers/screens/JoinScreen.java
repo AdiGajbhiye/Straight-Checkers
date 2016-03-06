@@ -91,7 +91,7 @@ public class JoinScreen extends AbstractScreen {
 
         scanButton = new TextButton("Scan", skin);
         scanButton.setVisible(false);
-        getTable().add(scanButton).size(360, 70).expand().bottom()
+        getTable().add(scanButton).size(150, 70).expand().bottom()
                 .padBottom(80).spaceLeft(5).spaceRight(5);
         scanButton.addListener(new ChangeListener() {
             @Override
@@ -107,7 +107,7 @@ public class JoinScreen extends AbstractScreen {
 
         connectButton = new TextButton("Connect", skin);
         connectButton.setVisible(false);
-        getTable().add(connectButton).size(360, 70).expand().bottom()
+        getTable().add(connectButton).size(150, 70).expand().bottom()
                 .padBottom(80).spaceLeft(5).spaceRight(5);
         connectButton.addListener(new ChangeListener() {
             @Override
@@ -132,7 +132,7 @@ public class JoinScreen extends AbstractScreen {
 
         backButton = new TextButton("Back", skin);
         backButton.setVisible(false);
-        getTable().add(backButton).size(360, 70).expand().bottom()
+        getTable().add(backButton).size(150, 70).expand().bottom()
                 .padBottom(80).spaceLeft(5).spaceRight(5);
         backButton.addListener(new ChangeListener() {
             @Override

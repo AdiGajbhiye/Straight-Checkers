@@ -191,4 +191,10 @@ public class Checkers extends Game {
         MultiplayerDirector director = (MultiplayerDirector) ((GameScreen) getScreen());
         director.notify_PeerDataReceived(transmissionPackage);
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+    }
 }

@@ -140,6 +140,8 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
         // Unregister broadcast listener
         this.unregisterReceiver(mReceiver);
 
+        mBluetoothManager.stopConnectionToHost();
+        mBluetoothManager.shutdownConnection();
         Gdx.app.log(LOG, "== onDestroy ==");
     }
 
@@ -235,4 +237,6 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
     public void setHost(boolean host) {
         this.host = host;
     }
+
+
 }

@@ -10,7 +10,7 @@ import android.bluetooth.BluetoothSocket;
 
 public class AcceptThread extends Thread {
 
-	public static final String LOG = AcceptThread.class.getSimpleName();
+	public static final String LOG = "TRX";
 
 	private BluetoothManager mBluetoothManager;
 	private final BluetoothServerSocket mmServerSocket;

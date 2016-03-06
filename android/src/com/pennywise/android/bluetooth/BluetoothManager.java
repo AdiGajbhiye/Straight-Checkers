@@ -9,6 +9,7 @@ import android.os.Message;
 import android.widget.Toast;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Json;
 import com.pennywise.android.AndroidLauncher;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
@@ -26,9 +27,9 @@ public class BluetoothManager implements BluetoothInterface {
     public static final String LOG = BluetoothManager.class.getSimpleName();
 
     // The service's name
-    public static final String SERVICE_NAME = "papanikolis-submarine";
+    public static final String SERVICE_NAME = "checkers";
     // The game's UUID string, used by host and client
-    public static final String PAPANIKOLIS_UUID = "48d775e0-ba31-11e2-9e96-0800200c9a66";
+    public static final String PAPANIKOLIS_UUID = "88d775e0-ba31-11e2-9e96-0800200c9a66";
 
     // Constants that indicate the current connection state
     public static final int STATE_IDLE = 0; // we're doing nothing
@@ -77,23 +78,17 @@ public class BluetoothManager implements BluetoothInterface {
             switch (msg.what) {
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
-
                     try {
-
-           //             Toast.makeText(currentActivity, readBuf.toString(), Toast.LENGTH_SHORT);
-
                         // Deserialize bytes to Package
                         TransmissionPackage transmissionPackage = (TransmissionPackage) SerializationUtils
                                 .deserialize(readBuf);
-
                         // Notify game about incoming data
                         currentActivity.getCheckers().notify_PeerDataReceived(transmissionPackage);
-
                         // Add package to queue
                         // incomingPackages.add(transmissionPackage);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Gdx.app.log(LOG,"Deserialization problem ? " + e.getMessage());
+                        Gdx.app.log("TRX", "Deserialization problem ? " + e.getMessage());
                     }
 
                     break;
@@ -294,8 +289,6 @@ public class BluetoothManager implements BluetoothInterface {
         try {
             // Serialize package to bytes
             byte[] data = SerializationUtils.serialize(transmissionPackage);
-            // Transmit data
-         //   Toast.makeText(currentActivity, data.toString(), Toast.LENGTH_SHORT);
             connectedThread.write(data);
         } catch (Exception e) {
             Gdx.app.log(LOG, "transmitPackage() - " + e.getMessage());
