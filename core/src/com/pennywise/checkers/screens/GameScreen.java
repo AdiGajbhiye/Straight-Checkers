@@ -96,7 +96,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
-    int toMove;
     int level = Constants.EASY;
 
     int[][] board = new int[8][8];
@@ -146,7 +145,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         copyBoard(board, preBoard2);
         copyBoard(board, preBoard3);
 
-        preToMove3 = preToMove2 = preToMove1 = toMove;
+        preToMove3 = preToMove2 = preToMove1 = playerTurn;
 
     }
 
@@ -173,7 +172,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             System.arraycopy(preBoard3[i], 0, board[i], 0, 8);              //copies previous board
         }
 
-        toMove = preToMove3;
+        playerTurn = preToMove3;
     }
 
     public GameScreen(Checkers game, int difficulty) {
@@ -251,6 +250,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         if (Gdx.input.isTouched() && humanTurn) {
 
+
+
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
 
@@ -299,6 +300,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     }
                 }
             }
+        }
+
+        if (gameOver) {
+            gameOver = false;
+            showGameOver();
         }
 
         stage.act();
@@ -382,7 +388,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         pushMove.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(multiplayer) {
+                if (multiplayer) {
                     Vector v = new Vector();
                     v.add(new int[]{0, 0, 0, 0});
                     updatePeer(v);
@@ -500,20 +506,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         humanPiece.setSelected(false);
                     }
                     drawPieces(8, 8);
-                    gameOver();
                     humanTurn = false;
+                    playerTurn = getPlayer();
+
                     opponentMove = true;
+
                 }
             }
         })));
     }
 
-    protected void gameOver() {
-        if (Checker.noMovesLeft(board, getPlayer())) {
-            gameOver("Black");
-            timer = false;
-        }
-    }
 
     protected void movePiece() {
 
@@ -543,7 +545,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     updatePeer(moves);
                     moves.clear();
                 }
-                playerTurn = getPlayer();
                 break;
             case Checker.INCOMLETEMOVE:
                 move();
@@ -617,25 +618,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         int[] counter = new int[1];
         counter[0] = 0;
 
+        //check if game is over
+        if (Checker.noMovesLeft(board, playerTurn)) {
+            gameOver = true;
+            timer = false;
+            return;
+        }
+
         GameEngine.MinMax(board, 0, level, move, playerTurn, counter);
 
-        if (move[0] == 0 && move[1] == 0)
-            loser = playerTurn;
-        else {
-            Checker.moveComputer(board, move);
+        Checker.moveComputer(board, move);
 
-            if (loser != Checker.EMPTY) {
-                return;
-            }
-
-            this.toMove = playerTurn;
-
-            if (Checker.noMovesLeft(board, toMove)) {
-                gameOver("White");
-                timer = false;
-            }
-        }
-        ///////
         int startx = move[0];
         int starty = move[1];
         int endx = move[2];
@@ -682,7 +675,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             playerTurn = getPlayer();
 
-                            gameOver();
+                            if (Checker.noMovesLeft(board, playerTurn)) {
+                                gameOver = true;
+                                timer = false;
+                            }
 
                             humanTurn = true;
 
@@ -868,11 +864,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         batch.end();
     }
 
-    public void gameOver(String text) {
+    public void showGameOver() {
 
         timer = false;
 
-        final GameOver gameOver = new GameOver(text + " WIN!", getSkin()); // this is the dialog title
+        final GameOver gameOver = new GameOver(" WIN!", getSkin()); // this is the dialog title
         gameOver.text("Game Over");
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -900,8 +896,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     @Override
     public void updatePeer(Vector move) {
-
-        //Gdx.app.log("TRX", "OUT=> " + Checker.printboard(board));
 
         TransmissionPackage transmissionPackage = new TransmissionPackage();
         transmissionPackage.reset();
@@ -971,6 +965,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
                             drawPieces(8, 8);
+
+                            if (Checker.noMovesLeft(board, getPlayer())) {
+                                gameOver = true;
+                                timer = false;
+                            }
+
                             playerTurn = getPlayer();
                             humanTurn = true;
                         }
@@ -986,6 +986,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public int getPlayer() {
         //Gdx.app.log("PLAYER", "CHANGING TURN =>" + round);
-        return playerTurn == Checker.BLACKNORMAL ? Checker.WHITENORMAL : Checker.BLACKNORMAL;
+        return (playerTurn == Checker.BLACKNORMAL) ? Checker.WHITENORMAL : Checker.BLACKNORMAL;
     }
 }
