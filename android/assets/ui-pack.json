@@ -1,7 +1,7 @@
 {
     com.badlogic.gdx.graphics.g2d.BitmapFont: {
-      normaltext: { file: arial25.fnt },
-      titletext: { file: impact50.fnt }
+      normaltext: { file: Normal.fnt },
+      titletext: { file: Title.fnt }
     },
     com.badlogic.gdx.graphics.Color: {
       red: { a: 1, b: 0, g: 0, r: 1 },
@@ -13,6 +13,7 @@
     com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
       default: { font: normaltext, fontColor: black },
       white-text: { font: normaltext, fontColor: white },
+      black-text: { font: normaltext, fontColor: black },
       title-text: { font: titletext, fontColor: black }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {

@@ -19,11 +19,11 @@ public class MenuScreen extends AbstractScreen {
     @Override
     public void show() {
         getTable().row();
-        welcomeLabel = new Label("Straight Checkers", getSkin());
-        getTable().add(welcomeLabel).spaceBottom(30);
+        welcomeLabel = new Label("Straight Checkers", getSkin(),"title-text");
+        getTable().add(welcomeLabel).spaceBottom(20);
         getTable().row();
 
-        final TextButton game1Button = new TextButton("Singleplayer", getSkin(),"orange");
+        final TextButton game1Button = new TextButton("Singleplayer", getSkin(), "orange");
         getTable().add(game1Button).size(360, 70).uniform().spaceBottom(30);
         game1Button.addListener(new ChangeListener() {
             @Override
@@ -34,7 +34,7 @@ public class MenuScreen extends AbstractScreen {
 
         getTable().row();
 
-        final TextButton game2Button = new TextButton("Multiplayer", getSkin(),"green");
+        final TextButton game2Button = new TextButton("Multiplayer", getSkin(), "green");
         getTable().add(game2Button).size(360, 70).uniform().spaceBottom(30);
         game2Button.addListener(new ChangeListener() {
             @Override
@@ -49,10 +49,10 @@ public class MenuScreen extends AbstractScreen {
         getTable().add(help).size(360, 70).uniform().spaceBottom(30);
         help.addListener(new ChangeListener() {
             @Override
-			public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeEvent event, Actor actor) {
 
-			}
-		});
+            }
+        });
 
         getTable().row();
 

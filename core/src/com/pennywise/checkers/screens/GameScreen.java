@@ -120,8 +120,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private int playerTurn = Checker.WHITENORMAL;
     private Label nameLabel;
     private int round = 0;
-    private boolean acknowledged = false;
-    private TextButton pushMove;
+    private Image blackTurn;
+    private Image whiteTurn;
 
     public void newGame() {                            //creates a new game
 
@@ -203,6 +203,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
         hudFont = Assets.font;
+        blackTurn = new Image(getSkin().getDrawable("red_dot"));
+        whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
 
         width = 8;
         height = 8;
@@ -249,7 +251,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
 
         if (Gdx.input.isTouched() && humanTurn) {
-
 
 
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
@@ -305,6 +306,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         if (gameOver) {
             gameOver = false;
             showGameOver();
+        }
+
+        //switch lights
+        if (playerTurn == Checker.WHITENORMAL) {
+            whiteTurn.setDrawable(getSkin(), "red_dot");
+            blackTurn.setDrawable(getSkin(), "grey_dot");
+        } else {
+            whiteTurn.setDrawable(getSkin(), "grey_dot");
+            blackTurn.setDrawable(getSkin(), "red_dot");
         }
 
         stage.act();
@@ -380,42 +390,29 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table hud() {
         Table layer = new Table();
-        layer.bottom();
-        //layer.setWidth(Constants.GAME_WIDTH);
         //layer.setDebug(true);
+        layer.bottom();
 
-        pushMove = new TextButton("Push", getSkin(), "green");
-        pushMove.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (multiplayer) {
-                    Vector v = new Vector();
-                    v.add(new int[]{0, 0, 0, 0});
-                    updatePeer(v);
-                }
-            }
-        });
-
-        nameLabel = new Label("Player name:", getSkin(), "white-text");
+        nameLabel = new Label("Player name:", getSkin(), "black-text");
         nameLabel.setAlignment(Align.center);
-
-        layer.add(nameLabel).size(420, 60).center().padBottom(5);
+        layer.add(blackTurn).size(30, 30).center().padBottom(80);
+        layer.add(nameLabel).size(320, 60).left().padBottom(80);
         layer.row();
-        //undoMove = new ImageButton(Assets.img_undo);
-        layer.add(pushMove).size(120, 60).right().padRight(5).padBottom(20);
         return layer;
     }
 
     private Table opponentHud() {
         Table layer = new Table();
+        //layer.setDebug(true);
         layer.top();
         layer.padTop(80);
         layer.setWidth(Constants.GAME_WIDTH);
 
+
         nameLabel = new Label("Player name:", getSkin(), "white-text");
         nameLabel.setAlignment(Align.center);
-
-        layer.add(nameLabel).size(420, 60).center().padTop(10);
+        layer.add(whiteTurn).size(30, 30).center().padTop(5);
+        layer.add(nameLabel).size(320, 60).left().padTop(5);
         return layer;
     }
 
@@ -785,14 +782,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         return false;
     }
 
-
-    private void renderGui(SpriteBatch batch, float runTime) {
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-
-        batch.end();
-    }
-
     /**
      * Get screen time from start in format of HH:MM:SS. It is calculated from
      * "secondsTime" parameter, reset that to get resetted time.
@@ -836,31 +825,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
         hudFont.draw(batch, strTime, 15, y);
-        batch.end();
-    }
-
-    private void renderFPS(SpriteBatch batch) {
-
-        float x = hudCam.viewportWidth - 150;
-        float y = 30;
-
-        int fps = Gdx.graphics.getFramesPerSecond();
-
-        BitmapFont fpsFont = hudFont;
-
-        if (fps >= 45) {
-            // 45 or more FPS show up in green
-            fpsFont.setColor(0, 1, 0, 1);
-        } else if (fps >= 30) {
-            // 30 or more FPS show up in yellow
-            fpsFont.setColor(1, 1, 0, 1);
-        } else {
-            // less than 30 FPS show up in red
-            fpsFont.setColor(1, 0, 0, 1);
-        }
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-        fpsFont.draw(batch, "FPS: " + fps, x, y);
         batch.end();
     }
 

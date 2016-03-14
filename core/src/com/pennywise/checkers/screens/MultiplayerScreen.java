@@ -25,7 +25,7 @@ public class MultiplayerScreen extends AbstractScreen {
 		//getTable().add(getLogoImage()).spaceBottom(10);
 		getTable().row();
 
-		multiplayerLabel = new Label("Human Challenger", getSkin());
+		multiplayerLabel = new Label("Human Challenger", getSkin(),"title-text");
 		getTable().add(multiplayerLabel).spaceBottom(30);
 		getTable().row();
 

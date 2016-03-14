@@ -25,7 +25,7 @@ public class LevelScreen extends AbstractScreen {
     @Override
     public void show() {
         getTable().row();
-        welcomeLabel = new Label("Difficulty", getSkin());
+        welcomeLabel = new Label("Game Level", getSkin(),"title-text");
         getTable().add(welcomeLabel).spaceBottom(30);
         getTable().row();
 
