@@ -71,4 +71,10 @@ public class MenuScreen extends AbstractScreen {
         super.dispose();
     }
 
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+        Gdx.app.exit();
+    }
+
 }

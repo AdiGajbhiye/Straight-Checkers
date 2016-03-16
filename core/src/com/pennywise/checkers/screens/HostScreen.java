@@ -154,5 +154,12 @@ public class HostScreen extends AbstractScreen {
         Gdx.app.log(LOG, "Disposing HostScreen");
     }
 
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+
+        game.setScreen(new MultiplayerScreen(game));
+    }
+
 
 }

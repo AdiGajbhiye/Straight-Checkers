@@ -26,8 +26,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -951,5 +949,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public int getPlayer() {
         //Gdx.app.log("PLAYER", "CHANGING TURN =>" + round);
         return (playerTurn == Checker.BLACKNORMAL) ? Checker.WHITENORMAL : Checker.BLACKNORMAL;
+    }
+
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+
+        game.setScreen(new LevelScreen(game));
     }
 }

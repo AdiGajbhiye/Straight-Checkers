@@ -222,4 +222,11 @@ public class JoinScreen extends AbstractScreen {
         super.dispose();
         Gdx.app.log(LOG, "Disposing JoinScreen");
     }
+
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+
+        game.setScreen(new MultiplayerScreen(game));
+    }
 }

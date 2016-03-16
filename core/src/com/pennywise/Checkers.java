@@ -1,6 +1,7 @@
 package com.pennywise;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.assets.AssetManager;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.screens.GameScreen;
 import com.pennywise.checkers.screens.HostScreen;
@@ -19,6 +20,8 @@ public class Checkers extends Game {
     private boolean multiplayer;
     private boolean host;
     private BluetoothInterface bluetoothInterface;
+    // Assets
+    private AssetManager _assetManager = null;
 
     public Checkers() {
         BLUETOOTH_INTERFACE_EXISTS = false;
@@ -31,13 +34,17 @@ public class Checkers extends Game {
         multiplayer = false;
         host = false;
         adManager.showBannerAd();
+
+        _assetManager = new AssetManager();
     }
 
     @Override
     public void create() {
-        Assets assets = new Assets();
-        assets.loadAll();
         setScreen(new MenuScreen(this));
+    }
+
+    public AssetManager getAssetManager() {
+        return _assetManager;
     }
 
     public BluetoothInterface getBluetoothInterface() {

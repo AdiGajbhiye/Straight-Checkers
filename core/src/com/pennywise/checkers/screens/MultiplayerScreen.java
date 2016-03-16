@@ -76,4 +76,11 @@ public class MultiplayerScreen extends AbstractScreen {
 		Gdx.app.log(LOG, "Disposing MultiplayerScreen");
 	}
 
+	@Override
+	public void keyBackPressed() {
+		super.keyBackPressed();
+
+		game.setScreen(new MenuScreen(game));
+	}
+
 }

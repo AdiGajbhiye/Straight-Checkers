@@ -91,5 +91,12 @@ public class LevelScreen extends AbstractScreen {
         super.dispose();
     }
 
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+
+        game.setScreen(new MenuScreen(game));
+    }
+
 }
 
