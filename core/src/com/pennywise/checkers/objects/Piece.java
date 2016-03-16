@@ -1,7 +1,7 @@
 package com.pennywise.checkers.objects;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
 /**
  * Created by CHOXXY on 9/29/2015.
@@ -12,7 +12,7 @@ public class Piece extends Image {
     private boolean selected;
     private boolean isKing;
 
-    public Piece(SpriteDrawable img, int player) {
+    public Piece(Drawable img, int player) {
         super(img);
         selected = false;
         isKing = false;
@@ -40,7 +40,7 @@ public class Piece extends Image {
     }
 
     public void Knight(boolean b) {
-        isKing =  true;
+        isKing = true;
     }
 
 

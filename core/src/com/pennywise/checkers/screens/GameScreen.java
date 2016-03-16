@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
@@ -115,7 +114,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private float[] boardPosition = null;
     private boolean ready = false;
     private float xx, yy;
-    private int playerTurn = Checker.WHITENORMAL;
+    private int playerTurn = Checker.BLACKNORMAL;
     private Label nameLabel;
     private int round = 0;
     private Image blackTurn;
@@ -200,7 +199,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void show() {
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
-        hudFont = Assets.font;
+        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);;
         blackTurn = new Image(getSkin().getDrawable("red_dot"));
         whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
 
@@ -426,12 +425,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Group board(int rows, int cols) {
 
-        panel = new Panel(Assets.img_board_bg);
+        panel = new Panel(getSkin().getPatch("panel_brown"));
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = hudFont;
-        style.background = Assets.img_dark_outline;
+        style.background = getSkin().getDrawable("line_dark");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -460,12 +459,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 if (isPossibleSquare(row, col)) {
                     text = (count += 2) / 2;
-                    style.background = Assets.img_cell_dark;
+                    style.background = getSkin().getDrawable("darkcell");//Assets.img_cell_dark;
                     backgroundTiles[index] = new Tile(Checker.BLACKNORMAL, new Label.LabelStyle(style));
 
                 } else {
                     text = 0;
-                    style.background = Assets.img_cell_light;
+                    style.background = getSkin().getDrawable("litecell");//Assets.img_cell_light;
                     backgroundTiles[index] = new Tile(Checker.WHITENORMAL, new Label.LabelStyle(style));
                 }
 
@@ -720,13 +719,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
                 if (board[row][col] == Checker.BLACKNORMAL)
-                    pieces[index] = new Piece(Assets.img_pawn_black, Checker.BLACKNORMAL);
+                    pieces[index] = new Piece(getSkin().getDrawable("blackpawn"), Checker.BLACKNORMAL);
                 if (board[row][col] == Checker.BLACKKING)
-                    pieces[index] = new Piece(Assets.img_king_black, Checker.BLACKNORMAL);
+                    pieces[index] = new Piece(getSkin().getDrawable("blackking"), Checker.BLACKNORMAL);
                 if (board[row][col] == Checker.WHITEKING)
-                    pieces[index] = new Piece(Assets.img_king_white, Checker.WHITENORMAL);
+                    pieces[index] = new Piece(getSkin().getDrawable("whiteking"), Checker.WHITENORMAL);
                 if (board[row][col] == Checker.WHITENORMAL)
-                    pieces[index] = new Piece(Assets.img_pawn_white, Checker.WHITENORMAL);
+                    pieces[index] = new Piece(getSkin().getDrawable("whitepawn"), Checker.WHITENORMAL);
                 if (board[row][col] == Checker.EMPTY)
                     continue;
 

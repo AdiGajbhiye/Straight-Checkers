@@ -20,15 +20,10 @@ public class AudioManager {
     private float shuffleVolume = 0.5f;
 
 
-    private static Sound explosion = Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.wav"));
-    private static Sound hit = Gdx.audio.newSound(Gdx.files.internal("sounds/hit.wav"));
-    private static Sound jump = Gdx.audio.newSound(Gdx.files.internal("sounds/jump.wav"));
-    private static Sound mutate = Gdx.audio.newSound(Gdx.files.internal("sounds/mutate.wav"));
-    private static Sound powerup = Gdx.audio.newSound(Gdx.files.internal("sounds/powerup.wav"));
-    private static Sound randomize = Gdx.audio.newSound(Gdx.files.internal("sounds/randomize.wav"));
-    private static Sound select = Gdx.audio.newSound(Gdx.files.internal("sounds/select.wav"));
-    private static Sound shoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
-    public static Music song = Gdx.audio.newMusic(Gdx.files.internal("sounds/DavidHasselhoff.mp3"));
+    private static Sound click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
+    private static Sound illegal = Gdx.audio.newSound(Gdx.files.internal("audio/illegal.mp3"));
+    private static Sound loss = Gdx.audio.newSound(Gdx.files.internal("audio/loss.mp3"));
+    private static Sound win = Gdx.audio.newSound(Gdx.files.internal("audio/win.mp3"));
 
     public AudioManager() {
         audioManager = new AudioManager();
@@ -104,4 +99,27 @@ public class AudioManager {
         }
     }
 
+
+    public static void DestroyAudio() {
+        click.dispose();
+        illegal.dispose();
+        loss.dispose();
+        win.dispose();
+    }
+
+    public static void playClick() {
+        click.play(1.0f);
+    }
+
+    public static void playIllegal() {
+        illegal.play(1.0f);
+    }
+
+    public static void playLoss() {
+        loss.play(1.0f);
+    }
+
+    public static void playWin() {
+        win.play(1.0f);
+    }
 }

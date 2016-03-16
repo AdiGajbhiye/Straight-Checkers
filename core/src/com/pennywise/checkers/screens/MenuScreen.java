@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.pennywise.Checkers;
+import com.pennywise.managers.AudioManager;
 
 public class MenuScreen extends AbstractScreen {
 
@@ -28,6 +29,7 @@ public class MenuScreen extends AbstractScreen {
         game1Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new LevelScreen(game));
             }
         });
@@ -39,6 +41,7 @@ public class MenuScreen extends AbstractScreen {
         game2Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new MultiplayerScreen(game));
             }
         });
@@ -50,7 +53,7 @@ public class MenuScreen extends AbstractScreen {
         help.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-
+                AudioManager.playClick();
             }
         });
 

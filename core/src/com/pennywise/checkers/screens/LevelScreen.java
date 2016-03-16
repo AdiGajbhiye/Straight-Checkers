@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.persistence.SaveUtil;
+import com.pennywise.managers.AudioManager;
 
 /**
  * Created by Joshua.Nabongo on 1/14/2016.
@@ -30,16 +31,18 @@ public class LevelScreen extends AbstractScreen {
         getTable().row();
 
 
+        /*
         if (SaveUtil.exists()) {
             final TextButton continew = new TextButton("Continue", getSkin(), "orange");
             getTable().add(continew).size(360, 70).uniform().spaceBottom(30);
             continew.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
+                    AudioManager.playClick();
                     game.setScreen(new GameScreen(game, Constants.EASY));
                 }
             });
-        }
+        }*/
 
         getTable().row();
 
@@ -48,6 +51,7 @@ public class LevelScreen extends AbstractScreen {
         easy.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new GameScreen(game, Constants.EASY));
             }
         });
@@ -59,6 +63,7 @@ public class LevelScreen extends AbstractScreen {
         normal.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new GameScreen(game, Constants.NORMAL));
             }
         });
@@ -70,6 +75,7 @@ public class LevelScreen extends AbstractScreen {
         hard.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new GameScreen(game, Constants.HARD));
             }
         });
@@ -82,6 +88,7 @@ public class LevelScreen extends AbstractScreen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 game.setScreen(new MenuScreen(game));
             }
         });

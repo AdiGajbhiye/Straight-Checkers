@@ -31,6 +31,7 @@ public class Assets {
     public static SpriteDrawable img_wood;
     public static NinePatch img_background;
     public static NinePatch img_board_bg;
+    public static NinePatch img_board2;
     public static SpriteDrawable img_dark_outline;
     public static SpriteDrawable img_btn_pause;
 
@@ -72,7 +73,7 @@ public class Assets {
         img_king_black = getDrawable("blackking");
         img_king_white = getDrawable("whiteking");
         img_dark_outline = getDrawable("line_dark");
-        img_wood = getDrawable("wooden");
+        img_board2 = getAtlas().createPatch("wood");
         img_undo = getDrawable("undo");
 
     }
