@@ -32,8 +32,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.Checker;
 import com.pennywise.checkers.core.engine.GameEngine;
+import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
 import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.checkers.objects.Panel;
@@ -86,7 +86,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     String strTime = "";
 
-    private Checker engine;
+
     private Group gameBoard;
     private long startTime = 0;
     private boolean timer = false;
@@ -114,7 +114,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private float[] boardPosition = null;
     private boolean ready = false;
     private float xx, yy;
-    private int playerTurn = Checker.BLACKNORMAL;
+    private int playerTurn = Simple.BLACK;
     private Label nameLabel;
     private int round = 0;
     private Image blackTurn;
@@ -125,15 +125,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         for (int i = 0; i < 8; i++)                                  //applies values to the board
         {
             for (int j = 0; j < 8; j++)
-                board[i][j] = Checker.EMPTY;
+                board[i][j] = Simple.FREE;
 
             for (int j = 0; j < 3; j++)
                 if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.BLACKNORMAL;
+                    board[i][j] = Simple.BLACK;
 
             for (int j = 5; j < 8; j++)
                 if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.WHITENORMAL;
+                    board[i][j] = Simple.WHITE;
         }
 
         moves = new Vector();
@@ -149,7 +149,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private void clearBoard() {
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                board[i][j] = Checker.EMPTY;
+                board[i][j] = Simple.FREE;
     }
 
     private void copyBoard(int[][] src, int[][] dst) {
@@ -274,7 +274,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             toTile = ((Tile) actor);
 
-                            if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
+                            if (toTile.getCellEntry() == Simple.BLACK) {
                                 toTile.getStyle().background = getSkin().getDrawable("selected_green");
                                 movePiece();
                             }
@@ -290,7 +290,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         if (humanPiece != null && actor != null) {
                             if (actor instanceof Tile) {
                                 toTile = ((Tile) actor);
-                                if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
+                                if (toTile.getCellEntry() == Simple.BLACK) {
                                     movePiece();
                                 }
                             }
@@ -308,7 +308,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
 
         //switch lights
-        if (playerTurn == Checker.WHITENORMAL) {
+        if (playerTurn == Simple.WHITE) {
             whiteTurn.setDrawable(getSkin(), "red_dot");
             blackTurn.setDrawable(getSkin(), "grey_dot");
         } else {
@@ -462,12 +462,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (isPossibleSquare(row, col)) {
                     text = (count += 2) / 2;
                     style.background = getSkin().getDrawable("darkcell");//Assets.img_cell_dark;
-                    backgroundTiles[index] = new Tile(Checker.BLACKNORMAL, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(Simple.BLACK, new Label.LabelStyle(style));
 
                 } else {
                     text = 0;
                     style.background = getSkin().getDrawable("litecell");//Assets.img_cell_light;
-                    backgroundTiles[index] = new Tile(Checker.WHITENORMAL, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(Simple.WHITE, new Label.LabelStyle(style));
                 }
 
                 backgroundTiles[index].setSize(cellsize, cellsize);
