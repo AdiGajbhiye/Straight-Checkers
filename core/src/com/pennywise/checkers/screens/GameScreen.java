@@ -32,7 +32,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.GameEngine;
 import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
 import com.pennywise.checkers.core.persistence.SaveUtil;
@@ -516,7 +515,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void movePiece() {
 
-        int[] from = Checker.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
+        int[] from = Util.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
         int[] dest = Checker.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
 
         Gdx.app.log("BOARD", "FROM=> " + from[0] + "," + from[1] + " TO " + dest[0] + "," + dest[1]);

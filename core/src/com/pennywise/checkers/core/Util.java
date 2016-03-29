@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.pennywise.checkers.core.engine.Coor;
 import com.pennywise.checkers.core.persistence.GameObject;
 
 /**
@@ -197,8 +198,73 @@ public class Util {
         return pixmap;
     }
 
-    public void save(GameObject game){
+    public void save(GameObject game) {
 
+    }
+
+    private static int coortonumber(Coor coor) {
+        // given board coordinates x and y, this function returns the board number in
+        // standard checkers notation
+        int number = 0;
+        number += 4 * (coor.y + 1);
+        number -= (coor.x / 2);
+        return number;
+    }
+
+    public static int coorstonumber(int x, int y) {
+        // takes coordinates x and y, gametype, and returns the associated board number
+        Coor c = new Coor();
+        c.x = x;
+        c.y = y;
+        return (coortonumber(c));
+    }
+
+    public static Coor numbertocoors(int number) {
+        // given a board number this function returns the coordinates
+        Coor c = new Coor();
+        number--;
+        c.y = number / 4;
+        c.x = 2 * (3 - number % 4);
+        if (c.y % 2 != 0)
+            c.x++;
+
+        return c;
+    }
+
+    public static Coor coorstocoors(int x, int y, boolean invert, boolean mirror) {
+        // given coordinates x and y on the screen, this function converts them to internal
+        // representation of the board based on whether the board is inverted or mirrored
+        Coor c = new Coor();
+
+        if (invert) {
+            c.x = 7 - x;
+            c.y = 7 - y;
+        }
+        if (mirror)
+            c.x = 7 - x;
+
+        return c;
+    }
+
+    public static int[] getIndex(float x, float y, float cellsize) {
+        int[] index = new int[2];
+
+        index[0] = ((int) (x / cellsize));
+        index[1] = ((int) (y / cellsize));
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (((i * cellsize) < x)
+                        && (((i * cellsize) + cellsize) > x)
+                        && ((j * cellsize) < y)
+                        && (((j * cellsize) + cellsize) > y)) {
+                    index[0] = i;
+                    index[1] = j;
+                    return index;
+                }
+            }
+        }
+        return index;
     }
 
 }
