@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
+import com.pennywise.managers.AudioManager;
 
 public class MultiplayerScreen extends AbstractScreen {
 
@@ -36,6 +37,7 @@ public class MultiplayerScreen extends AbstractScreen {
 			hostButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
+					AudioManager.playClick();
 					game.setScreen(new HostScreen(game));
 				}
 			});
@@ -46,6 +48,7 @@ public class MultiplayerScreen extends AbstractScreen {
 			joinButton.addListener(new ChangeListener() {
 				@Override
 				public void changed(ChangeEvent event, Actor actor) {
+					AudioManager.playClick();
 					game.setScreen(new JoinScreen(game));
 				}
 			});
@@ -66,6 +69,7 @@ public class MultiplayerScreen extends AbstractScreen {
 		backButton.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
+				AudioManager.playClick();
 				game.setScreen(new MenuScreen(game));
 			}
 		});

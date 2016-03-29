@@ -199,7 +199,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void show() {
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
-        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);;
+        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
+        ;
         blackTurn = new Image(getSkin().getDrawable("red_dot"));
         whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
 
@@ -260,9 +261,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     humanPiece = (Piece) actor2;
                     if (humanPiece.getPlayer() == humanPlayer) {
                         humanPiece.setSelected(true);
-                        fromTile = (Tile) actor;
                         if (actor instanceof Tile) {
-                            Tile tile = (((Tile) actor));
+                            fromTile = (Tile) actor;
+                            fromTile.getStyle().background = getSkin().getDrawable("selected_green");
                         }
                     } else
                         humanPiece = null;
@@ -274,6 +275,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                             toTile = ((Tile) actor);
 
                             if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
+                                toTile.getStyle().background = getSkin().getDrawable("selected_green");
                                 movePiece();
                             }
                         }
@@ -499,6 +501,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         humanPiece.toBack();
                         humanPiece.setSelected(false);
                     }
+
                     drawPieces(8, 8);
                     humanTurn = false;
                     playerTurn = getPlayer();
@@ -520,6 +523,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         int result = Checker.ApplyMove(board, from[0], from[1], dest[0], dest[1]);
 
+        Gdx.app.log("BOARD", Checker.printboard(board));
 
         switch (result) {
             case Checker.ILLEGALMOVE:
@@ -533,6 +537,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 humanPiece.setName(toTile.getName());
                 completed = true;
                 move();
+
+                if (fromTile != null)
+                    fromTile.getStyle().background = getSkin().getDrawable("darkcell");
+
+                if (toTile != null)
+                    toTile.getStyle().background = getSkin().getDrawable("darkcell");
+
                 if (multiplayer) {
                     int[] move = new int[]{from[0], from[1], dest[0], dest[1]};
                     moves.add(move);

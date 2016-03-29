@@ -368,8 +368,23 @@ public class Checker {
         return false;
     }
 
+    public static int pieceCount(int[][] board, int turn) {
+
+        int count = 0;
+
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                if (turn == colour(board[i][j])) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
     // returns the color of a piece
-    static int colour(int piece) {
+    public static int colour(int piece) {
         switch (piece) {
             case BLACKNORMAL:
             case BLACKKING:
@@ -510,6 +525,17 @@ public class Checker {
         }
         layout += System.lineSeparator();
 
+        return layout;
+    }
+
+    public static String printMove(int[] move, int turn) {
+
+        String layout = System.lineSeparator();
+        if (turn == 1)
+            layout += "BLACK MOVE FROM:- " + move[0] + "," + move[1] + " TO " + move[2] + "," + move[3];
+        else
+            layout += "WHITE MOVE FROM:- " + move[0] + "," + move[1] + " TO " + move[2] + "," + move[3];
+        layout += System.lineSeparator();
         return layout;
     }
 

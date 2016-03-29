@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.pennywise.Checkers;
+import com.pennywise.managers.AudioManager;
 import com.pennywise.multiplayer.BluetoothInterface;
 
 import java.util.Iterator;
@@ -96,6 +97,7 @@ public class JoinScreen extends AbstractScreen {
         scanButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 if (!bluetoothInterface.isDiscovering()
                         && !bluetoothInterface.isConnecting()
                         && !bluetoothInterface.isConnected()) {
@@ -112,6 +114,7 @@ public class JoinScreen extends AbstractScreen {
         connectButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 if (!bluetoothInterface.isDiscovering()
                         && !bluetoothInterface.isConnecting()) {
                     // To get the MAC from the string subtract the length of the
@@ -137,6 +140,7 @@ public class JoinScreen extends AbstractScreen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 // If connection is in progress, do nothing
                 if (bluetoothInterface.isConnecting()
                         || bluetoothInterface.isDiscovering())

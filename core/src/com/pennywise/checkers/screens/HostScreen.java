@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
+import com.pennywise.managers.AudioManager;
 import com.pennywise.multiplayer.BluetoothInterface;
 
 
@@ -75,6 +76,7 @@ public class HostScreen extends AbstractScreen {
         redPlayer.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 CheckBox checkBox = (CheckBox) actor;
                 if (checkBox.isChecked())
                     blackPlayer.setChecked(false);
@@ -90,6 +92,7 @@ public class HostScreen extends AbstractScreen {
         blackPlayer.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 CheckBox checkBox = (CheckBox) actor;
                 if (checkBox.isChecked())
                     redPlayer.setChecked(false);
@@ -111,6 +114,7 @@ public class HostScreen extends AbstractScreen {
         hostButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {
                     // Check if bluetooth is discoverable. If not, make it discoverable.
@@ -141,6 +145,7 @@ public class HostScreen extends AbstractScreen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                AudioManager.playClick();
                 bluetoothInterface.stopConnectionListening();
                 game.setScreen(new MultiplayerScreen(game));
             }
