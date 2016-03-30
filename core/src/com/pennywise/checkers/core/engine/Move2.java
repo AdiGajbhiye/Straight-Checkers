@@ -5,5 +5,5 @@ package com.pennywise.checkers.core.engine;
  */
 public class Move2 {
     int n;
-    int[] m = new int[8];
+    int[] m = new int[24];
 }

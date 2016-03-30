@@ -1,5 +1,7 @@
 package com.pennywise.checkers.core.engine;
 
+import com.pennywise.checkers.core.Util;
+
 public class Simple {
 
 /*----------> platform stuff */
@@ -38,8 +40,6 @@ public class Simple {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
         the move the user wants to make with from&to */
-
-
         int n, i, Lfrom, Lto;
         boolean found = false;
         Move2[] movelist = new Move2[MAXMOVES];
@@ -85,6 +85,7 @@ public class Simple {
         board[38] = b[3][7];
         board[39] = b[5][7];
         board[40] = b[7][7];
+
         for (i = 5; i <= 40; i++)
             if (board[i] == 0) board[i] = FREE;
         for (i = 9; i <= 36; i += 9)
@@ -119,11 +120,21 @@ public class Simple {
                 break;
             }
         }
-        if (found)
-        /* sets mCBmove to movelist[i] */
+        if (found) {
             setbestmove(movelist[i], move);
-
+            domove(board, movelist[i]);
+            updateBoard(board, b);
+        }
         return found;
+    }
+
+    public static void updateBoard(int[] bitboard, int[][] board8) {
+
+        int[][] board = Util.bitboardtoboard8(bitboard);
+
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(board[i], 0, board8[i], 0, 8);
+        }
     }
 
     private static void setbestmove(Move2 move, CBmove cbMove) {
@@ -434,15 +445,19 @@ public class Simple {
         board[38] = b[3][7];
         board[39] = b[5][7];
         board[40] = b[7][7];
+
         for (i = 5; i <= 40; i++)
             if (board[i] == 0) board[i] = FREE;
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
+        printboard(WHITE, board, color);
 
         value = checkers(board, color, maxtime, str, move, playnow);
+
         for (i = 5; i <= 40; i++)
-            if (board[i] == FREE) board[i] = 0;
+            if (board[i] == FREE)
+                board[i] = 0;
    /* return the board */
         b[0][0] = board[5];
         b[2][0] = board[6];
@@ -478,12 +493,16 @@ public class Simple {
         b[7][7] = board[40];
 
         if (color == BLACK) {
-            if (value > 4000) return WIN;
-            if (value < -4000) return LOSS;
+            if (value > 4000)
+                return WIN;
+            if (value < -4000)
+                return LOSS;
         }
         if (color == WHITE) {
-            if (value > 4000) return LOSS;
-            if (value < -4000) return WIN;
+            if (value > 4000)
+                return LOSS;
+            if (value < -4000)
+                return WIN;
         }
         return UNKNOWN;
     }
@@ -583,16 +602,24 @@ public class Simple {
 
         start = System.currentTimeMillis();
 
+        System.out.println("START =>" + start);
+
         eval = firstalphabeta(b, 1, -10000, 10000, color, best, playNow);
 
-        for (i = 2; (i <= MAXDEPTH) && ((System.currentTimeMillis() - start) / MILLIS < maxtime); i++) {
+        for (i = 2; (i <= MAXDEPTH) && (((System.currentTimeMillis() - start) / MILLIS) < maxtime); i++) {
             lastbest = best;
             eval = firstalphabeta(b, i, -10000, 10000, color, best, playNow);
             str2 = movetonotation(best);
             if (playNow)
                 break;
-            if (eval == 5000) break;
-            if (eval == -5000) break;
+            if (eval == 5000) {
+                System.out.println("eval == 5000 ");
+            //    break;
+            }
+            if (eval == -5000) {
+                System.out.println("eval == -5000");
+              //  break;
+            }
         }
         i--;
         if (playNow)
@@ -600,7 +627,9 @@ public class Simple {
         else
             str2 = movetonotation(best);
 
-        str = String.format("best Move: %s time %2.2f, depth %2li, value %4li ", str2, (System.currentTimeMillis() - start) / MILLIS, i, eval);
+        str = String.format("best Move: %s time %2.2f, depth %2d, value %4d ", str2, (System.currentTimeMillis() - start) / MILLIS, i, eval);
+
+        System.out.println(str);
 
         if (playNow)
             best = lastbest;
@@ -639,8 +668,13 @@ public class Simple {
             numberofmoves = generatemovelist(b, movelist, color);
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
-                if (color == BLACK) return (-5000);
-                else return (5000);
+                if (color == BLACK) {
+                    System.out.println("firstalphabeta: numberofmoves == 0 , -5000");
+                    return (-5000);
+                } else {
+                    System.out.println("firstalphabeta: numberofmoves == 0 , 5000");
+                    return (5000);
+                }
             }
         } else
             numberofmoves = generatecapturelist(b, movelist, color);
@@ -706,8 +740,13 @@ public class Simple {
             numberofmoves = generatemovelist(b, movelist, color);
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
-                if (color == BLACK) return (-5000);
-                else return (5000);
+                if (color == BLACK) {
+                    System.out.println("numberofmoves == 0 , -5000");
+                    return (-5000);
+                } else {
+                    System.out.println("numberofmoves == 0 , 5000");
+                    return (5000);
+                }
             }
         } else
             numberofmoves = generatecapturelist(b, movelist, color);
@@ -1095,6 +1134,8 @@ public class Simple {
         int n = 0, m;
         int i;
 
+        for (int j = 0; j < movelist.length; j++)
+            movelist[j] = new Move2();
 
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {

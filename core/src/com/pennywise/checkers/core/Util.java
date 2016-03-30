@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.pennywise.checkers.core.engine.Point;
+import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
 
 /**
@@ -267,4 +268,53 @@ public class Util {
         return point;
     }
 
+    public static int[][] bitboardtoboard8(int[] board) {
+
+        int[][] b = new int[8][8];
+
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
+                b[i][j] = Simple.FREE;
+            }
+        }
+
+        for (int i = 5; i <= 40; i++)
+            if (board[i] == Simple.FREE)
+                board[i] = 0;
+
+        b[0][0] = board[5];
+        b[2][0] = board[6];
+        b[4][0] = board[7];
+        b[6][0] = board[8];
+        b[1][1] = board[10];
+        b[3][1] = board[11];
+        b[5][1] = board[12];
+        b[7][1] = board[13];
+        b[0][2] = board[14];
+        b[2][2] = board[15];
+        b[4][2] = board[16];
+        b[6][2] = board[17];
+        b[1][3] = board[19];
+        b[3][3] = board[20];
+        b[5][3] = board[21];
+        b[7][3] = board[22];
+        b[0][4] = board[23];
+        b[2][4] = board[24];
+        b[4][4] = board[25];
+        b[6][4] = board[26];
+        b[1][5] = board[28];
+        b[3][5] = board[29];
+        b[5][5] = board[30];
+        b[7][5] = board[31];
+        b[0][6] = board[32];
+        b[2][6] = board[33];
+        b[4][6] = board[34];
+        b[6][6] = board[35];
+        b[1][7] = board[37];
+        b[3][7] = board[38];
+        b[5][7] = board[39];
+        b[7][7] = board[40];
+
+        return b;
+    }
 }

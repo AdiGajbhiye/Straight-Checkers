@@ -287,8 +287,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 if (actor2 != null && actor2 instanceof Piece) {
                     humanPiece = (Piece) actor2;
-                    if (((humanPiece.getPlayer() & Simple.BLACKPAWN) == humanPlayer)
-                            || ((humanPiece.getPlayer() & Simple.BLACKKING) == humanPlayer)) {
+                    if ((humanPiece.getPlayer() & humanPlayer) != 0) {
                         humanPiece.setSelected(true);
                         if (actor instanceof Tile) {
                             fromTile = (Tile) actor;
@@ -534,7 +533,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     drawPieces(8, 8);
                     humanTurn = false;
                     playerTurn = getPlayer();
-
                     opponentMove = true;
 
                 }
@@ -578,7 +576,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     int[] move = new int[]{from[0], from[1], dest[0], dest[1]};
                     moves.add(move);
                 }*/
-            completed = false;
+            //completed = false;
         } else {
             humanPiece = null;
             fromTile = null;
@@ -649,23 +647,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         counter[0] = 0;
         String str = "";
 
-        //check if game is over
-        /*if (Checker.noMovesLeft(board, playerTurn)) {
-            gameOver = true;
-            timer = false;
-            return;
-        }*/
         CBmove cbMove = new CBmove();
-        Simple.getmove(board, playerTurn, 4, str, false, cbMove);
 
-        //GameEngine.MinMax(board, 0, level, move, playerTurn, counter);
+        int result = Simple.getmove(board, playerTurn, 1, str, false, cbMove);
 
-        //Checker.moveComputer(board, move);
+        if (result == 0)
+            return;
 
-        int startx = move[0];
-        int starty = move[1];
-        int endx = move[2];
-        int endy = move[3];
+        if (cbMove.from == null || cbMove.to == null)
+            return;
+
+        int startx = cbMove.from.x;
+        int starty = cbMove.from.y;
 
         cpuPiece = getPiece(startx, starty);
 
@@ -674,24 +667,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         else
             cpuPiece.setSelected(true);
 
-        while (endx > 0 || endy > 0) {
+        for (int i = 0; i < cbMove.path.length; i++) {
 
-            float posX = ((endx % 10) * cellsize) + 4;
-            float posY = ((endy % 10) * cellsize + boardPosition[1]) + 4;
+            if (cbMove.path[i] == null)
+                continue;
 
-            xx = posX;
-            yy = posY;
-
-            ready = true;
+            float posX = (cbMove.path[i].x * cellsize) + 4;
+            float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
 
             sequenceAction.addAction(delay(0.35f));
             sequenceAction.addAction(moveTo(posX, posY, 0.35f));
-
-            endx /= 10;
-            endy /= 10;
         }
-
-        ready = false;
 
         sequenceAction.addAction(
 
@@ -758,6 +744,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 position[index] = new Vector2((row * cellsize) + padding,
                         padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
+
                 if (board[row][col] == (Simple.BLACKPAWN))
                     pieces[index] = new Piece(getSkin().getDrawable("blackpawn"), (Simple.BLACKPAWN));
                 if (board[row][col] == (Simple.BLACKKING))
@@ -770,6 +757,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     continue;
 
                 text = (count += 2) / 2;
+
+                if (pieces[index] == null)
+                    continue;
 
                 pieces[index].setSize((cellsize - 2), (cellsize - 2));
                 pieces[index].setPosition(position[index].x, position[index].y);
