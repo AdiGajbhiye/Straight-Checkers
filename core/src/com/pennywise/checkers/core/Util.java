@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
-import com.pennywise.checkers.core.engine.Coor;
+import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.persistence.GameObject;
 
 /**
@@ -40,7 +40,7 @@ public class Util {
         //set the font parameters
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) (fontSize * SCALE);
-        parameter.flip = true;
+        parameter.flip = false;
         parameter.color = color;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
         // 12 is the size i want to give for the font on all devices
@@ -202,26 +202,26 @@ public class Util {
 
     }
 
-    private static int coortonumber(Coor coor) {
+    private static int coortonumber(Point point) {
         // given board coordinates x and y, this function returns the board number in
         // standard checkers notation
         int number = 0;
-        number += 4 * (coor.y + 1);
-        number -= (coor.x / 2);
+        number += 4 * (point.y + 1);
+        number -= (point.x / 2);
         return number;
     }
 
     public static int coorstonumber(int x, int y) {
         // takes coordinates x and y, gametype, and returns the associated board number
-        Coor c = new Coor();
+        Point c = new Point();
         c.x = x;
         c.y = y;
         return (coortonumber(c));
     }
 
-    public static Coor numbertocoors(int number) {
+    public static Point numbertocoors(int number) {
         // given a board number this function returns the coordinates
-        Coor c = new Coor();
+        Point c = new Point();
         number--;
         c.y = number / 4;
         c.x = 2 * (3 - number % 4);
@@ -231,10 +231,10 @@ public class Util {
         return c;
     }
 
-    public static Coor coorstocoors(int x, int y, boolean invert, boolean mirror) {
+    public static Point coorstocoors(int x, int y, boolean invert, boolean mirror) {
         // given coordinates x and y on the screen, this function converts them to internal
         // representation of the board based on whether the board is inverted or mirrored
-        Coor c = new Coor();
+        Point c = new Point();
 
         if (invert) {
             c.x = 7 - x;
@@ -246,11 +246,11 @@ public class Util {
         return c;
     }
 
-    public static int[] getIndex(float x, float y, float cellsize) {
-        int[] index = new int[2];
+    public static Point getIndex(float x, float y, float cellsize) {
+        Point point = new Point();
 
-        index[0] = ((int) (x / cellsize));
-        index[1] = ((int) (y / cellsize));
+        point.x = ((int) (x / cellsize));
+        point.y = ((int) (y / cellsize));
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -258,13 +258,13 @@ public class Util {
                         && (((i * cellsize) + cellsize) > x)
                         && ((j * cellsize) < y)
                         && (((j * cellsize) + cellsize) > y)) {
-                    index[0] = i;
-                    index[1] = j;
-                    return index;
+                    point.x = i;
+                    point.y = j;
+                    return point;
                 }
             }
         }
-        return index;
+        return point;
     }
 
 }

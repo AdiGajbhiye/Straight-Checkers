@@ -11,12 +11,17 @@ public class Simple {
     public static final int OCCUPIED = 0;
     public static final int WHITE = 1;
     public static final int BLACK = 2;
-    public static final int MAN = 4;
-    public static final int KING = 8;
+    private static final int PAWN = 4;
+    private static final int KING = 8;
     public static final int FREE = 16;
     public static final int CHANGECOLOR = 3;
     public static final int MAXDEPTH = 99;
     public static final int MAXMOVES = 28;
+
+    public static final int BLACKPAWN = (BLACK | PAWN);
+    public static final int BLACKKING = (BLACK | KING);
+    public static final int WHITEPAWN = (WHITE | PAWN);
+    public static final int WHITEKING = (WHITE | KING);
 
     /* return values */
     public static final int DRAW = 0;
@@ -33,6 +38,7 @@ public class Simple {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
         the move the user wants to make with from&to */
+
 
         int n, i, Lfrom, Lto;
         boolean found = false;
@@ -83,9 +89,10 @@ public class Simple {
             if (board[i] == 0) board[i] = FREE;
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
+
+        printboard(color, board, color);
+
        /* board initialized */
-
-
         n = generatecapturelist(board, movelist, color);
         capture = n;
 
@@ -123,7 +130,7 @@ public class Simple {
         int i;
         int jumps;
         int from, to;
-        Coor c1, c2;
+        Point c1, c2;
 
         jumps = move.n - 2;
 
@@ -163,7 +170,7 @@ public class Simple {
     }
 
 
-    private static Coor numbertocoor(int n) {
+    private static Point numbertocoor(int n) {
     /* turns square number n into a coordinate for checkerboard */
    /*    (white)
                     37  38  39  40
@@ -175,7 +182,7 @@ public class Simple {
                 10  11  12  13
                5   6   7   8
          (black)   */
-        Coor c = new Coor();
+        Point c = new Point();
 
         switch (n) {
             case 5:
@@ -351,27 +358,30 @@ public class Simple {
         return c;
     }
 
-    public static int getmove(int b[][], int color, double maxtime, String str, boolean playnow, int info, int unused, CBmove move) {
-   /* getmove is what checkerboard calls. you get 6 parameters:
-   b[8][8] 	is the current position. the values in the array are determined by
-   			the #defined values of BLACK, WHITE, KING, MAN. a black king for
-            instance is represented by BLACK|KING.
-   color		is the side to make a move. BLACK or WHITE.
-   maxtime	is the time your program should use to make a move. this is
-   		   what you specify as level in checkerboard. so if you exceed
-            this time it's not too bad - just don't exceed it too much...
-   str		is a pointer to the output string of the checkerboard status bar.
-   			you can use sprintf(str,"information"); to print any information you
-            want into the status bar.
-   *playnow	is a pointer to the playnow variable of checkerboard. if the user
-   			would like your engine to play immediately, this value is nonzero,
-            else zero. you should respond to a nonzero value of *playnow by
-            interrupting your search IMMEDIATELY.
-   struct CBmove *move
-   			is unused here. this parameter would allow engines playing different
-            versions of checkers to return a move to CB. for engines playing
-            english checkers this is not necessary.
-            */
+    /**
+     * getmove is what checkerboard calls. you get 6 parameters:
+     * b[8][8] 	is the current position. the values in the array are determined by
+     * the #defined values of BLACK, WHITE, KING, PAWN. a black king for
+     * instance is represented by BLACK|KING.
+     * color		is the side to make a move. BLACK or WHITE.
+     * maxtime	is the time your program should use to make a move. this is
+     * what you specify as level in checkerboard. so if you exceed
+     * this time it's not too bad - just don't exceed it too much...
+     * str		is a pointer to the output string of the checkerboard status bar.
+     * you can use sprintf(str,"information"); to print any information you
+     * want into the status bar.
+     * playnow	is a pointer to the playnow variable of checkerboard. if the user
+     * would like your engine to play immediately, this value is nonzero,
+     * else zero. you should respond to a nonzero value of *playnow by
+     * interrupting your search IMMEDIATELY.
+     * CBmove *move
+     * is unused here. this parameter would allow engines playing different
+     * versions of checkers to return a move to CB. for engines playing
+     * english checkers this is not necessary.
+     */
+
+    public static int getmove(int b[][], int color, double maxtime, String str, boolean playnow, CBmove move) {
+
 
         int i;
         int value;
@@ -533,7 +543,7 @@ public class Simple {
 /*-------------- PART II: SEARCH ---------------------------------------------*/
 
 
-    public static int checkers(int[] b, int color, double maxtime, String str, CBmove move, boolean playNow)
+    private static int checkers(int[] b, int color, double maxtime, String str, CBmove move, boolean playNow)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -834,16 +844,16 @@ public class Simple {
                5   6   7   8
          (black)   */
    /* cramp */
-        if (b[23] == (BLACK | MAN) && b[28] == (WHITE | MAN)) eval += cramp;
-        if (b[22] == (WHITE | MAN) && b[17] == (BLACK | MAN)) eval -= cramp;
+        if (b[23] == (BLACK | PAWN) && b[28] == (WHITE | PAWN)) eval += cramp;
+        if (b[22] == (WHITE | PAWN) && b[17] == (BLACK | PAWN)) eval -= cramp;
 
    /* back rank guard */
 
         code = 0;
-        if (b[5] == MAN) code++;
-        if (b[6] == MAN) code += 2;
-        if (b[7] == MAN) code += 4;
-        if (b[8] == MAN) code += 8;
+        if (b[5] == PAWN) code++;
+        if (b[6] == PAWN) code += 2;
+        if (b[7] == PAWN) code += 4;
+        if (b[8] == PAWN) code += 8;
         switch (code) {
             case 0:
                 code = 0;
@@ -898,10 +908,10 @@ public class Simple {
 
 
         code = 0;
-        if (b[37] == MAN) code += 8;
-        if (b[38] == MAN) code += 4;
-        if (b[39] == MAN) code += 2;
-        if (b[40] == MAN) code++;
+        if (b[37] == PAWN) code += 8;
+        if (b[38] == PAWN) code += 4;
+        if (b[39] == PAWN) code += 2;
+        if (b[40] == PAWN) code++;
         switch (code) {
             case 0:
                 code = 0;
@@ -957,13 +967,13 @@ public class Simple {
 
 
    /* intact double corner */
-        if (b[8] == (BLACK | MAN)) {
-            if (b[12] == (BLACK | MAN) || b[13] == (BLACK | MAN))
+        if (b[8] == (BLACK | PAWN)) {
+            if (b[12] == (BLACK | PAWN) || b[13] == (BLACK | PAWN))
                 eval += intactdoublecorner;
         }
 
-        if (b[37] == (WHITE | MAN)) {
-            if (b[32] == (WHITE | MAN) || b[33] == (WHITE | MAN))
+        if (b[37] == (WHITE | PAWN)) {
+            if (b[32] == (WHITE | PAWN) || b[33] == (WHITE | PAWN))
                 eval -= intactdoublecorner;
         }
    /*    (white)
@@ -980,9 +990,9 @@ public class Simple {
     /* center control */
         for (i = 0; i < 8; i++) {
             if (b[center[i]] != FREE) {
-                if (b[center[i]] == (BLACK | MAN)) nbmc++;
+                if (b[center[i]] == (BLACK | PAWN)) nbmc++;
                 if (b[center[i]] == (BLACK | KING)) nbkc++;
-                if (b[center[i]] == (WHITE | MAN)) nwmc++;
+                if (b[center[i]] == (WHITE | PAWN)) nwmc++;
                 if (b[center[i]] == (WHITE | KING)) nwkc++;
             }
         }
@@ -992,9 +1002,9 @@ public class Simple {
   	/*edge*/
         for (i = 0; i < 14; i++) {
             if (b[edge[i]] != FREE) {
-                if (b[edge[i]] == (BLACK | MAN)) nbme++;
+                if (b[edge[i]] == (BLACK | PAWN)) nbme++;
                 if (b[edge[i]] == (BLACK | KING)) nbke++;
-                if (b[edge[i]] == (WHITE | MAN)) nwme++;
+                if (b[edge[i]] == (WHITE | PAWN)) nwme++;
                 if (b[edge[i]] == (WHITE | KING)) nwke++;
             }
         }
@@ -1005,9 +1015,9 @@ public class Simple {
 
    /* tempo */
         for (i = 5; i < 41; i++) {
-            if (b[i] == (BLACK | MAN))
+            if (b[i] == (BLACK | PAWN))
                 tempo += row[i];
-            if (b[i] == (WHITE | MAN))
+            if (b[i] == (WHITE | PAWN))
                 tempo -= 7 - row[i];
         }
 
@@ -1089,11 +1099,11 @@ public class Simple {
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & FREE) != 0) {
                             movelist[n].n = 2;
                             if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | MAN);
+                            else m = (BLACK | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1101,7 +1111,7 @@ public class Simple {
                             movelist[n].m[1] = m;
                             m = FREE;
                             m = m << 8;
-                            m += (BLACK | MAN);
+                            m += (BLACK | PAWN);
                             m = m << 8;
                             m += i;
                             movelist[n].m[0] = m;
@@ -1110,7 +1120,7 @@ public class Simple {
                         if ((b[i + 5] & FREE) != 0) {
                             movelist[n].n = 2;
                             if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | MAN);
+                            else m = (BLACK | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1118,7 +1128,7 @@ public class Simple {
                             movelist[n].m[1] = m;
                             m = FREE;
                             m = m << 8;
-                            m += (BLACK | MAN);
+                            m += (BLACK | PAWN);
                             m = m << 8;
                             m += i;
                             movelist[n].m[0] = m;
@@ -1196,11 +1206,11 @@ public class Simple {
         } else    /* color = WHITE */ {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & WHITE) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & FREE) != 0) {
                             movelist[n].n = 2;
                             if (i <= 13) m = (WHITE | KING);
-                            else m = (WHITE | MAN);
+                            else m = (WHITE | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1208,7 +1218,7 @@ public class Simple {
                             movelist[n].m[1] = m;
                             m = FREE;
                             m = m << 8;
-                            m += (WHITE | MAN);
+                            m += (WHITE | PAWN);
                             m = m << 8;
                             m += i;
                             movelist[n].m[0] = m;
@@ -1217,7 +1227,7 @@ public class Simple {
                         if ((b[i - 5] & FREE) != 0) {
                             movelist[n].n = 2;
                             if (i <= 13) m = (WHITE | KING);
-                            else m = (WHITE | MAN);
+                            else m = (WHITE | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1225,7 +1235,7 @@ public class Simple {
                             movelist[n].m[1] = m;
                             m = FREE;
                             m = m << 8;
-                            m += (WHITE | MAN);
+                            m += (WHITE | PAWN);
                             m = m << 8;
                             m += i;
                             movelist[n].m[0] = m;
@@ -1291,7 +1301,7 @@ public class Simple {
                             movelist[n].m[1] = m;
                             m = FREE;
                             m = m << 8;
-                            m += (WHITE | KING);
+                            m += (WHITEKING);
                             m = m << 8;
                             m += i;
                             movelist[n].m[0] = m;
@@ -1319,12 +1329,12 @@ public class Simple {
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                if (i >= 28) m = (BLACK | KING);
-                                else m = (BLACK | MAN);
+                                if (i >= 28) m = (BLACKKING);
+                                else m = (BLACKPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1332,7 +1342,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | MAN);
+                                m += (BLACKPAWN);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1348,8 +1358,8 @@ public class Simple {
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                if (i >= 28) m = (BLACK | KING);
-                                else m = (BLACK | MAN);
+                                if (i >= 28) m = (BLACKKING);
+                                else m = (BLACKPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1357,7 +1367,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | MAN);
+                                m += (BLACKPAWN);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1374,7 +1384,7 @@ public class Simple {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (BLACK | KING);
+                                m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1382,7 +1392,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | KING);
+                                m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1401,7 +1411,7 @@ public class Simple {
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (BLACK | KING);
+                                m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1409,7 +1419,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | KING);
+                                m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1428,7 +1438,7 @@ public class Simple {
                         if ((b[i - 4] & WHITE) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (BLACK | KING);
+                                m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1436,7 +1446,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | KING);
+                                m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1455,7 +1465,7 @@ public class Simple {
                         if ((b[i - 5] & WHITE) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (BLACK | KING);
+                                m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1463,7 +1473,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (BLACK | KING);
+                                m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1485,12 +1495,12 @@ public class Simple {
         } else /* color is WHITE */ {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & WHITE) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                if (i <= 17) m = (WHITE | KING);
-                                else m = (WHITE | MAN);
+                                if (i <= 17) m = (WHITEKING);
+                                else m = (WHITEPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1498,7 +1508,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (WHITE | MAN);
+                                m += (WHITEPAWN);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1514,8 +1524,8 @@ public class Simple {
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                if (i <= 17) m = (WHITE | KING);
-                                else m = (WHITE | MAN);
+                                if (i <= 17) m = (WHITEKING);
+                                else m = (WHITEPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1523,7 +1533,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (WHITE | MAN);
+                                m += (WHITEPAWN);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1540,7 +1550,7 @@ public class Simple {
                         if ((b[i + 4] & BLACK) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (WHITE | KING);
+                                m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1548,7 +1558,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (WHITE | KING);
+                                m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1567,7 +1577,7 @@ public class Simple {
                         if ((b[i + 5] & BLACK) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (WHITE | KING);
+                                m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1575,7 +1585,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (WHITE | KING);
+                                m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1594,7 +1604,7 @@ public class Simple {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (WHITE | KING);
+                                m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1602,7 +1612,7 @@ public class Simple {
                                 movelist[pos.n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
-                                m += (WHITE | KING);
+                                m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
                                 movelist[pos.n].m[0] = m;
@@ -1621,7 +1631,7 @@ public class Simple {
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                m = (WHITE | KING);
+                                m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
@@ -1663,8 +1673,8 @@ public class Simple {
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
-                if (i >= 28) m = (BLACK | KING);
-                else m = (BLACK | MAN);
+                if (i >= 28) m = (BLACKKING);
+                else m = (BLACKPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1685,8 +1695,8 @@ public class Simple {
         if ((b[i + 5] & WHITE) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
-                if (i >= 28) m = (BLACK | KING);
-                else m = (BLACK | MAN);
+                if (i >= 28) m = (BLACKKING);
+                else m = (BLACKPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1720,7 +1730,7 @@ public class Simple {
         if ((b[i - 4] & WHITE) != 0) {
             if ((b[i - 8] & FREE) != 0) {
                 move.n++;
-                m = (BLACK | KING);
+                m = (BLACKKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1744,7 +1754,7 @@ public class Simple {
         if ((b[i - 5] & WHITE) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
-                m = (BLACK | KING);
+                m = (BLACKKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1768,7 +1778,7 @@ public class Simple {
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
-                m = (BLACK | KING);
+                m = (BLACKKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1792,7 +1802,7 @@ public class Simple {
         if ((b[i + 5] & WHITE) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
-                m = (BLACK | KING);
+                m = (BLACKKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1827,8 +1837,8 @@ public class Simple {
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
                 move.n++;
-                if (i <= 17) m = (WHITE | KING);
-                else m = (WHITE | MAN);
+                if (i <= 17) m = (WHITEKING);
+                else m = (WHITEPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1849,8 +1859,8 @@ public class Simple {
         if ((b[i - 5] & BLACK) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
-                if (i <= 17) m = (WHITE | KING);
-                else m = (WHITE | MAN);
+                if (i <= 17) m = (WHITEKING);
+                else m = (WHITEPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1883,7 +1893,7 @@ public class Simple {
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
                 move.n++;
-                m = (WHITE | KING);
+                m = (WHITEKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1907,7 +1917,7 @@ public class Simple {
         if ((b[i - 5] & BLACK) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
-                m = (WHITE | KING);
+                m = (WHITEKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1931,7 +1941,7 @@ public class Simple {
         if ((b[i + 4] & BLACK) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
-                m = (WHITE | KING);
+                m = (WHITEKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1955,7 +1965,7 @@ public class Simple {
         if ((b[i + 5] & BLACK) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
-                m = (WHITE | KING);
+                m = (WHITEKING);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1988,7 +1998,7 @@ public class Simple {
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0)
                                 return (1);
@@ -2020,7 +2030,7 @@ public class Simple {
         } else /* color is WHITE */ {
             for (i = 5; i <= 40; i++) {
                 if ((b[i] & WHITE) != 0) {
-                    if ((b[i] & MAN) != 0) {
+                    if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0)
                                 return (1);
@@ -2051,5 +2061,47 @@ public class Simple {
             }
         }
         return (0);
+    }
+
+    public static void printboard(int human, int[] b, int color)
+/*----------> purpose: print the checkerboard
+  ----------> version: 1.0
+  ----------> date: 24th october 97 */
+/*----------> modified pch, to print
+  ----------> reverse board, 99-02-09 */ {
+        int i, j;
+        String c = "     wb  WB     --";
+        System.out.println("");
+        if (human == BLACK) {
+            if (color == BLACK)
+                System.out.print("\n   --------------- ");
+            else
+                System.out.print("\n.  --------------- ");
+            for (i = 37; i >= 10; i -= 9) {
+                System.out.print("\n   ");
+                for (j = i; j <= i + 3; j++)
+                    System.out.print(String.format("  %c ", c.charAt(b[j])));
+                System.out.print("\n   ");
+                for (j = i - 5; j <= i - 2; j++)
+                    System.out.print(String.format("%c   ", c.charAt(b[j])));
+            }
+        } else
+    /* human == WHITE */ {
+            if (color == WHITE)
+                System.out.print("\n*  --------------- ");
+            else
+                System.out.print("\n-  --------------- ");
+            for (i = 10; i <= 37; i += 9) {
+                System.out.print("\n   ");
+                for (j = i - 2; j >= i - 5; j--)
+                    System.out.print(String.format("  %c ", c.charAt(b[j])));
+
+                System.out.print("\n   ");
+                for (j = i + 3; j >= i; j--)
+                    System.out.print(String.format("%c   ", c.charAt(b[j])));
+
+            }
+        }
+        System.out.print("\n\n");
     }
 }

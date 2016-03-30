@@ -5,7 +5,7 @@ package com.pennywise.checkers.core.engine;
  */
 
 /* coordinate class for board coordinates */
-public class Coor {
+public class Point {
 
     public int x;
     public int y;
