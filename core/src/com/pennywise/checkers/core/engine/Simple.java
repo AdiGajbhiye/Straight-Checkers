@@ -8,7 +8,6 @@ public class Simple {
 
     public static final int MILLIS = 1000;
 
-
     /*----------> definitions */
     public static final int OCCUPIED = 0;
     public static final int WHITE = 1;
@@ -27,12 +26,15 @@ public class Simple {
 
     /* return values */
     public static final int DRAW = 0;
-    public static final int WIN = 1;
-    public static final int LOSS = 2;
-    public static final int UNKNOWN = 3;
+    public static final int BLACKWIN = 200000;
+    public static final int BLACKLOSS = -200000;
+    public static final int WHITEWIN = 100000;
+    public static final int WHITELOSS = -100000;
+    public static final int NOLEGALMOVE = -999999999;
+    public static final int NORMAL = 3;
+
 
     int[] value = {0, 0, 0, 0, 0, 1, 256, 0, 0, 16, 4096, 0, 0, 0, 0, 0, 0};
-
 
     // int*play;
 
@@ -179,7 +181,6 @@ public class Simple {
         //for(i=1;i<move.n;i++)
         //	mCBmove.path[i]=numbertocoor(to);
     }
-
 
     private static Point numbertocoor(int n) {
     /* turns square number n into a coordinate for checkerboard */
@@ -394,14 +395,15 @@ public class Simple {
     public static int getmove(int b[][], int color, double maxtime, String str, boolean playnow, CBmove move) {
 
 
-        int i;
+        int n = 0;
         int value;
         int[] board = new int[46];
+        Move2[] movelist = new Move2[MAXMOVES];
 
    /* initialize board */
-        for (i = 0; i < 46; i++)
+        for (int i = 0; i < 46; i++)
             board[i] = OCCUPIED;
-        for (i = 5; i <= 40; i++)
+        for (int i = 5; i <= 40; i++)
             board[i] = FREE;
    /*    (white)
                     37  38  39  40
@@ -446,19 +448,18 @@ public class Simple {
         board[39] = b[5][7];
         board[40] = b[7][7];
 
-        for (i = 5; i <= 40; i++)
-            if (board[i] == 0) board[i] = FREE;
-        for (i = 9; i <= 36; i += 9)
+        for (int i = 5; i <= 40; i++)
+            if (board[i] == 0)
+                board[i] = FREE;
+        for (int i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
         printboard(WHITE, board, color);
 
         value = checkers(board, color, maxtime, str, move, playnow);
 
-        for (i = 5; i <= 40; i++)
-            if (board[i] == FREE)
-                board[i] = 0;
-   /* return the board */
+
+       /* return the board */
         b[0][0] = board[5];
         b[2][0] = board[6];
         b[4][0] = board[7];
@@ -492,19 +493,28 @@ public class Simple {
         b[5][7] = board[39];
         b[7][7] = board[40];
 
-        if (color == BLACK) {
-            if (value > 4000)
-                return WIN;
-            if (value < -4000)
-                return LOSS;
+        if (value == NOLEGALMOVE) {
+            if (color == BLACK)
+                return BLACKLOSS;
+            else
+                return WHITELOSS;
         }
-        if (color == WHITE) {
-            if (value > 4000)
-                return LOSS;
-            if (value < -4000)
-                return WIN;
+
+
+        //test opponent game status
+        if (testcapture(board, (color ^ CHANGECOLOR)))
+            n = generatecapturelist(board, movelist, (color ^ CHANGECOLOR));
+        else
+            n = generatemovelist(board, movelist, (color ^ CHANGECOLOR));
+
+        if (n <= 0) {
+            if ((color ^ CHANGECOLOR) == BLACK)
+                return WHITEWIN;
+            else
+                return BLACKWIN;
         }
-        return UNKNOWN;
+
+        return NORMAL;
     }
 
     private static int[] moveNotation(Move2 move) {
@@ -556,12 +566,6 @@ public class Simple {
         return String.format("%2d%c%2d", from, c, to);
     }
 
-
-
-
-/*-------------- PART II: SEARCH ---------------------------------------------*/
-
-
     private static int checkers(int[] b, int color, double maxtime, String str, CBmove move, boolean playNow)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
@@ -588,15 +592,17 @@ public class Simple {
             return (1);
         } else {
             numberofmoves = generatemovelist(b, movelist, color);
+
             if (numberofmoves == 1) {
                 domove(b, movelist[0]);
                 str = "only move";
                 setbestmove(movelist[0], move);
                 return (1);
             }
+
             if (numberofmoves == 0) {
                 str = "no legal moves in this position";
-                return (0);
+                return NOLEGALMOVE;
             }
         }
 
@@ -613,12 +619,10 @@ public class Simple {
             if (playNow)
                 break;
             if (eval == 5000) {
-                System.out.println("eval == 5000 ");
-            //    break;
+                break;
             }
             if (eval == -5000) {
-                System.out.println("eval == -5000");
-              //  break;
+                break;
             }
         }
         i--;
@@ -633,8 +637,10 @@ public class Simple {
 
         if (playNow)
             best = lastbest;
+
         domove(b, best);
-   /* set the CBmove */
+
+        /* set the CBmove */
         setbestmove(best, move);
 
         return eval;
@@ -647,7 +653,7 @@ public class Simple {
         int i;
         int value;
         int numberofmoves;
-        int capture;
+        boolean capture;
         Move2[] movelist = new Move2[MAXMOVES];
 
         if (playNow)
@@ -657,14 +663,14 @@ public class Simple {
 
 /*----------> recursion termination if no captures and depth=0*/
         if (depth == 0) {
-            if (capture == 0)
+            if (!capture)
                 return (evaluation(b, color));
             else
                 depth = 1;
         }
 
 /*----------> generate all possible moves in the position */
-        if (capture == 0) {
+        if (!capture) {
             numberofmoves = generatemovelist(b, movelist, color);
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
@@ -717,7 +723,7 @@ public class Simple {
   ----------> date: 24th october 97 */ {
         int i;
         int value;
-        int capture;
+        boolean capture;
         int numberofmoves;
         Move2[] movelist = new Move2[MAXMOVES];
 
@@ -729,14 +735,14 @@ public class Simple {
 
 /*----------> recursion termination if no captures and depth=0*/
         if (depth == 0) {
-            if (capture == 0)
+            if (!capture)
                 return (evaluation(b, color));
             else
                 depth = 1;
         }
 
 /*----------> generate all possible moves in the position */
-        if (capture == 0) {
+        if (!capture) {
             numberofmoves = generatemovelist(b, movelist, color);
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
@@ -1075,10 +1081,6 @@ public class Simple {
                     eval += 15;
             }
         }
-
-
-
-
 
    /* the move */
         if (nwm + nwk - nbk - nbm == 0) {
@@ -2030,78 +2032,77 @@ public class Simple {
             pos.n++;
     }
 
-    private static int testcapture(int[] b, int color)
+    private static boolean testcapture(int[] b, int color)
 /*----------> purpose: test if color has a capture on b
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
-        int i;
-
         if (color == BLACK) {
-            for (i = 5; i <= 40; i++) {
+            for (int i = 5; i <= 40; i++) {
                 if ((b[i] & BLACK) != 0) {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i - 4] & WHITE) != 0) {
                             if ((b[i - 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i - 5] & WHITE) != 0) {
                             if ((b[i - 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                     }
                 }
             }
         } else /* color is WHITE */ {
-            for (i = 5; i <= 40; i++) {
+            for (int i = 5; i <= 40; i++) {
                 if ((b[i] & WHITE) != 0) {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & BLACK) != 0) {
                             if ((b[i + 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i + 5] & BLACK) != 0) {
                             if ((b[i + 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0)
-                                return (1);
+                                return true;
                         }
                     }
                 }
             }
         }
-        return (0);
+
+        return false;
     }
 
     public static void printboard(int human, int[] b, int color)

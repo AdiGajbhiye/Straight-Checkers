@@ -94,7 +94,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
-    int level = Constants.EASY;
+    double level = Constants.EASY;
 
     int[][] board = new int[8][8];
     int[][] preBoard1 = new int[8][8];                 //for undo
@@ -200,7 +200,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         playerTurn = preToMove3;
     }
 
-    public GameScreen(Checkers game, int difficulty) {
+    public GameScreen(Checkers game, double difficulty) {
         super(game);
 
         camera = new OrthographicCamera();
@@ -649,9 +649,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         CBmove cbMove = new CBmove();
 
-        int result = Simple.getmove(board, playerTurn, 1, str, false, cbMove);
+        int result = Simple.getmove(board, playerTurn, level, str, false, cbMove);
 
-        if (result == 0)
+        if (result == 100000 || result == -100000 || result == 200000 || result == -200000 || result == 0)
             return;
 
         if (cbMove.from == null || cbMove.to == null)
