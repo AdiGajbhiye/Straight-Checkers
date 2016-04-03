@@ -120,6 +120,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private int round = 0;
     private Image blackTurn;
     private Image whiteTurn;
+    private int winner;
 
     public void newGame() {                            //creates a new game
 
@@ -649,10 +650,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         CBmove cbMove = new CBmove();
 
-        int result = Simple.getmove(board, playerTurn, level, str, false, cbMove);
+        final int result = Simple.getmove(board, playerTurn, level, str, cbMove);
 
-        if (result == 100000 || result == -100000 || result == 200000 || result == -200000 || result == 0)
-            return;
+        if ((playerTurn == Simple.BLACK && result == -200000)
+                || (playerTurn == Simple.BLACK && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.WHITE;
+            gameOver = true;
+            timer = false;
+        }
+
+        if (playerTurn == Simple.WHITE && result == -100000
+                || (playerTurn == Simple.WHITE && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.BLACK;
+            gameOver = true;
+            timer = false;
+        }
 
         if (cbMove.from == null || cbMove.to == null)
             return;
@@ -692,12 +704,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             drawPieces(8, 8);
 
-                            playerTurn = getPlayer();
-
-                          /*  if (Checker.noMovesLeft(board, playerTurn)) {
+                            if (((playerTurn == Simple.BLACK) && (result == 200000))) {
+                                winner = Simple.BLACK;
                                 gameOver = true;
                                 timer = false;
-                            }*/
+                            }
+
+                            if (((playerTurn == Simple.WHITE) && (result == 100000))) {
+                                winner = Simple.WHITE;
+                                gameOver = true;
+                                timer = false;
+                            }
+
+                            playerTurn = getPlayer();
 
                             humanTurn = true;
 
@@ -857,10 +876,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public void showGameOver() {
 
-        timer = false;
+        String text = "";
 
-        final GameOver gameOver = new GameOver(" WIN!", getSkin()); // this is the dialog title
-        gameOver.text("Game Over");
+        if (humanPlayer == winner)
+            text = "You Win!";
+        else
+            text = "Droid Wins!";
+
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+
+        gameOver.text("Game Over, Play again?");
+
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 gameOver.hide();

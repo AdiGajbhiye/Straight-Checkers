@@ -392,7 +392,7 @@ public class Simple {
      * english checkers this is not necessary.
      */
 
-    public static int getmove(int b[][], int color, double maxtime, String str, boolean playnow, CBmove move) {
+    public static int getmove(int b[][], int color, double maxtime, String str, CBmove move) {
 
 
         int n = 0;
@@ -456,7 +456,7 @@ public class Simple {
 
         printboard(WHITE, board, color);
 
-        value = checkers(board, color, maxtime, str, move, playnow);
+        value = checkers(board, color, maxtime, str, move);
 
 
        /* return the board */
@@ -499,7 +499,6 @@ public class Simple {
             else
                 return WHITELOSS;
         }
-
 
         //test opponent game status
         if (testcapture(board, (color ^ CHANGECOLOR)))
@@ -566,7 +565,7 @@ public class Simple {
         return String.format("%2d%c%2d", from, c, to);
     }
 
-    private static int checkers(int[] b, int color, double maxtime, String str, CBmove move, boolean playNow)
+    private static int checkers(int[] b, int color, double maxtime, String str, CBmove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -610,14 +609,13 @@ public class Simple {
 
         System.out.println("START =>" + start);
 
-        eval = firstalphabeta(b, 1, -10000, 10000, color, best, playNow);
+        eval = firstalphabeta(b, 1, -10000, 10000, color, best);
 
         for (i = 2; (i <= MAXDEPTH) && (((System.currentTimeMillis() - start) / MILLIS) < maxtime); i++) {
             lastbest = best;
-            eval = firstalphabeta(b, i, -10000, 10000, color, best, playNow);
+            eval = firstalphabeta(b, i, -10000, 10000, color, best);
             str2 = movetonotation(best);
-            if (playNow)
-                break;
+
             if (eval == 5000) {
                 break;
             }
@@ -626,17 +624,10 @@ public class Simple {
             }
         }
         i--;
-        if (playNow)
-            str2 = movetonotation(lastbest);
-        else
-            str2 = movetonotation(best);
 
+        str2 = movetonotation(best);
         str = String.format("best Move: %s time %2.2f, depth %2d, value %4d ", str2, (System.currentTimeMillis() - start) / MILLIS, i, eval);
-
         System.out.println(str);
-
-        if (playNow)
-            best = lastbest;
 
         domove(b, best);
 
@@ -646,7 +637,7 @@ public class Simple {
         return eval;
     }
 
-    private static int firstalphabeta(int[] b, int depth, int alpha, int beta, int color, Move2 best, boolean playNow)
+    private static int firstalphabeta(int[] b, int depth, int alpha, int beta, int color, Move2 best)
 /*----------> purpose: search the game tree and find the best move.
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
@@ -656,8 +647,7 @@ public class Simple {
         boolean capture;
         Move2[] movelist = new Move2[MAXMOVES];
 
-        if (playNow)
-            return 0;
+
 /*----------> test if captures are possible */
         capture = testcapture(b, color);
 
@@ -689,7 +679,7 @@ public class Simple {
         for (i = 0; i < numberofmoves; i++) {
             domove(b, movelist[i]);
 
-            value = alphabeta(b, depth - 1, alpha, beta, (color ^ CHANGECOLOR), playNow);
+            value = alphabeta(b, depth - 1, alpha, beta, (color ^ CHANGECOLOR));
 
             undomove(b, movelist[i]);
             if (color == BLACK) {
@@ -717,7 +707,7 @@ public class Simple {
         dest.n = src.n;
     }
 
-    private static int alphabeta(int[] b, int depth, int alpha, int beta, int color, final boolean playNow)
+    private static int alphabeta(int[] b, int depth, int alpha, int beta, int color)
 /*----------> purpose: search the game tree and find the best move.
   ----------> version: 1.0
   ----------> date: 24th october 97 */ {
@@ -728,8 +718,6 @@ public class Simple {
         Move2[] movelist = new Move2[MAXMOVES];
 
 
-        if (playNow)
-            return 0;
 /*----------> test if captures are possible */
         capture = testcapture(b, color);
 
@@ -761,7 +749,7 @@ public class Simple {
         for (i = 0; i < numberofmoves; i++) {
             domove(b, movelist[i]);
 
-            value = alphabeta(b, depth - 1, alpha, beta, color ^ CHANGECOLOR, playNow);
+            value = alphabeta(b, depth - 1, alpha, beta, color ^ CHANGECOLOR);
 
             undomove(b, movelist[i]);
 

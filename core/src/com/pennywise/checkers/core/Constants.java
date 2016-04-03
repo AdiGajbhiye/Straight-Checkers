@@ -18,9 +18,9 @@ public class Constants {
     public static final float GAME_HEIGHT = SCREEN_HEIGHT / (SCREEN_WIDTH / GAME_WIDTH);
 
     //GAME LEVEL
-    public static final double NONE = 0.05;
-    public static final double EASY = 0.25;
-    public static final double NORMAL = 0.75;
+    public static final double NONE = 0.10;
+    public static final double EASY = 0.35;
+    public static final double NORMAL = 0.70;
     public static final double HARD = 1.25;
 
     //GAME TYPE
