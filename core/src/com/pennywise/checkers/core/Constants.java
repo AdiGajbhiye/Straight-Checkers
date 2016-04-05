@@ -30,4 +30,10 @@ public class Constants {
     public static final int TCPPORT = 54555;
     public static final int UDPPORT = 54777;
 
+    public static final String NAME = "name";
+    public static final String COLOR = "color";
+    public static final java.lang.String HOST ="host" ;
+
+    public static final String USER_FILE = "user_preference";
+
 }

@@ -31,20 +31,21 @@ public class Simple {
     public static final int WHITEWIN = 100000;
     public static final int WHITELOSS = -100000;
     public static final int NOLEGALMOVE = -999999999;
-    public static final int NORMAL = 3;
+    public static final int LEGAL = 33;
+    public static final int INCOMLETEMOVE = 34;
 
 
     int[] value = {0, 0, 0, 0, 0, 1, 256, 0, 0, 16, 4096, 0, 0, 0, 0, 0, 0};
 
     // int*play;
 
-    public static boolean isLegal(int[][] b, int color, int from, int to, CBmove move) {
+    public static int isLegal(int[][] b, int color, int from, int to, CBMove move) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
         the move the user wants to make with from&to */
         int n, i, Lfrom, Lto;
-        boolean found = false;
-        Move2[] movelist = new Move2[MAXMOVES];
+        int playerMove = NOLEGALMOVE;
+        Move[] movelist = new Move[MAXMOVES];
         int[] board = new int[46];
         int capture = 0;
         String Lstr;
@@ -93,16 +94,15 @@ public class Simple {
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
-        printboard(color, board, color);
-
        /* board initialized */
         n = generatecapturelist(board, movelist, color);
+
         capture = n;
 
         if (n == 0)
             n = generatemovelist(board, movelist, color);
         if (n == 0)
-            return false;
+            return NOLEGALMOVE;
 
         int[] mv;
          /* now we have a movelist - check if from and to are the same */
@@ -110,6 +110,10 @@ public class Simple {
             mv = moveNotation(movelist[i]);
 
             if (capture != 0) {
+                if (multiCapture(mv[0], mv[1])) {
+                    System.out.println("INCOMPLETE => " + mv[0] + ":" + mv[1]);
+                    playerMove = INCOMLETEMOVE;
+                }
                 Lfrom = mv[0];
                 Lto = mv[1];
             } else {
@@ -118,16 +122,22 @@ public class Simple {
             }
 
             if (from == Lfrom && to == Lto) {
-                found = true;
+                playerMove = LEGAL;
                 break;
             }
         }
-        if (found) {
+
+        if (playerMove == LEGAL) {
             setbestmove(movelist[i], move);
             domove(board, movelist[i]);
             updateBoard(board, b);
         }
-        return found;
+
+        return playerMove;
+    }
+
+    private static boolean multiCapture(int from, int to) {
+        return (Math.abs((from - to)) > 9);
     }
 
     public static void updateBoard(int[] bitboard, int[][] board8) {
@@ -139,7 +149,7 @@ public class Simple {
         }
     }
 
-    private static void setbestmove(Move2 move, CBmove cbMove) {
+    private static void setbestmove(Move move, CBMove cbMove) {
         int i;
         int jumps;
         int from, to;
@@ -392,13 +402,13 @@ public class Simple {
      * english checkers this is not necessary.
      */
 
-    public static int getmove(int b[][], int color, double maxtime, String str, CBmove move) {
+    public static int getmove(int b[][], int color, double maxtime, String str, CBMove move) {
 
 
         int n = 0;
         int value;
         int[] board = new int[46];
-        Move2[] movelist = new Move2[MAXMOVES];
+        Move[] movelist = new Move[MAXMOVES];
 
    /* initialize board */
         for (int i = 0; i < 46; i++)
@@ -453,8 +463,6 @@ public class Simple {
                 board[i] = FREE;
         for (int i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
-
-        printboard(WHITE, board, color);
 
         value = checkers(board, color, maxtime, str, move);
 
@@ -513,10 +521,10 @@ public class Simple {
                 return BLACKWIN;
         }
 
-        return NORMAL;
+        return LEGAL;
     }
 
-    private static int[] moveNotation(Move2 move) {
+    private static int[] moveNotation(Move move) {
         int j, from, to;
 
         from = move.m[0] % 256;
@@ -539,7 +547,7 @@ public class Simple {
         return mv;
     }
 
-    private static String movetonotation(Move2 move) {
+    private static String movetonotation(Move move) {
         int j, from, to;
         char c;
 
@@ -562,10 +570,13 @@ public class Simple {
         c = '-';
         if (move.n > 2)
             c = 'x';
-        return String.format("%2d%c%2d", from, c, to);
+
+        String str = String.format("MOVE => %2d%c%2d", from, c, to);
+        System.out.println(str);
+        return str;
     }
 
-    private static int checkers(int[] b, int color, double maxtime, String str, CBmove move)
+    private static int checkers(int[] b, int color, double maxtime, String str, CBMove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -576,9 +587,9 @@ public class Simple {
         int i, numberofmoves;
         double start;
         int eval;
-        Move2 best = new Move2();
-        Move2 lastbest = new Move2();
-        Move2[] movelist = new Move2[MAXMOVES];
+        Move best = new Move();
+        Move lastbest = new Move();
+        Move[] movelist = new Move[MAXMOVES];
         String str2;
 
 /*--------> check if there is only one move */
@@ -587,6 +598,9 @@ public class Simple {
         if (numberofmoves == 1) {
             domove(b, movelist[0]);
             str = "forced capture";
+            str2 = movetonotation(best);
+            str = String.format("best Move: %s %s", str2, str);
+
             setbestmove(movelist[0], move);
             return (1);
         } else {
@@ -637,7 +651,7 @@ public class Simple {
         return eval;
     }
 
-    private static int firstalphabeta(int[] b, int depth, int alpha, int beta, int color, Move2 best)
+    private static int firstalphabeta(int[] b, int depth, int alpha, int beta, int color, Move best)
 /*----------> purpose: search the game tree and find the best move.
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
@@ -645,7 +659,7 @@ public class Simple {
         int value;
         int numberofmoves;
         boolean capture;
-        Move2[] movelist = new Move2[MAXMOVES];
+        Move[] movelist = new Move[MAXMOVES];
 
 
 /*----------> test if captures are possible */
@@ -702,7 +716,7 @@ public class Simple {
         return (beta);
     }
 
-    private static void copyMove(Move2 src, Move2 dest) {
+    private static void copyMove(Move src, Move dest) {
         dest.m = src.m;
         dest.n = src.n;
     }
@@ -715,7 +729,7 @@ public class Simple {
         int value;
         boolean capture;
         int numberofmoves;
-        Move2[] movelist = new Move2[MAXMOVES];
+        Move[] movelist = new Move[MAXMOVES];
 
 
 /*----------> test if captures are possible */
@@ -767,7 +781,7 @@ public class Simple {
         return (beta);
     }
 
-    private static void domove(int[] b, Move2 move)
+    private static void domove(int[] b, Move move)
 /*----------> purpose: execute move on board
   ----------> version: 1.1
   ----------> date: 25th october 97 */ {
@@ -781,7 +795,7 @@ public class Simple {
         }
     }
 
-    private static void undomove(int[] b, Move2 move)
+    private static void undomove(int[] b, Move move)
 /*----------> purpose:
   ----------> version: 1.1
   ----------> date: 25th october 97 */ {
@@ -1117,7 +1131,7 @@ public class Simple {
 
 /*-------------- PART III: MOVE GENERATION -----------------------------------*/
 
-    private static int generatemovelist(int[] b, Move2[] movelist, int color)
+    private static int generatemovelist(int[] b, Move[] movelist, int color)
 /*----------> purpose:generates all moves. no captures. returns number of moves
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
@@ -1125,7 +1139,7 @@ public class Simple {
         int i;
 
         for (int j = 0; j < movelist.length; j++)
-            movelist[j] = new Move2();
+            movelist[j] = new Move();
 
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
@@ -1345,7 +1359,7 @@ public class Simple {
         return (n);
     }
 
-    private static int generatecapturelist(int[] b, Move2[] movelist, int color)
+    private static int generatecapturelist(int[] b, Move[] movelist, int color)
 /*----------> purpose: generate all possible captures
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
@@ -1355,7 +1369,7 @@ public class Simple {
         int tmp;
 
         for (int j = 0; j < movelist.length; j++)
-            movelist[j] = new Move2();
+            movelist[j] = new Move();
 
         if (color == BLACK) {
             for (i = 5; i <= 40; i++) {
@@ -1693,10 +1707,10 @@ public class Simple {
         return pos.n;
     }
 
-    private static void blackmancapture(int[] b, MovePos movePos, Move2[] movelist, int i) {
+    private static void blackmancapture(int[] b, MovePos movePos, Move[] movelist, int i) {
         int m;
         boolean found = false;
-        Move2 move, orgmove;
+        Move move, orgmove;
 
         orgmove = movelist[movePos.n];
         move = orgmove;
@@ -1749,11 +1763,11 @@ public class Simple {
             movePos.n++;
     }
 
-    public static void blackkingcapture(int[] b, MovePos pos, Move2[] movelist, int i) {
+    public static void blackkingcapture(int[] b, MovePos pos, Move[] movelist, int i) {
         int m;
         int tmp;
         boolean found = false;
-        Move2 move, orgmove;
+        Move move, orgmove;
 
         orgmove = movelist[pos.n];
         move = orgmove;
@@ -1857,10 +1871,10 @@ public class Simple {
             pos.n++;
     }
 
-    private static void whitemancapture(int[] b, MovePos pos, Move2[] movelist, int i) {
+    private static void whitemancapture(int[] b, MovePos pos, Move[] movelist, int i) {
         int m;
         boolean found = false;
-        Move2 move, orgmove;
+        Move move, orgmove;
 
         orgmove = movelist[pos.n];
         move = orgmove;
@@ -1912,11 +1926,11 @@ public class Simple {
             pos.n++;
     }
 
-    private static void whitekingcapture(int[] b, MovePos pos, Move2[] movelist, int i) {
+    private static void whitekingcapture(int[] b, MovePos pos, Move[] movelist, int i) {
         int m;
         int tmp;
         boolean found = false;
-        Move2 move, orgmove;
+        Move move, orgmove;
 
         orgmove = movelist[pos.n];
         move = orgmove;

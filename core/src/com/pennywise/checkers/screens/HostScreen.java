@@ -1,7 +1,6 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -10,6 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.engine.Simple;
+import com.pennywise.checkers.core.persistence.Player;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.managers.AudioManager;
 import com.pennywise.multiplayer.BluetoothInterface;
 
@@ -28,12 +31,15 @@ public class HostScreen extends AbstractScreen {
     private TextButton hostButton;
     private Label colorLabel;
     private Label nameLabel;
+    private Player player;
+
 
     public HostScreen(Checkers game) {
         super(game);
         bluetoothInterface = game.getBluetoothInterface();
         game.setHost(true);
         game.setMultiplayer(true);
+        player = SaveUtil.loadUserData(Constants.USER_FILE);
     }
 
     public Label getInfoLabel() {
@@ -55,7 +61,7 @@ public class HostScreen extends AbstractScreen {
     @Override
     public void show() {
 
-        nameLabel = new Label("Player name:", getSkin(), "white-text");
+        nameLabel = new Label("Player name:", getSkin(), "black-text");
         nameLabel.setAlignment(Align.center);
         getTable().add(nameLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
@@ -66,7 +72,7 @@ public class HostScreen extends AbstractScreen {
         getTable().add(playerName).size(360, 70).left().colspan(2).spaceBottom(30);
         getTable().row();
 
-        colorLabel = new Label("Choose piece color", getSkin(), "white-text");
+        colorLabel = new Label("Choose piece color", getSkin(), "black-text");
         colorLabel.setAlignment(Align.center);
         getTable().add(colorLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
@@ -78,10 +84,13 @@ public class HostScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
                 CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked())
+                if (checkBox.isChecked()) {
+                    player.setColor(Simple.WHITE);
                     blackPlayer.setChecked(false);
-                else
+                } else {
+                    player.setColor(Simple.BLACK);
                     blackPlayer.setChecked(true);
+                }
             }
         });
 
@@ -94,17 +103,20 @@ public class HostScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
                 CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked())
+                if (checkBox.isChecked()) {
                     redPlayer.setChecked(false);
-                else
+                    player.setColor(Simple.BLACK);
+                } else {
+                    player.setColor(Simple.WHITE);
                     redPlayer.setChecked(true);
+                }
             }
         });
         getTable().add(blackPlayer).size(180, 70).left().spaceBottom(30);
 
         getTable().row();
 
-        infoLabel = new Label("", getSkin(), "white-text");
+        infoLabel = new Label("", getSkin(), "black-text");
         infoLabel.setAlignment(Align.center);
         getTable().add(infoLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
@@ -115,6 +127,10 @@ public class HostScreen extends AbstractScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
+                //save player data
+                player.setName(playerName.getText());
+                player.setHost(true);
+                SaveUtil.saveUserData(Constants.USER_FILE, player);
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {
                     // Check if bluetooth is discoverable. If not, make it discoverable.

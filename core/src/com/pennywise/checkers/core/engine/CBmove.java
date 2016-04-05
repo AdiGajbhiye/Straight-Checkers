@@ -1,9 +1,11 @@
 package com.pennywise.checkers.core.engine;
 
+import java.io.Serializable;
+
 /**
  * Created by Joshua.Nabongo on 3/29/2016.
  */
-public class CBmove {
+public class CBMove implements Serializable{
     public int ismove;          /* kind of superfluous: is 0 if the move is not a valid move */
     public int newpiece;        /* what type of piece appears on to */
     public int oldpiece;        /* what disappears on from */
