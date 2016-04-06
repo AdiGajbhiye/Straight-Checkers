@@ -280,25 +280,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (timer)
-            if (System.nanoTime() - startTime >= 1000000000) {
-                secondsTime++;
-                startTime = System.nanoTime();
-            }
-
-        if (opponentMove && !multiplayer) {
-            opponentMove = false;
-            new Thread("Opponent") {
-                public void run() {
-                    moveOpponentPiece();
-                }
-            }.start();
-        }
-
         if (Gdx.input.isTouched() && humanTurn) {
-
-
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
+
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
 
             if (completed) {
@@ -344,6 +328,21 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         }
 
+        if (timer)
+            if (System.nanoTime() - startTime >= 1000000000) {
+                secondsTime++;
+                startTime = System.nanoTime();
+            }
+
+        if (opponentMove && !multiplayer) {
+            opponentMove = false;
+            new Thread("Opponent") {
+                public void run() {
+                    moveOpponentPiece();
+                }
+            }.start();
+        }
+
         if (gameOver) {
             gameOver = false;
             showGameOver();
@@ -371,7 +370,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         save();
 
-        //drawRect();
     }
 
     @Override
