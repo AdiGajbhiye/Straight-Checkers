@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -107,7 +106,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private boolean multiplayer = false;
     private float[] boardPosition = null;
     private boolean ready = false;
-    private float xx, yy;
     private int playerTurn = Simple.BLACK;
     private int round = 0;
     private Image blackTurn;
@@ -245,6 +243,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         if (multiplayer) {
             if (player.isHost()) {
+
+                sendPlayerData(player);
+
                 playerTurn = player.getColor();
 
                 if (playerTurn == Simple.BLACK) {
@@ -309,19 +310,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                         humanPiece.setSelected(true);
                         if (actor instanceof Tile) {
                             fromTile = (Tile) actor;
-                            fromTile.getStyle().background = getSkin().getDrawable("selected_green");
                         }
                     } else
                         humanPiece = null;
                 } else {
-
                     if (humanPiece != null && actor != null) {
                         if (actor instanceof Tile) {
 
                             toTile = ((Tile) actor);
 
                             if (toTile.getCellEntry() == Simple.BLACK) {
-                                toTile.getStyle().background = getSkin().getDrawable("selected_green");
                                 movePiece();
                             }
                         }
@@ -333,12 +331,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 if (actor != null && toTile != null) {
                     if (!(actor.getName().equals(toTile.getName()))) {
-                        if (humanPiece != null && actor != null) {
-                            if (actor instanceof Tile) {
-                                toTile = ((Tile) actor);
-                                if (toTile.getCellEntry() == Simple.BLACK) {
-                                    movePiece();
-                                }
+                        if (actor instanceof Tile) {
+                            toTile = ((Tile) actor);
+                            if (toTile.getCellEntry() == Simple.BLACK) {
+                                movePiece();
                             }
                         }
                     } else {
@@ -375,7 +371,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         save();
 
-        drawRect();
+        //drawRect();
     }
 
     @Override
@@ -535,7 +531,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         float posX = toTile.getX() + (toTile.getWidth() / 2);
         float posY = toTile.getY() + (toTile.getHeight() / 2);
 
-
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
         moveAction.setDuration(0.35f);
@@ -558,7 +553,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         })));
     }
 
-
     protected void movePiece() {
 
         if (!multicapture)
@@ -578,12 +572,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             multicapture = false;
             move();
 
-            if (fromTile != null)
-                fromTile.getStyle().background = getSkin().getDrawable("darkcell");
-
-            if (toTile != null)
-                toTile.getStyle().background = getSkin().getDrawable("darkcell");
-
             if (multiplayer) {
                 updatePeer(move);
             }
@@ -602,7 +590,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
     }
 
-    protected void drawRect() {
+    /*protected void drawRect() {
         if (ready) {
             ShapeRenderer shapeRenderer = new ShapeRenderer();
             shapeRenderer.setProjectionMatrix(camera.combined);
@@ -614,7 +602,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             shapeRenderer.rect(xx, yy, (cellsize / 2), (cellsize / 2));
             shapeRenderer.end();
         }
-    }
+    }*/
 
     protected Piece getPiece(int x, int y) {
 
@@ -636,9 +624,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 cellsize / 2,
                 cellsize / 2);
 
-        xx = rect1.x;
-        yy = rect1.y;
-
         SnapshotArray<Actor> actors = pp.getChildren();
 
         for (int i = 0; i < actors.size; i++) {
@@ -657,8 +642,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void moveOpponentPiece() {
         SequenceAction sequenceAction = new SequenceAction();
-        int loser = Simple.FREE;
-        int[] move = new int[4];
         int[] counter = new int[1];
         counter[0] = 0;
         String str = "";
@@ -698,6 +681,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
             if (cbMove.path[i] == null)
                 continue;
+
+            //float posX = toTile.getX() + (toTile.getWidth() / 2) ;
+            //float posY = toTile.getY() + (toTile.getHeight() / 2);
 
             float posX = (cbMove.path[i].x * cellsize) + 4;
             float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
@@ -780,13 +766,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
 
                 if (board[row][col] == (Simple.BLACKPAWN))
-                    pieces[index] = new Piece(getSkin().getDrawable("blackpawn"), (Simple.BLACKPAWN));
+                    pieces[index] = new Piece(getSkin().getDrawable("blackPawn"), (Simple.BLACKPAWN));
                 if (board[row][col] == (Simple.BLACKKING))
-                    pieces[index] = new Piece(getSkin().getDrawable("blackking"), (Simple.BLACKKING));
+                    pieces[index] = new Piece(getSkin().getDrawable("blackKing"), (Simple.BLACKKING));
                 if (board[row][col] == (Simple.WHITEKING))
-                    pieces[index] = new Piece(getSkin().getDrawable("whiteking"), (Simple.WHITEKING));
+                    pieces[index] = new Piece(getSkin().getDrawable("redKing"), (Simple.WHITEKING));
                 if (board[row][col] == (Simple.WHITEPAWN))
-                    pieces[index] = new Piece(getSkin().getDrawable("whitepawn"), (Simple.WHITEPAWN));
+                    pieces[index] = new Piece(getSkin().getDrawable("redPawn"), (Simple.WHITEPAWN));
                 if (board[row][col] == Simple.FREE)
                     continue;
 
@@ -795,13 +781,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (pieces[index] == null)
                     continue;
 
-                pieces[index].setSize((cellsize - 2), (cellsize - 2));
-                pieces[index].setPosition(position[index].x, position[index].y);
+                pieces[index].setSize((cellsize - 4), (cellsize - 4));
+                pieces[index].setPosition(position[index].x + 2, position[index].y + 2);
                 pieces[index].setName(text + "");
                 gameBoard.addActor(pieces[index]);
             }
         }
     }
+
 
     @Override
     public boolean keyDown(int keycode) {
@@ -938,7 +925,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     @Override
-    public void updatePlayerData(Player player) {
+    public void sendPlayerData(Player player) {
         TransmissionPackage transmissionPackage = new TransmissionPackage();
         transmissionPackage.reset();
         transmissionPackage.setGameboard(null);

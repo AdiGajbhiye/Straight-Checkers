@@ -11,7 +11,7 @@ public interface MultiplayerDirector {
 
     public void updatePeer(CBMove move);
 
-    public void updatePlayerData(Player player);
+    public void sendPlayerData(Player player);
 
     public void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
 }
