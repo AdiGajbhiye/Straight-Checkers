@@ -6,10 +6,8 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Json;
 import com.pennywise.android.AndroidLauncher;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
@@ -137,6 +135,13 @@ public class BluetoothManager implements BluetoothInterface {
 
     public boolean isBluetoothSupported() {
         return (bluetoothAdapter != null) ? true : false;
+    }
+
+    public String getName() {
+        if (bluetoothAdapter != null)
+            return bluetoothAdapter.getName();
+
+        return "Player";
     }
 
     public boolean isBluetoothEnabled() {

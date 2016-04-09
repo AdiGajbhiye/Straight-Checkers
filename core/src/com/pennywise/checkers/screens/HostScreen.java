@@ -61,58 +61,6 @@ public class HostScreen extends AbstractScreen {
     @Override
     public void show() {
 
-        nameLabel = new Label("Player name:", getSkin(), "black-text");
-        nameLabel.setAlignment(Align.center);
-        getTable().add(nameLabel).spaceBottom(15).left().colspan(2);
-        getTable().row();
-
-        playerName = new TextField("Player 1", getSkin());
-        playerName.setCursorPosition(0);
-        playerName.setAlignment(Align.left);
-        getTable().add(playerName).size(360, 70).left().colspan(2).spaceBottom(30);
-        getTable().row();
-
-        colorLabel = new Label("Choose piece color", getSkin(), "black-text");
-        colorLabel.setAlignment(Align.center);
-        getTable().add(colorLabel).spaceBottom(15).left().colspan(2);
-        getTable().row();
-
-        redPlayer = new CheckBox("Red", getSkin(), "red");
-        redPlayer.setChecked(true);
-        redPlayer.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked()) {
-                    player.setColor(Simple.WHITE);
-                    blackPlayer.setChecked(false);
-                } else {
-                    player.setColor(Simple.BLACK);
-                    blackPlayer.setChecked(true);
-                }
-            }
-        });
-
-        getTable().add(redPlayer).size(180, 70).left().spaceBottom(30);
-
-
-        blackPlayer = new CheckBox("Black", getSkin());
-        blackPlayer.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked()) {
-                    redPlayer.setChecked(false);
-                    player.setColor(Simple.BLACK);
-                } else {
-                    player.setColor(Simple.WHITE);
-                    redPlayer.setChecked(true);
-                }
-            }
-        });
-        getTable().add(blackPlayer).size(180, 70).left().spaceBottom(30);
 
         getTable().row();
 
@@ -128,8 +76,9 @@ public class HostScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
                 //save player data
-                player.setName(playerName.getText());
+                player.setName(bluetoothInterface.getName());
                 player.setHost(true);
+                player.setColor(Simple.BLACK);
                 SaveUtil.saveUserData(Constants.USER_FILE, player);
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {

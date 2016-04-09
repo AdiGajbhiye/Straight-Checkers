@@ -32,7 +32,7 @@ public class Simple {
     public static final int WHITELOSS = -100000;
     public static final int NOLEGALMOVE = -999999999;
     public static final int LEGAL = 33;
-    public static final int INCOMLETEMOVE = 34;
+    public static final int INCOMLETEMOVE = 989998989;
 
 
     int[] value = {0, 0, 0, 0, 0, 1, 256, 0, 0, 16, 4096, 0, 0, 0, 0, 0, 0};

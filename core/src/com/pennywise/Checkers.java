@@ -169,7 +169,7 @@ public class Checkers extends Game {
                 ((JoinScreen) getScreen()).getConnectButton().setText(
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
-                setScreen(new GameScreen(this, Constants.NONE));
+                 setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()
                         .setText("Waiting for host to start the game...");
@@ -186,6 +186,7 @@ public class Checkers extends Game {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
+
                 setScreen(new GameScreen(this, Constants.NONE));
                 ((GameScreen) getScreen())
                         .getInfoLabel()

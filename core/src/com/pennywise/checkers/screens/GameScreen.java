@@ -102,7 +102,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
     private int saveCounter = 0;
 
-    private boolean invert = false;
     private boolean multiplayer = false;
     private float[] boardPosition = null;
     private boolean ready = false;
@@ -113,7 +112,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private int winner;
     private boolean multicapture = false;
     private Point from = null, dest = null;
-    private Player player, hostData;
+    private Player player;
     private Label blackName, whiteName;
 
 
@@ -237,33 +236,35 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void initGame() {
 
-        invert = false;
         multiplayer = game.isMultiplayer();
         player = SaveUtil.loadUserData(Constants.USER_FILE);
 
+        whiteName = new Label("Player name:", getSkin(), "black-text");
+        blackName = new Label("Player name:", getSkin(), "black-text");
+
         if (multiplayer) {
             if (player.isHost()) {
-
-                sendPlayerData(player);
-
-                playerTurn = player.getColor();
-
-                if (playerTurn == Simple.BLACK) {
+                if (player.getColor() == Simple.BLACK) {
                     blackName.setText(player.getName());
+                    playerTurn = humanPlayer = Simple.BLACK;
                     humanTurn = true;
                 } else {
                     humanTurn = false;
-                    whiteName.setText(hostData.getName());
+                    playerTurn = Simple.BLACK;
+                    humanPlayer = Simple.WHITE;
+                    whiteName.setText(player.getName());
                 }
 
-                humanPlayer = playerTurn;
-
             } else {
+                playerTurn = Simple.BLACK;
+                humanPlayer = Simple.WHITE;
+                whiteName.setText(player.getName());
                 humanTurn = false;
-                humanPlayer = 0;
             }
         } else {
             humanPlayer = playerTurn;
+            whiteName.setText("Droid");
+            blackName.setText(player.getName().isEmpty() ? "Human" : player.getName());
         }
 
         newGame();
@@ -429,10 +430,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table hud() {
         Table layer = new Table();
-        //layer.setDebug(true);
         layer.bottom();
 
-        blackName = new Label("Player name:", getSkin(), "black-text");
         blackName.setAlignment(Align.center);
         layer.add(blackTurn).size(30, 30).center().padBottom(80);
         layer.add(blackName).size(320, 60).left().padBottom(80);
@@ -448,7 +447,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         layer.setWidth(Constants.GAME_WIDTH);
 
 
-        whiteName = new Label("Player name:", getSkin(), "black-text");
         whiteName.setAlignment(Align.center);
         layer.add(whiteTurn).size(30, 30).center().padTop(5);
         layer.add(whiteName).size(320, 60).left().padTop(5);
@@ -917,19 +915,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         TransmissionPackage transmissionPackage = new TransmissionPackage();
         transmissionPackage.reset();
         transmissionPackage.setGameboard(board);
+        transmissionPackage.setName(game.getBluetoothInterface().getName());
+        transmissionPackage.setColor(player.getColor());
         transmissionPackage.setMove(move);
         game.getBluetoothInterface().transmitPackage(transmissionPackage);
 
-    }
-
-    @Override
-    public void sendPlayerData(Player player) {
-        TransmissionPackage transmissionPackage = new TransmissionPackage();
-        transmissionPackage.reset();
-        transmissionPackage.setGameboard(null);
-        transmissionPackage.setMove(null);
-        transmissionPackage.setPlayer(player);
-        game.getBluetoothInterface().transmitPackage(transmissionPackage);
     }
 
     @Override
@@ -939,19 +929,16 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private void updateBoard(TransmissionPackage transmissionPackage) {
 
-        if (transmissionPackage.getGameboard() == null) {
-            hostData = transmissionPackage.getPlayer();
-            playerTurn = humanPlayer = hostData.getColor() ^ Simple.CHANGECOLOR;
-            if (playerTurn == Simple.BLACK) {
-                blackName.setText(hostData.getName());
-                humanTurn = true;
-            } else {
-                humanTurn = false;
-                whiteName.setText(hostData.getName());
-            }
+        if (transmissionPackage.getColor() == Simple.BLACK) {
+            blackName.setText(transmissionPackage.getName());
+            whiteName.setText(player.getName());
         } else {
-            copyBoard(transmissionPackage.getGameboard(), board);
+            whiteName.setText(transmissionPackage.getName());
+            blackName.setText(player.getName());
         }
+
+        copyBoard(transmissionPackage.getGameboard(), board);
+
         //Gdx.app.log("TRX", "IN => " + Checker.printboard(board));
 
         CBMove cbMove = transmissionPackage.getMove();
@@ -997,12 +984,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
                             drawPieces(8, 8);
-
-                          /*  if (Checker.noMovesLeft(board, getPlayer())) {
-                                gameOver = true;
-                                timer = false;
-                            }*/
-
                             playerTurn = getPlayer();
                             humanTurn = true;
                         }
