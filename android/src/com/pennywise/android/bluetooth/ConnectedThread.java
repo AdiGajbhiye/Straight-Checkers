@@ -80,6 +80,8 @@ public class ConnectedThread extends Thread {
 		try {
 			dos.writeInt(bytes.length);
 			dos.write(bytes);
+			Gdx.app.log(LOG, "Writen: " + dos.size());
+
 		} catch (IOException e) {
 			Gdx.app.log(LOG, "Write: " + e.getMessage());
 		}
