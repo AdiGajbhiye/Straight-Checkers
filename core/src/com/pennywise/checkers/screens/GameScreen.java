@@ -93,12 +93,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     double level = Constants.EASY;
 
     int[][] board = new int[8][8];
-    int[][] preBoard1 = new int[8][8];                 //for undo
-    int preToMove1;
-    int[][] preBoard2 = new int[8][8];
-    int preToMove2;
-    int[][] preBoard3 = new int[8][8];
-    int preToMove3;
     private int undoCount = 0;
     private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
     private int saveCounter = 0;
@@ -121,11 +115,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void newGame() {                            //creates a new game
 
         initBoard();
-        copyBoard(board, preBoard1);
-        copyBoard(board, preBoard2);
-        copyBoard(board, preBoard3);
-
-        preToMove3 = preToMove2 = preToMove1 = playerTurn;
 
     }
 
@@ -182,16 +171,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private boolean isPossibleSquare(int i, int j) {
         return ((i % 2) == (j % 2));
-    }
-
-    public void undo() {            //undo function
-        undoCount = 1;
-
-        for (int i = 0; i < 8; i++) {
-            System.arraycopy(preBoard3[i], 0, board[i], 0, 8);              //copies previous board
-        }
-
-        playerTurn = preToMove3;
     }
 
     public GameScreen(Checkers game, double difficulty) {

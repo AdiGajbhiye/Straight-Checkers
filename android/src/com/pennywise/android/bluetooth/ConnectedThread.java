@@ -47,19 +47,17 @@ public class ConnectedThread extends Thread {
         final byte[] buffer = new byte[2048]; // buffer store for the stream
         // int bytes; // bytes returned from read()
         // Keep listening to the InputStream until an exception occurs
-
+        Gdx.app.log(LOG, "LISTENING");
         try {
             // Read from the InputStream
             int length = dis.readInt(); //.read(buffer);
             Gdx.app.log(LOG, "Read BYTES: " + length);
             dis.readFully(buffer, 0, length);
-            // Post a Runnable to the rendering thread that processes the
-            // result
+            // Post a Runnable to the rendering thread that processes the result
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
-                    // Let BluetoothManager's handler handle the incoming
-                    // bytes
+                    // Let BluetoothManager's handler handle the incoming bytes
                     mBluetoothManager
                             .getHandler()
                             .obtainMessage(BluetoothManager.MESSAGE_READ, buffer).sendToTarget();
@@ -74,6 +72,7 @@ public class ConnectedThread extends Thread {
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
         try {
+            Gdx.app.log(LOG, "Write BYTES: " + bytes.length);
             dos.writeInt(bytes.length);
             dos.write(bytes);
         } catch (IOException e) {
