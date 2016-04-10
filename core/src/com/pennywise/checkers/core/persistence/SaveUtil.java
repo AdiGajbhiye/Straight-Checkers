@@ -42,6 +42,7 @@ public class SaveUtil {
         Preferences pref = Gdx.app.getPreferences(preference);
         pref.putString(Constants.NAME, player.getName());
         pref.putInteger(Constants.COLOR, player.getColor());
+        pref.putBoolean(Constants.HOST, player.isHost());
         pref.flush();
 
     }

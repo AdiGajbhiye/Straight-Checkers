@@ -1,7 +1,6 @@
 package com.pennywise.managers;
 
 import com.pennywise.checkers.core.engine.CBMove;
-import com.pennywise.checkers.core.persistence.Player;
 import com.pennywise.multiplayer.TransmissionPackage;
 
 /**
@@ -9,9 +8,7 @@ import com.pennywise.multiplayer.TransmissionPackage;
  */
 public interface MultiplayerDirector {
 
-    public void updatePeer(CBMove move);
+    void updatePeer(CBMove move);
 
-    public void updatePlayerData(Player player);
-
-    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
+    void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
 }

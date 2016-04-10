@@ -6,10 +6,8 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Json;
 import com.pennywise.android.AndroidLauncher;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
@@ -29,7 +27,7 @@ public class BluetoothManager implements BluetoothInterface {
     // The service's name
     public static final String SERVICE_NAME = "checkers";
     // The game's UUID string, used by host and client
-    public static final String PAPANIKOLIS_UUID = "88d775e0-ba31-11e2-9e96-0800200c9a66";
+    public static final String CHECKER_UUID = "88d775e0-ba31-11e2-9e96-0800200c9a66";
 
     // Constants that indicate the current connection state
     public static final int STATE_IDLE = 0; // we're doing nothing
@@ -137,6 +135,13 @@ public class BluetoothManager implements BluetoothInterface {
 
     public boolean isBluetoothSupported() {
         return (bluetoothAdapter != null) ? true : false;
+    }
+
+    public String getName() {
+        if (bluetoothAdapter != null)
+            return bluetoothAdapter.getName();
+
+        return "Human";
     }
 
     public boolean isBluetoothEnabled() {

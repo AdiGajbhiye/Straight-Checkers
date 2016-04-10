@@ -169,10 +169,10 @@ public class Checkers extends Game {
                 ((JoinScreen) getScreen()).getConnectButton().setText(
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
-                setScreen(new GameScreen(this, Constants.NONE));
-                ((GameScreen) getScreen())
-                        .getInfoLabel()
-                        .setText("Waiting for host to start the game...");
+                 setScreen(new GameScreen(this, Constants.NONE));
+               // ((GameScreen) getScreen())
+               //         .getInfoLabel()
+              //          .setText("Waiting for host to start the game...");
             }
         } else if (getScreen() instanceof HostScreen) {
             if (bluetoothInterface.isIdle()) {
@@ -186,10 +186,11 @@ public class Checkers extends Game {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Connecting...");
             } else if (bluetoothInterface.isConnected()) {
+
                 setScreen(new GameScreen(this, Constants.NONE));
-                ((GameScreen) getScreen())
-                        .getInfoLabel()
-                        .setText("Touch screen to start the game!");
+               // ((GameScreen) getScreen())
+               //         .getInfoLabel()
+               //         .setText("Touch screen to start the game!");
             }
         }
     }

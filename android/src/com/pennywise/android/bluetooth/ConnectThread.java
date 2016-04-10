@@ -29,7 +29,7 @@ public class ConnectThread extends Thread {
 		try {
 			Gdx.app.log(LOG, "ConnectThread to " + device.toString());
 			tmp = mmDevice.createRfcommSocketToServiceRecord(UUID
-					.fromString(BluetoothManager.PAPANIKOLIS_UUID));
+					.fromString(BluetoothManager.CHECKER_UUID));
 		} catch (IOException e) {
 			Gdx.app.log(LOG, "Any trouble here?");
 			e.printStackTrace();

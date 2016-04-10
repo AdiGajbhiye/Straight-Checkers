@@ -19,6 +19,7 @@ public class ConnectedThread extends Thread {
     //private final InputStream mmInStream;
     private final DataInputStream dis;
     private final DataOutputStream dos;
+
     //private final OutputStream mmOutStream;
 
     public ConnectedThread(BluetoothManager mBluetoothManager,
@@ -37,9 +38,6 @@ public class ConnectedThread extends Thread {
         } catch (IOException e) {
             Gdx.app.log(LOG, "Constructor: " + e.getMessage());
         }
-
-        //mmInStream = tmpIn;
-        //mmOutStream = tmpOut;
 
         dis = new DataInputStream(tmpIn);
         dos = new DataOutputStream(tmpOut);
