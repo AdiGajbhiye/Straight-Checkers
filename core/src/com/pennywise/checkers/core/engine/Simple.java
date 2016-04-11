@@ -162,9 +162,9 @@ public class Simple {
 
         cbMove.from = numbertocoor(from);
         cbMove.to = numbertocoor(to);
-       // cbMove.ismove = jumps;
-       // cbMove.newpiece = ((move.m[1] >> 16) % 256);
-       // cbMove.oldpiece = ((move.m[0] >> 8) % 256);
+     // cbMove.ismove = jumps;
+     // cbMove.newpiece = ((move.m[1] >> 16) % 256);
+     // cbMove.oldpiece = ((move.m[0] >> 8) % 256);
         for (i = 2; i < move.n; i++) {
             cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
             cbMove.del[i - 2] = numbertocoor(move.m[i] % 256);

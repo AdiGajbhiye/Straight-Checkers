@@ -44,7 +44,7 @@ public class ConnectedThread extends Thread {
     }
 
     public void run() {
-        final byte[] buffer = new byte[2048]; // buffer store for the stream
+        final byte[] buffer = new byte[1024]; // buffer store for the stream
         // int bytes; // bytes returned from read()
         // Keep listening to the InputStream until an exception occurs
         Gdx.app.log(LOG, "LISTENING");
