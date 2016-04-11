@@ -140,7 +140,6 @@ public class BluetoothManager implements BluetoothInterface {
     public String getName() {
         if (bluetoothAdapter != null)
             return bluetoothAdapter.getName();
-
         return "Human";
     }
 
