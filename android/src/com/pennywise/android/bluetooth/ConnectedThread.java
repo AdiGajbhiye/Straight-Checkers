@@ -58,7 +58,6 @@ public class ConnectedThread extends Thread {
                 offset += read;
                 length -= read;
             }
-
             Gdx.app.log(LOG, "Read BYTES: " + length + "/" + temp.length);
             Gdx.app.postRunnable(new Runnable() {
                 @Override
