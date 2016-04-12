@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.persistence.Player;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.managers.AudioManager;
 import com.pennywise.multiplayer.BluetoothInterface;
 
@@ -117,6 +120,9 @@ public class JoinScreen extends AbstractScreen {
                 AudioManager.playClick();
                 if (!bluetoothInterface.isDiscovering()
                         && !bluetoothInterface.isConnecting()) {
+
+                    Player player = new Player(bluetoothInterface.getName(), 0, false);
+                    SaveUtil.saveUserData(Constants.USER_FILE, player);
                     // To get the MAC from the string subtract the length of the
                     // MAC from the end of the string
                     // and get the substring beginning at that index.

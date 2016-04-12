@@ -104,6 +104,8 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
                 adRequestBuilder.addTestDevice("85253FE6D4C2A3DEBA982785D93C3ABF");
                 adRequestBuilder.addTestDevice("0B03BCA29F81CDF48010484F4DFA6F42");
                 adRequestBuilder.addTestDevice("04E31A82E4F59C0A4B5C7435726123DD");
+                adRequestBuilder.addTestDevice("825E1DA812A6CB10A5CCB7314FF4387B");
+                adRequestBuilder.addTestDevice("EBED50C28405D6F3C9D0BD27605C17AD");
                 adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
                 adView.loadAd(adRequestBuilder.build());
             }

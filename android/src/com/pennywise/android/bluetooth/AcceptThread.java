@@ -26,7 +26,7 @@ public class AcceptThread extends Thread {
 			tmp = this.mBluetoothManager.getBluetoothAdapter()
 					.listenUsingRfcommWithServiceRecord(
 							BluetoothManager.SERVICE_NAME,
-							UUID.fromString(BluetoothManager.PAPANIKOLIS_UUID));
+							UUID.fromString(BluetoothManager.CHECKER_UUID));
 		} catch (IOException e) {
 			Gdx.app.log(LOG, "Oou dude! Channel is taken!");
 		}

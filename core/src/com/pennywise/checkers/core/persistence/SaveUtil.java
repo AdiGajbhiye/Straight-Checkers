@@ -1,8 +1,11 @@
 package com.pennywise.checkers.core.persistence;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
+import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.engine.Simple;
 
 /**
  * Created by Joshua.Nabongo on 2/4/2016.
@@ -35,4 +38,22 @@ public class SaveUtil {
 
     }
 
+    public static void saveUserData(String preference, Player player) {
+        Preferences pref = Gdx.app.getPreferences(preference);
+        pref.putString(Constants.NAME, player.getName());
+        pref.putInteger(Constants.COLOR, player.getColor());
+        pref.putBoolean(Constants.HOST, player.isHost());
+        pref.flush();
+
+    }
+
+    public static Player loadUserData(String preference) {
+        Preferences pref = Gdx.app.getPreferences(preference);
+
+        String name = pref.getString(Constants.NAME, "Player 1");
+        int color = pref.getInteger(Constants.COLOR, Simple.BLACK);
+        boolean hosting = pref.getBoolean(Constants.HOST, false);
+        return new Player(name, color, hosting);
+
+    }
 }

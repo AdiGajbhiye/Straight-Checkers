@@ -51,9 +51,9 @@
       default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
     },
     com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
-      default: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: white },
+      default: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black },
       yellow: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black },
-      red: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: white },
+      red: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black },
       green: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black }
     }
 }

@@ -4,8 +4,8 @@ import android.bluetooth.BluetoothSocket;
 
 import com.badlogic.gdx.Gdx;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,10 +16,9 @@ public class ConnectedThread extends Thread {
 
     private BluetoothManager mBluetoothManager;
     private final BluetoothSocket mmSocket;
-    //private final InputStream mmInStream;
-    //private final OutputStream mmOutStream;
-    private final BufferedInputStream bis;
-    private final BufferedOutputStream bos;
+    private final DataInputStream dis;
+    private final DataOutputStream dos;
+
 
     public ConnectedThread(BluetoothManager mBluetoothManager,
                            BluetoothSocket socket) {
@@ -38,11 +37,8 @@ public class ConnectedThread extends Thread {
             Gdx.app.log(LOG, "Constructor: " + e.getMessage());
         }
 
-        //mmInStream = tmpIn;
-        //mmOutStream = tmpOut;
-
-        bis = new BufferedInputStream(tmpIn);
-        bos = new BufferedInputStream(tmpOut);
+        dis = new DataInputStream(tmpIn);
+        dos = new DataOutputStream(tmpOut);
     }
 
     public void run() {
@@ -71,6 +67,7 @@ public class ConnectedThread extends Thread {
                 Gdx.app.log(LOG, "Read: " + e.getMessage());
                 break;
             }
+
         }
     }
 
@@ -80,7 +77,6 @@ public class ConnectedThread extends Thread {
             dos.writeInt(bytes.length);
             dos.write(bytes);
             Gdx.app.log(LOG, "Writen: " + dos.size());
-
         } catch (IOException e) {
             Gdx.app.log(LOG, "Write: " + e.getMessage());
         }

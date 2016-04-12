@@ -1,7 +1,6 @@
 package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -10,6 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.Constants;
+import com.pennywise.checkers.core.engine.Simple;
+import com.pennywise.checkers.core.persistence.Player;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.managers.AudioManager;
 import com.pennywise.multiplayer.BluetoothInterface;
 
@@ -28,12 +31,15 @@ public class HostScreen extends AbstractScreen {
     private TextButton hostButton;
     private Label colorLabel;
     private Label nameLabel;
+    private Player player;
+
 
     public HostScreen(Checkers game) {
         super(game);
         bluetoothInterface = game.getBluetoothInterface();
         game.setHost(true);
         game.setMultiplayer(true);
+        player = SaveUtil.loadUserData(Constants.USER_FILE);
     }
 
     public Label getInfoLabel() {
@@ -55,56 +61,10 @@ public class HostScreen extends AbstractScreen {
     @Override
     public void show() {
 
-        nameLabel = new Label("Player name:", getSkin(), "white-text");
-        nameLabel.setAlignment(Align.center);
-        getTable().add(nameLabel).spaceBottom(15).left().colspan(2);
-        getTable().row();
-
-        playerName = new TextField("Player 1", getSkin());
-        playerName.setCursorPosition(0);
-        playerName.setAlignment(Align.left);
-        getTable().add(playerName).size(360, 70).left().colspan(2).spaceBottom(30);
-        getTable().row();
-
-        colorLabel = new Label("Choose piece color", getSkin(), "white-text");
-        colorLabel.setAlignment(Align.center);
-        getTable().add(colorLabel).spaceBottom(15).left().colspan(2);
-        getTable().row();
-
-        redPlayer = new CheckBox("Red", getSkin(), "red");
-        redPlayer.setChecked(true);
-        redPlayer.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked())
-                    blackPlayer.setChecked(false);
-                else
-                    blackPlayer.setChecked(true);
-            }
-        });
-
-        getTable().add(redPlayer).size(180, 70).left().spaceBottom(30);
-
-
-        blackPlayer = new CheckBox("Black", getSkin());
-        blackPlayer.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                CheckBox checkBox = (CheckBox) actor;
-                if (checkBox.isChecked())
-                    redPlayer.setChecked(false);
-                else
-                    redPlayer.setChecked(true);
-            }
-        });
-        getTable().add(blackPlayer).size(180, 70).left().spaceBottom(30);
 
         getTable().row();
 
-        infoLabel = new Label("", getSkin(), "white-text");
+        infoLabel = new Label("", getSkin(), "black-text");
         infoLabel.setAlignment(Align.center);
         getTable().add(infoLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
@@ -115,6 +75,11 @@ public class HostScreen extends AbstractScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
+                //save player data
+                player.setName(bluetoothInterface.getName());
+                player.setHost(true);
+                player.setColor(Simple.BLACK);
+                SaveUtil.saveUserData(Constants.USER_FILE, player);
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {
                     // Check if bluetooth is discoverable. If not, make it discoverable.

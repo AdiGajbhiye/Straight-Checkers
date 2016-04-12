@@ -1,14 +1,14 @@
 package com.pennywise.managers;
 
+import com.pennywise.checkers.core.engine.CBMove;
 import com.pennywise.multiplayer.TransmissionPackage;
-import java.util.Vector;
 
 /**
  * Created by Joshua.Nabongo on 1/7/2016.
  */
 public interface MultiplayerDirector {
 
-    public void updatePeer(Vector move);
+    void updatePeer(CBMove move);
 
-    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
+    void notify_PeerDataReceived(TransmissionPackage transmissionPackage);
 }

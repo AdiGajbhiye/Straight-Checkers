@@ -13,8 +13,15 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
-import com.pennywise.checkers.core.engine.Coord;
+import com.pennywise.checkers.core.engine.Point;
+import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Created by Joshua.Nabongo on 9/18/2015.
@@ -40,7 +47,7 @@ public class Util {
         //set the font parameters
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) (fontSize * SCALE);
-        parameter.flip = true;
+        parameter.flip = false;
         parameter.color = color;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(path));
         // 12 is the size i want to give for the font on all devices
@@ -141,164 +148,6 @@ public class Util {
                         + ") overlaps Actor (Name: " + a2.getName() + ")");
     }
 
-    public static int coordtonumber(Coord coord) {
-        // given board coordinates col and row, this function returns the board number in
-        // standard checkers notation
-        int number;
-
-        number = 0;
-        number += 4 * (coord.row + 1);
-        number -= (coord.col / 2);
-
-        return number;
-    }
-
-    public static int coordstonumber(int col, int row) {
-        // takes coordinates col and row, gametype, and returns the associated board number
-        Coord c = new Coord();
-        c.col = col;
-        c.row = row;
-        return (coordtonumber(c));
-    }
-
-    public static Coord toCoord(int n) {
-
-        Coord c = new Coord();
-
-        switch (n) {
-            case 1:
-                c.row = 0;
-                c.col = 1;
-                break;
-            case 2:
-                c.col = 3;
-                c.row = 0;
-                break;
-            case 3:
-                c.col = 5;
-                c.row = 0;
-                break;
-            case 4:
-                c.col = 7;
-                c.row = 0;
-                break;
-            case 5:
-                c.col = 0;
-                c.row = 1;
-                break;
-            case 6:
-                c.col = 2;
-                c.row = 1;
-                break;
-            case 7:
-                c.col = 4;
-                c.row = 1;
-                break;
-            case 8:
-                c.col = 6;
-                c.row = 1;
-                break;
-            case 9:
-                c.col = 1;
-                c.row = 2;
-                break;
-            case 10:
-                c.col = 3;
-                c.row = 2;
-                break;
-            case 11:
-                c.col = 5;
-                c.row = 2;
-                break;
-            case 12:
-                c.col = 7;
-                c.row = 2;
-                break;
-            case 13:
-                c.col = 0;
-                c.row = 3;
-                break;
-            case 14:
-                c.col = 2;
-                c.row = 3;
-                break;
-            case 15:
-                c.col = 4;
-                c.row = 3;
-                break;
-            case 16:
-                c.col = 6;
-                c.row = 3;
-                break;
-            case 17:
-                c.col = 1;
-                c.row = 4;
-                break;
-            case 18:
-                c.col = 3;
-                c.row = 4;
-                break;
-            case 19:
-                c.col = 5;
-                c.row = 4;
-                break;
-            case 20:
-                c.col = 7;
-                c.row = 4;
-                break;
-            case 21:
-                c.col = 0;
-                c.row = 5;
-                break;
-            case 22:
-                c.col = 2;
-                c.row = 5;
-                break;
-            case 23:
-                c.col = 4;
-                c.row = 5;
-                break;
-            case 24:
-                c.col = 6;
-                c.row = 5;
-                break;
-            case 25:
-                c.col = 1;
-                c.row = 6;
-                break;
-            case 26:
-                c.col = 3;
-                c.row = 6;
-                break;
-            case 27:
-                c.col = 5;
-                c.row = 6;
-                break;
-            case 28:
-                c.col = 7;
-                c.row = 6;
-                break;
-            case 29:
-                c.col = 0;
-                c.row = 7;
-                break;
-            case 30:
-                c.col = 2;
-                c.row = 7;
-                break;
-            case 31:
-                c.col = 4;
-                c.row = 7;
-                break;
-            case 32:
-                c.col = 6;
-                c.row = 7;
-                break;
-        }
-
-        return c;
-    }
-
     // return board number for coordinates
     public static int toNumber(int row, int col) {
         // board coordinates are [row][col]!
@@ -356,8 +205,156 @@ public class Util {
         return pixmap;
     }
 
-    public void save(GameObject game){
+    public void save(GameObject game) {
 
     }
 
+    private static int coortonumber(Point point) {
+        // given board coordinates x and y, this function returns the board number in
+        // standard checkers notation
+        int number = 0;
+        number += 4 * (point.y + 1);
+        number -= (point.x / 2);
+        return number;
+    }
+
+    public static int coorstonumber(int x, int y) {
+        // takes coordinates x and y, gametype, and returns the associated board number
+        Point c = new Point();
+        c.x = x;
+        c.y = y;
+        return (coortonumber(c));
+    }
+
+    public static Point numbertocoors(int number) {
+        // given a board number this function returns the coordinates
+        Point c = new Point();
+        number--;
+        c.y = number / 4;
+        c.x = 2 * (3 - number % 4);
+        if (c.y % 2 != 0)
+            c.x++;
+
+        return c;
+    }
+
+    public static Point coorstocoors(int x, int y, boolean invert, boolean mirror) {
+        // given coordinates x and y on the screen, this function converts them to internal
+        // representation of the board based on whether the board is inverted or mirrored
+        Point c = new Point();
+
+        if (invert) {
+            c.x = 7 - x;
+            c.y = 7 - y;
+        }
+        if (mirror)
+            c.x = 7 - x;
+
+        return c;
+    }
+
+    public static Point getIndex(float x, float y, float cellsize) {
+        Point point = new Point();
+
+        point.x = ((int) (x / cellsize));
+        point.y = ((int) (y / cellsize));
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (((i * cellsize) < x)
+                        && (((i * cellsize) + cellsize) > x)
+                        && ((j * cellsize) < y)
+                        && (((j * cellsize) + cellsize) > y)) {
+                    point.x = i;
+                    point.y = j;
+                    return point;
+                }
+            }
+        }
+        return point;
+    }
+
+    public static int[][] bitboardtoboard8(int[] board) {
+
+        int[][] b = new int[8][8];
+
+        for (int i = 0; i <= 7; i++) {
+            for (int j = 0; j <= 7; j++) {
+                b[i][j] = Simple.FREE;
+            }
+        }
+
+        for (int i = 5; i <= 40; i++)
+            if (board[i] == Simple.FREE)
+                board[i] = 0;
+
+        b[0][0] = board[5];
+        b[2][0] = board[6];
+        b[4][0] = board[7];
+        b[6][0] = board[8];
+        b[1][1] = board[10];
+        b[3][1] = board[11];
+        b[5][1] = board[12];
+        b[7][1] = board[13];
+        b[0][2] = board[14];
+        b[2][2] = board[15];
+        b[4][2] = board[16];
+        b[6][2] = board[17];
+        b[1][3] = board[19];
+        b[3][3] = board[20];
+        b[5][3] = board[21];
+        b[7][3] = board[22];
+        b[0][4] = board[23];
+        b[2][4] = board[24];
+        b[4][4] = board[25];
+        b[6][4] = board[26];
+        b[1][5] = board[28];
+        b[3][5] = board[29];
+        b[5][5] = board[30];
+        b[7][5] = board[31];
+        b[0][6] = board[32];
+        b[2][6] = board[33];
+        b[4][6] = board[34];
+        b[6][6] = board[35];
+        b[1][7] = board[37];
+        b[3][7] = board[38];
+        b[5][7] = board[39];
+        b[7][7] = board[40];
+
+        return b;
+    }
+
+
+    public static byte[] compress(byte[] data) throws IOException {
+        Deflater deflater = new Deflater();
+        deflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        deflater.finish();
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer); // returns the generated code... index
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        byte[] output = outputStream.toByteArray();
+        Gdx.app.log(logTag, "Original: " + data.length / 1024 + " Kb");
+        Gdx.app.log(logTag, "Compressed: " + output.length / 1024 + " Kb");
+        return output;
+    }
+
+    public static byte[] decompress(byte[] data) throws IOException, DataFormatException {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!inflater.finished()) {
+            int count = inflater.inflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        byte[] output = outputStream.toByteArray();
+        Gdx.app.log(logTag, "Original: " + data.length);
+        Gdx.app.log(logTag, "Compressed: " + output.length);
+        return output;
+    }
 }

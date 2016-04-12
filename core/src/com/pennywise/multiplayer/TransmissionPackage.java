@@ -1,18 +1,18 @@
 package com.pennywise.multiplayer;
 
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.pennywise.checkers.core.engine.CBMove;
 
 import java.io.Serializable;
-import java.util.Vector;
 
 public class TransmissionPackage implements Serializable, Poolable {
     private static final long serialVersionUID = -1790798304239358707L;
     public static final String LOG = TransmissionPackage.class.getSimpleName();
-    /* Data */
-    private String name;
     /*board state*/
     private int[][] gameboard = null;
-    private Vector move = null;
+    private CBMove move = null;
+    private String name;
+    private int color;
 
     public TransmissionPackage() {
     }
@@ -29,11 +29,11 @@ public class TransmissionPackage implements Serializable, Poolable {
         this.gameboard = gameboard;
     }
 
-    public Vector getMove() {
+    public CBMove getMove() {
         return move;
     }
 
-    public void setMove(Vector move) {
+    public void setMove(CBMove move) {
         this.move = move;
     }
 
@@ -45,15 +45,19 @@ public class TransmissionPackage implements Serializable, Poolable {
         this.name = name;
     }
 
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
     @Override
     public void reset() {
         move = null;
-        name = null;
         gameboard = null;
-    }
+        move = null;
 
-    public String printMove() {
-        String retValue = "";
-        return retValue;
     }
 }

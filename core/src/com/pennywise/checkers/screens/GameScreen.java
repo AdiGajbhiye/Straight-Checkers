@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -22,7 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -32,21 +30,22 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.Checker;
-import com.pennywise.checkers.core.engine.GameEngine;
+import com.pennywise.checkers.core.engine.CBMove;
+import com.pennywise.checkers.core.engine.Point;
+import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
+import com.pennywise.checkers.core.persistence.Player;
 import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
-import com.pennywise.checkers.screens.dialogs.GameDialog;
 import com.pennywise.checkers.screens.dialogs.GameOver;
 import com.pennywise.managers.MultiplayerDirector;
+import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
 import com.pennywise.multiplayer.TransmissionPackagePool;
 
 import java.util.Date;
-import java.util.Vector;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -69,8 +68,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     SpriteBatch batch;
     private float cellsize = 0;
-    private float gridHeight = 0;
-    private ImageButton pauseGame, undoMove;
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel panel;
@@ -86,70 +83,84 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     String strTime = "";
 
-    private Checker engine;
+
     private Group gameBoard;
     private long startTime = 0;
     private boolean timer = false;
     private long secondsTime = 0L;
     private BitmapFont hudFont;
     private boolean opponentMove = false;
-    int level = Constants.EASY;
+    double level = Constants.EASY;
 
     int[][] board = new int[8][8];
-    int[][] preBoard1 = new int[8][8];                 //for undo
-    int preToMove1;
-    int[][] preBoard2 = new int[8][8];
-    int preToMove2;
-    int[][] preBoard3 = new int[8][8];
-    int preToMove3;
     private int undoCount = 0;
-    private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
-    private GameDialog gameDialog;
+    private int[] pieceCount = new int[2];
     private int saveCounter = 0;
 
-    Vector moves;
-    int moveCounter = 0;
-    private boolean invert = false;
     private boolean multiplayer = false;
     private float[] boardPosition = null;
-    private boolean ready = false;
-    private float xx, yy;
-    private int playerTurn = Checker.WHITENORMAL;
-    private Label nameLabel;
+    private int playerTurn = Simple.BLACK;
     private int round = 0;
     private Image blackTurn;
     private Image whiteTurn;
+    private int winner;
+    private boolean multicapture = false;
+    private Point from = null, dest = null;
+    private Player player;
+    private Label blackName, whiteName;
+    protected BluetoothInterface bluetoothInterface;
+    private boolean firstTransmission = true;
+    private boolean firstReception = true;
 
     public void newGame() {                            //creates a new game
 
-        for (int i = 0; i < 8; i++)                                  //applies values to the board
-        {
-            for (int j = 0; j < 8; j++)
-                board[i][j] = Checker.EMPTY;
-
-            for (int j = 0; j < 3; j++)
-                if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.BLACKNORMAL;
-
-            for (int j = 5; j < 8; j++)
-                if (isPossibleSquare(i, j))
-                    board[i][j] = Checker.WHITENORMAL;
-        }
-
-        moves = new Vector();
-
-        copyBoard(board, preBoard1);
-        copyBoard(board, preBoard2);
-        copyBoard(board, preBoard3);
-
-        preToMove3 = preToMove2 = preToMove1 = playerTurn;
+        initBoard();
 
     }
+
+    void initBoard() {
+        // initialize board to starting position
+
+        int i, j;
+
+        for (i = 0; i <= 7; i++) {
+            for (j = 0; j <= 7; j++) {
+                board[i][j] = Simple.FREE;
+            }
+        }
+
+        board[0][0] = Simple.BLACKPAWN;
+        board[2][0] = Simple.BLACKPAWN;
+        board[4][0] = Simple.BLACKPAWN;
+        board[6][0] = Simple.BLACKPAWN;
+        board[1][1] = Simple.BLACKPAWN;
+        board[3][1] = Simple.BLACKPAWN;
+        board[5][1] = Simple.BLACKPAWN;
+        board[7][1] = Simple.BLACKPAWN;
+        board[0][2] = Simple.BLACKPAWN;
+        board[2][2] = Simple.BLACKPAWN;
+        board[4][2] = Simple.BLACKPAWN;
+        board[6][2] = Simple.BLACKPAWN;
+
+        board[1][7] = Simple.WHITEPAWN;
+        board[3][7] = Simple.WHITEPAWN;
+        board[5][7] = Simple.WHITEPAWN;
+        board[7][7] = Simple.WHITEPAWN;
+        board[0][6] = Simple.WHITEPAWN;
+        board[2][6] = Simple.WHITEPAWN;
+        board[4][6] = Simple.WHITEPAWN;
+        board[6][6] = Simple.WHITEPAWN;
+        board[1][5] = Simple.WHITEPAWN;
+        board[3][5] = Simple.WHITEPAWN;
+        board[5][5] = Simple.WHITEPAWN;
+        board[7][5] = Simple.WHITEPAWN;
+    }
+
 
     private void clearBoard() {
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                board[i][j] = Checker.EMPTY;
+                board[i][j] = Simple.FREE;
     }
 
     private void copyBoard(int[][] src, int[][] dst) {
@@ -159,30 +170,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     private boolean isPossibleSquare(int i, int j) {
-        return (i + j) % 2 == 1;
+        return ((i % 2) == (j % 2));
     }
 
-    public void undo() {            //undo function
-        undoCount = 1;
-
-        for (int i = 0; i < 8; i++) {
-            System.arraycopy(preBoard3[i], 0, board[i], 0, 8);              //copies previous board
-        }
-
-        playerTurn = preToMove3;
-    }
-
-    public GameScreen(Checkers game, int difficulty) {
+    public GameScreen(Checkers game, double difficulty) {
         super(game);
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
-        camera.setToOrtho(true, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); //  flip y-axis
+        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); //  flip y-axis
         camera.update();
 
         hudCam = new OrthographicCamera();
         hudCam.position.set(0, 0, 0);
-        hudCam.setToOrtho(true, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // flip y-axis
+        hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // flip y-axis
         hudCam.update();
 
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
@@ -192,6 +193,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         this.level = difficulty;
 
         transmissionPackagePool = new TransmissionPackagePool();
+        bluetoothInterface = game.getBluetoothInterface();
 
     }
 
@@ -200,13 +202,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
         hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
-        ;
+
         blackTurn = new Image(getSkin().getDrawable("red_dot"));
         whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
 
         width = 8;
         height = 8;
-        gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
+        //gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
         cellsize = ((Constants.GAME_WIDTH - width) / (width));
 
         batch = new SpriteBatch();
@@ -216,9 +218,37 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void initGame() {
 
-        invert = false;
         multiplayer = game.isMultiplayer();
-        humanPlayer = playerTurn;
+        player = SaveUtil.loadUserData(Constants.USER_FILE);
+
+        whiteName = new Label("Player name:", getSkin(), "black-text");
+        blackName = new Label("Player name:", getSkin(), "black-text");
+
+        if (multiplayer) {
+            if (player.isHost()) {
+                if (player.getColor() == Simple.BLACK) {
+                    blackName.setText(player.getName());
+                    playerTurn = humanPlayer = Simple.BLACK;
+                    humanTurn = true;
+                } else {
+                    humanTurn = false;
+                    playerTurn = Simple.BLACK;
+                    humanPlayer = Simple.WHITE;
+                    whiteName.setText(player.getName());
+                }
+
+            } else {
+                playerTurn = Simple.BLACK;
+                humanPlayer = Simple.WHITE;
+                whiteName.setText(player.getName());
+                humanTurn = false;
+            }
+        } else {
+            humanPlayer = playerTurn;
+            whiteName.setText("Droid");
+            blackName.setText(player.getName().isEmpty() ? "Human" : player.getName());
+        }
+
         newGame();
 
         setupScreen();
@@ -232,6 +262,54 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (Gdx.input.isTouched() && humanTurn) {
+            stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
+
+            Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
+
+            if (completed) {
+                Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
+
+                if (actor2 != null && actor2 instanceof Piece) {
+                    humanPiece = (Piece) actor2;
+                    if ((humanPiece.getPlayer() & humanPlayer) != 0) {
+                        humanPiece.setSelected(true);
+                        if (actor instanceof Tile) {
+                            fromTile = (Tile) actor;
+                        }
+                    } else
+                        humanPiece = null;
+                } else {
+                    if (humanPiece != null && actor != null) {
+                        if (actor instanceof Tile) {
+
+                            toTile = ((Tile) actor);
+
+                            if (toTile.getCellEntry() == Simple.BLACK) {
+                                movePiece();
+                            }
+                        }
+                    }
+                }
+            } else { //move not complete multi capture
+                //Gdx.app.log("FFF", "INCOMPLETE");
+                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
+
+                if (actor != null && toTile != null) {
+                    if (!(actor.getName().equals(toTile.getName()))) {
+                        if (actor instanceof Tile) {
+                            toTile = ((Tile) actor);
+                            if (toTile.getCellEntry() == Simple.BLACK) {
+                                movePiece();
+                            }
+                        }
+                    } else {
+                        Gdx.app.log("Tiles", "ILLEGAL MOVE");
+                    }
+                }
+            }
+        }
 
         if (timer)
             if (System.nanoTime() - startTime >= 1000000000) {
@@ -248,67 +326,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }.start();
         }
 
-        if (Gdx.input.isTouched() && humanTurn) {
-
-
-            stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
-            Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
-
-            if (completed) {
-                Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
-
-                if (actor2 != null && actor2 instanceof Piece) {
-                    humanPiece = (Piece) actor2;
-                    if (humanPiece.getPlayer() == humanPlayer) {
-                        humanPiece.setSelected(true);
-                        if (actor instanceof Tile) {
-                            fromTile = (Tile) actor;
-                            fromTile.getStyle().background = getSkin().getDrawable("selected_green");
-                        }
-                    } else
-                        humanPiece = null;
-                } else {
-
-                    if (humanPiece != null && actor != null) {
-                        if (actor instanceof Tile) {
-
-                            toTile = ((Tile) actor);
-
-                            if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
-                                toTile.getStyle().background = getSkin().getDrawable("selected_green");
-                                movePiece();
-                            }
-                        }
-                    }
-                }
-            } else { //move not complete multi capture
-                //Gdx.app.log("FFF", "INCOMPLETE");
-                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
-
-                if (actor != null && toTile != null) {
-                    if (!(actor.getName().equals(toTile.getName()))) {
-                        if (humanPiece != null && actor != null) {
-                            if (actor instanceof Tile) {
-                                toTile = ((Tile) actor);
-                                if (toTile.getCellEntry() == Checker.BLACKNORMAL) {
-                                    movePiece();
-                                }
-                            }
-                        }
-                    } else {
-                        Gdx.app.log("Tiles", "ILLEGAL MOVE");
-                    }
-                }
-            }
-        }
-
         if (gameOver) {
             gameOver = false;
             showGameOver();
         }
 
         //switch lights
-        if (playerTurn == Checker.WHITENORMAL) {
+        if (playerTurn == Simple.WHITE) {
             whiteTurn.setDrawable(getSkin(), "red_dot");
             blackTurn.setDrawable(getSkin(), "grey_dot");
         } else {
@@ -329,7 +353,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         save();
 
-        drawRect();
     }
 
     @Override
@@ -355,7 +378,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     @Override
     public void dispose() {
-
+        super.dispose();
+        transmissionPackagePool.dispose();
     }
 
     private void setupScreen() {
@@ -389,13 +413,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table hud() {
         Table layer = new Table();
-        //layer.setDebug(true);
         layer.bottom();
 
-        nameLabel = new Label("Player name:", getSkin(), "black-text");
-        nameLabel.setAlignment(Align.center);
+        blackName.setAlignment(Align.center);
         layer.add(blackTurn).size(30, 30).center().padBottom(80);
-        layer.add(nameLabel).size(320, 60).left().padBottom(80);
+        layer.add(blackName).size(320, 60).left().padBottom(80);
         layer.row();
         return layer;
     }
@@ -404,14 +426,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         Table layer = new Table();
         //layer.setDebug(true);
         layer.top();
-        layer.padTop(80);
+        layer.padTop(75);
         layer.setWidth(Constants.GAME_WIDTH);
 
 
-        nameLabel = new Label("Player name:", getSkin(), "white-text");
-        nameLabel.setAlignment(Align.center);
+        whiteName.setAlignment(Align.center);
         layer.add(whiteTurn).size(30, 30).center().padTop(5);
-        layer.add(nameLabel).size(320, 60).left().padTop(5);
+        layer.add(whiteName).size(320, 60).left().padTop(5);
         return layer;
     }
 
@@ -462,12 +483,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 if (isPossibleSquare(row, col)) {
                     text = (count += 2) / 2;
                     style.background = getSkin().getDrawable("darkcell");//Assets.img_cell_dark;
-                    backgroundTiles[index] = new Tile(Checker.BLACKNORMAL, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(Simple.BLACK, new Label.LabelStyle(style));
 
                 } else {
                     text = 0;
                     style.background = getSkin().getDrawable("litecell");//Assets.img_cell_light;
-                    backgroundTiles[index] = new Tile(Checker.WHITENORMAL, new Label.LabelStyle(style));
+                    backgroundTiles[index] = new Tile(Simple.WHITE, new Label.LabelStyle(style));
                 }
 
                 backgroundTiles[index].setSize(cellsize, cellsize);
@@ -489,7 +510,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         float posX = toTile.getX() + (toTile.getWidth() / 2);
         float posY = toTile.getY() + (toTile.getHeight() / 2);
 
-
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
         moveAction.setDuration(0.35f);
@@ -505,7 +525,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     drawPieces(8, 8);
                     humanTurn = false;
                     playerTurn = getPlayer();
-
                     opponentMove = true;
 
                 }
@@ -513,57 +532,44 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         })));
     }
 
-
     protected void movePiece() {
 
-        int[] from = Checker.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
-        int[] dest = Checker.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
+        if (!multicapture)
+            from = Util.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
 
-        Gdx.app.log("BOARD", "FROM=> " + from[0] + "," + from[1] + " TO " + dest[0] + "," + dest[1]);
+        dest = Util.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
 
-        int result = Checker.ApplyMove(board, from[0], from[1], dest[0], dest[1]);
+        System.out.println("BOARD FROM=> " + from.x + "," + from.y + " TO " + dest.x + "," + dest.y);
 
-        Gdx.app.log("BOARD", Checker.printboard(board));
+        CBMove move = new CBMove();
 
-        switch (result) {
-            case Checker.ILLEGALMOVE:
-                humanPiece = null;
-                fromTile = null;
-                toTile = null;
-                completed = true;
-                humanTurn = true;
-                break;
-            case Checker.LEGALMOVE:
-                humanPiece.setName(toTile.getName());
-                completed = true;
-                move();
+        int result = Simple.isLegal(board, playerTurn, Util.coorstonumber(from.x, from.y), Util.coorstonumber(dest.x, dest.y), move);
 
-                if (fromTile != null)
-                    fromTile.getStyle().background = getSkin().getDrawable("darkcell");
+        if (result == Simple.LEGAL) {
+            humanPiece.setName(toTile.getName());
+            completed = true;
+            multicapture = false;
+            move();
 
-                if (toTile != null)
-                    toTile.getStyle().background = getSkin().getDrawable("darkcell");
+            if (multiplayer) {
+                updatePeer(move);
+            }
 
-                if (multiplayer) {
-                    int[] move = new int[]{from[0], from[1], dest[0], dest[1]};
-                    moves.add(move);
-                    updatePeer(moves);
-                    moves.clear();
-                }
-                break;
-            case Checker.INCOMLETEMOVE:
-                move();
-                fromTile = toTile;
-                if (multiplayer) {
-                    int[] move = new int[]{from[0], from[1], dest[0], dest[1]};
-                    moves.add(move);
-                }
-                completed = false;
-                break;
+        } else if (result == Simple.INCOMLETEMOVE) {
+            System.out.println("INCOMPLETE");
+            multicapture = true;
+            move();
+            completed = false;
+        } else {
+            humanPiece = null;
+            fromTile = null;
+            toTile = null;
+            completed = true;
+            humanTurn = true;
         }
     }
 
-    protected void drawRect() {
+    /*protected void drawRect() {
         if (ready) {
             ShapeRenderer shapeRenderer = new ShapeRenderer();
             shapeRenderer.setProjectionMatrix(camera.combined);
@@ -575,7 +581,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             shapeRenderer.rect(xx, yy, (cellsize / 2), (cellsize / 2));
             shapeRenderer.end();
         }
-    }
+    }*/
 
     protected Piece getPiece(int x, int y) {
 
@@ -597,9 +603,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 cellsize / 2,
                 cellsize / 2);
 
-        xx = rect1.x;
-        yy = rect1.y;
-
         SnapshotArray<Actor> actors = pp.getChildren();
 
         for (int i = 0; i < actors.size; i++) {
@@ -618,26 +621,33 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     protected void moveOpponentPiece() {
         SequenceAction sequenceAction = new SequenceAction();
-        int loser = Checker.EMPTY;
-        int[] move = new int[4];
         int[] counter = new int[1];
         counter[0] = 0;
+        String str = "";
 
-        //check if game is over
-        if (Checker.noMovesLeft(board, playerTurn)) {
+        CBMove cbMove = new CBMove();
+
+        final int result = Simple.getmove(board, playerTurn, level, str, cbMove);
+
+        if ((playerTurn == Simple.BLACK && result == -200000)
+                || (playerTurn == Simple.BLACK && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.WHITE;
             gameOver = true;
             timer = false;
-            return;
         }
 
-        GameEngine.MinMax(board, 0, level, move, playerTurn, counter);
+        if (playerTurn == Simple.WHITE && result == -100000
+                || (playerTurn == Simple.WHITE && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.BLACK;
+            gameOver = true;
+            timer = false;
+        }
 
-        Checker.moveComputer(board, move);
+        if (cbMove.from == null || cbMove.to == null)
+            return;
 
-        int startx = move[0];
-        int starty = move[1];
-        int endx = move[2];
-        int endy = move[3];
+        int startx = cbMove.from.x;
+        int starty = cbMove.from.y;
 
         cpuPiece = getPiece(startx, starty);
 
@@ -646,24 +656,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         else
             cpuPiece.setSelected(true);
 
-        while (endx > 0 || endy > 0) {
+        for (int i = 0; i < cbMove.path.length; i++) {
 
-            float posX = ((endx % 10) * cellsize) + 4;
-            float posY = ((endy % 10) * cellsize + boardPosition[1]) + 4;
+            if (cbMove.path[i] == null)
+                continue;
 
-            xx = posX;
-            yy = posY;
+            //float posX = toTile.getX() + (toTile.getWidth() / 2) ;
+            //float posY = toTile.getY() + (toTile.getHeight() / 2);
 
-            ready = true;
+            float posX = (cbMove.path[i].x * cellsize) + 4;
+            float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
 
             sequenceAction.addAction(delay(0.35f));
             sequenceAction.addAction(moveTo(posX, posY, 0.35f));
-
-            endx /= 10;
-            endy /= 10;
         }
-
-        ready = false;
 
         sequenceAction.addAction(
 
@@ -678,12 +684,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             drawPieces(8, 8);
 
-                            playerTurn = getPlayer();
-
-                            if (Checker.noMovesLeft(board, playerTurn)) {
+                            if (((playerTurn == Simple.BLACK) && (result == 200000))) {
+                                winner = Simple.BLACK;
                                 gameOver = true;
                                 timer = false;
                             }
+
+                            if (((playerTurn == Simple.WHITE) && (result == 100000))) {
+                                winner = Simple.WHITE;
+                                gameOver = true;
+                                timer = false;
+                            }
+
+                            playerTurn = getPlayer();
 
                             humanTurn = true;
 
@@ -726,29 +739,35 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 index = col + (row * cols);
+
                 position[index] = new Vector2((row * cellsize) + padding,
                         padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
-                if (board[row][col] == Checker.BLACKNORMAL)
-                    pieces[index] = new Piece(getSkin().getDrawable("blackpawn"), Checker.BLACKNORMAL);
-                if (board[row][col] == Checker.BLACKKING)
-                    pieces[index] = new Piece(getSkin().getDrawable("blackking"), Checker.BLACKNORMAL);
-                if (board[row][col] == Checker.WHITEKING)
-                    pieces[index] = new Piece(getSkin().getDrawable("whiteking"), Checker.WHITENORMAL);
-                if (board[row][col] == Checker.WHITENORMAL)
-                    pieces[index] = new Piece(getSkin().getDrawable("whitepawn"), Checker.WHITENORMAL);
-                if (board[row][col] == Checker.EMPTY)
+
+                if (board[row][col] == (Simple.BLACKPAWN))
+                    pieces[index] = new Piece(getSkin().getDrawable("blackPawn"), (Simple.BLACKPAWN));
+                if (board[row][col] == (Simple.BLACKKING))
+                    pieces[index] = new Piece(getSkin().getDrawable("blackKing"), (Simple.BLACKKING));
+                if (board[row][col] == (Simple.WHITEKING))
+                    pieces[index] = new Piece(getSkin().getDrawable("redKing"), (Simple.WHITEKING));
+                if (board[row][col] == (Simple.WHITEPAWN))
+                    pieces[index] = new Piece(getSkin().getDrawable("redPawn"), (Simple.WHITEPAWN));
+                if (board[row][col] == Simple.FREE)
                     continue;
 
                 text = (count += 2) / 2;
 
-                pieces[index].setSize((cellsize - 2), (cellsize - 2));
-                pieces[index].setPosition(position[index].x, position[index].y);
+                if (pieces[index] == null)
+                    continue;
+
+                pieces[index].setSize((cellsize - 4), (cellsize - 4));
+                pieces[index].setPosition(position[index].x + 2, position[index].y + 2);
                 pieces[index].setName(text + "");
                 gameBoard.addActor(pieces[index]);
             }
         }
     }
+
 
     @Override
     public boolean keyDown(int keycode) {
@@ -826,7 +845,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private void renderHud(SpriteBatch batch) {
 
-        float y = Constants.GAME_HEIGHT * 0.05f;
+        float y = Constants.GAME_HEIGHT * 0.95f;
 
         strTime = getScreenTime();
 
@@ -838,10 +857,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public void showGameOver() {
 
-        timer = false;
+        String text = "";
 
-        final GameOver gameOver = new GameOver(" WIN!", getSkin()); // this is the dialog title
-        gameOver.text("Game Over");
+        if (humanPlayer == winner)
+            text = "You Win!";
+        else
+            text = "Droid Wins!";
+
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        gameOver.text("Game Over, Play again?");
+
         gameOver.button("Yes", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 gameOver.hide();
@@ -867,15 +893,20 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     @Override
-    public void updatePeer(Vector move) {
+    public void updatePeer(CBMove move) {
 
-        TransmissionPackage transmissionPackage = new TransmissionPackage();
-        transmissionPackage.reset();
+        TransmissionPackage transmissionPackage = transmissionPackagePool.obtain();
         transmissionPackage.setGameboard(board);
-        transmissionPackage.setMove(move);
-        transmissionPackage.setName("");
-        game.getBluetoothInterface().transmitPackage(transmissionPackage);
 
+        if (firstTransmission) {
+            transmissionPackage.setName(game.getBluetoothInterface().getName());
+            transmissionPackage.setColor(player.getColor());
+            firstTransmission = false;
+        }
+
+        transmissionPackage.setMove(move);
+        bluetoothInterface.transmitPackage(transmissionPackage);
+        transmissionPackagePool.free(transmissionPackage);
     }
 
     @Override
@@ -885,23 +916,32 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private void updateBoard(TransmissionPackage transmissionPackage) {
 
+        if (firstReception) {
+            if (transmissionPackage.getColor() == Simple.BLACK) {
+                blackName.setText(transmissionPackage.getName());
+                whiteName.setText(player.getName());
+            } else {
+                whiteName.setText(transmissionPackage.getName());
+                blackName.setText(player.getName());
+            }
+            firstReception = false;
+        }
+
         copyBoard(transmissionPackage.getGameboard(), board);
 
-        //Gdx.app.log("TRX", "IN => " + Checker.printboard(board));
-
-        Vector mv = transmissionPackage.getMove();
+        CBMove cbMove = transmissionPackage.getMove();
 
         SequenceAction sequenceAction = new SequenceAction();
-        int[] arr = (int[]) mv.get(0);
-        int startx = arr[0];
-        int starty = arr[1];
-        int endx = arr[2];
-        int endy = arr[3];
+        if (cbMove.from == null || cbMove.to == null)
+            return;
+
+        int startx = cbMove.from.x;
+        int starty = cbMove.from.y;
+
 
         cpuPiece = getPiece(startx, starty);
 
         if (cpuPiece == null) {
-            Gdx.app.log("TRX", "PIECE IS NULL");
             drawPieces(8, 8);
             playerTurn = getPlayer();
             humanTurn = true;
@@ -909,56 +949,49 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         } else
             cpuPiece.setSelected(true);
 
-        float posX = ((endx) * cellsize) + 4;
-        float posY = ((endy) * cellsize + boardPosition[1]) + 4;
+        for (
+                int i = 0;
+                i < cbMove.path.length; i++)
 
-        sequenceAction.addAction(delay(0.35f));
-        sequenceAction.addAction(moveTo(posX, posY, 0.35f));
+        {
 
-        for (int i = 1; i < mv.size(); i++) {
-
-            if (mv.get(i) == null)
+            if (cbMove.path[i] == null)
                 continue;
 
-            arr = (int[]) mv.get(i);
-            endx = arr[2];
-            endy = arr[3];
-
-            posX = ((endx) * cellsize) + 4;
-            posY = ((endy) * cellsize + boardPosition[1]) + 4;
+            float posX = (cbMove.path[i].x * cellsize) + 4;
+            float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
 
             sequenceAction.addAction(delay(0.35f));
             sequenceAction.addAction(moveTo(posX, posY, 0.35f));
         }
 
         sequenceAction.addAction(
+
                 run(new Runnable() {
                         public void run() {
                             cpuPiece.setSelected(false);
                             cpuPiece.toBack();
                             drawPieces(8, 8);
-
-                            if (Checker.noMovesLeft(board, getPlayer())) {
-                                gameOver = true;
-                                timer = false;
-                            }
-
                             playerTurn = getPlayer();
                             humanTurn = true;
                         }
                     }
+
                 ));
 
         //update
-        if (cpuPiece != null) {
+        if (cpuPiece != null)
+
+        {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
+
     }
 
     public int getPlayer() {
         //Gdx.app.log("PLAYER", "CHANGING TURN =>" + round);
-        return (playerTurn == Checker.BLACKNORMAL) ? Checker.WHITENORMAL : Checker.BLACKNORMAL;
+        return (playerTurn == Simple.BLACK) ? Simple.WHITE : Simple.BLACK;
     }
 
     @Override
