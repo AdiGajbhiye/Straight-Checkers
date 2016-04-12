@@ -17,6 +17,12 @@ import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
+
 /**
  * Created by Joshua.Nabongo on 9/18/2015.
  */
@@ -316,5 +322,39 @@ public class Util {
         b[7][7] = board[40];
 
         return b;
+    }
+
+
+    public static byte[] compress(byte[] data) throws IOException {
+        Deflater deflater = new Deflater();
+        deflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        deflater.finish();
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer); // returns the generated code... index
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        byte[] output = outputStream.toByteArray();
+        Gdx.app.log(logTag, "Original: " + data.length / 1024 + " Kb");
+        Gdx.app.log(logTag, "Compressed: " + output.length / 1024 + " Kb");
+        return output;
+    }
+
+    public static byte[] decompress(byte[] data) throws IOException, DataFormatException {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!inflater.finished()) {
+            int count = inflater.inflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        byte[] output = outputStream.toByteArray();
+        Gdx.app.log(logTag, "Original: " + data.length);
+        Gdx.app.log(logTag, "Compressed: " + output.length);
+        return output;
     }
 }

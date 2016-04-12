@@ -16,11 +16,8 @@ public class ConnectedThread extends Thread {
 
     private BluetoothManager mBluetoothManager;
     private final BluetoothSocket mmSocket;
-    //private final InputStream mmInStream;
     private final DataInputStream dis;
     private final DataOutputStream dos;
-
-    //private final OutputStream mmOutStream;
 
     public ConnectedThread(BluetoothManager mBluetoothManager,
                            BluetoothSocket socket) {
@@ -41,19 +38,28 @@ public class ConnectedThread extends Thread {
 
         dis = new DataInputStream(tmpIn);
         dos = new DataOutputStream(tmpOut);
+        //mmInStream = tmpIn;
+        //mmOutStream = tmpOut;
     }
 
     public void run() {
-        final byte[] buffer = new byte[1024]; // buffer store for the stream
+        final byte[] buffer = new byte[2048]; // buffer store for the stream
         // int bytes; // bytes returned from read()
         // Keep listening to the InputStream until an exception occurs
         Gdx.app.log(LOG, "LISTENING");
         try {
             // Read from the InputStream
             int length = dis.readInt();
-            Gdx.app.log(LOG, "Read BYTES: " + length);
-            dis.readFully(buffer, 0, length);
-            // Post a Runnable to the rendering thread that processes the result
+            int read, offset = 0;
+            byte[] temp = new byte[1024];
+            while (length > 0) {
+                read = dis.read(temp, 0, length);
+                System.arraycopy(temp, 0, buffer, offset, read);
+                offset += read;
+                length -= read;
+            }
+
+            Gdx.app.log(LOG, "Read BYTES: " + length + "/" + temp.length);
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
@@ -66,16 +72,16 @@ public class ConnectedThread extends Thread {
         } catch (IOException e) {
             Gdx.app.log(LOG, "Read: " + e.getMessage());
         }
-
     }
 
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
         try {
-            Gdx.app.log(LOG, "Written BYTES: " + bytes.length);
-            int size = bytes.length;
-            dos.writeInt(size);
+            // byte[] compressed = Util.compress(bytes);
+            Gdx.app.log(LOG, "BYTES: " + bytes.length);
+            dos.writeInt(bytes.length);
             dos.write(bytes);
+            dos.flush();
         } catch (IOException e) {
             Gdx.app.log(LOG, "Write: " + e.getMessage());
         }
