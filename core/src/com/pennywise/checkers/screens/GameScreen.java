@@ -94,12 +94,11 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     int[][] board = new int[8][8];
     private int undoCount = 0;
-    private int[] pieceCount = new int[2];  //pieceCount[0] = black, pieceCount[1]  = red
+    private int[] pieceCount = new int[2];
     private int saveCounter = 0;
 
     private boolean multiplayer = false;
     private float[] boardPosition = null;
-    private boolean ready = false;
     private int playerTurn = Simple.BLACK;
     private int round = 0;
     private Image blackTurn;
@@ -110,7 +109,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private Player player;
     private Label blackName, whiteName;
     protected BluetoothInterface bluetoothInterface;
-
+    private boolean firstTransmission = true;
+    private boolean firstReception = true;
 
     public void newGame() {                            //creates a new game
 
@@ -897,8 +897,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         TransmissionPackage transmissionPackage = transmissionPackagePool.obtain();
         transmissionPackage.setGameboard(board);
-        transmissionPackage.setName(game.getBluetoothInterface().getName());
-        transmissionPackage.setColor(player.getColor());
+
+        if (firstTransmission) {
+            transmissionPackage.setName(game.getBluetoothInterface().getName());
+            transmissionPackage.setColor(player.getColor());
+            firstTransmission = false;
+        }
+
         transmissionPackage.setMove(move);
         bluetoothInterface.transmitPackage(transmissionPackage);
         transmissionPackagePool.free(transmissionPackage);
@@ -911,17 +916,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private void updateBoard(TransmissionPackage transmissionPackage) {
 
-        if (transmissionPackage.getColor() == Simple.BLACK) {
-            blackName.setText(transmissionPackage.getName());
-            whiteName.setText(player.getName());
-        } else {
-            whiteName.setText(transmissionPackage.getName());
-            blackName.setText(player.getName());
+        if (firstReception) {
+            if (transmissionPackage.getColor() == Simple.BLACK) {
+                blackName.setText(transmissionPackage.getName());
+                whiteName.setText(player.getName());
+            } else {
+                whiteName.setText(transmissionPackage.getName());
+                blackName.setText(player.getName());
+            }
+            firstReception = false;
         }
 
         copyBoard(transmissionPackage.getGameboard(), board);
-
-        //Gdx.app.log("TRX", "IN => " + Checker.printboard(board));
 
         CBMove cbMove = transmissionPackage.getMove();
 

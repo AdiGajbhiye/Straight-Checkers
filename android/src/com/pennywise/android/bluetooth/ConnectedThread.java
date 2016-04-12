@@ -50,7 +50,7 @@ public class ConnectedThread extends Thread {
         Gdx.app.log(LOG, "LISTENING");
         try {
             // Read from the InputStream
-            int length = dis.readInt(); //.read(buffer);
+            int length = dis.readInt();
             Gdx.app.log(LOG, "Read BYTES: " + length);
             dis.readFully(buffer, 0, length);
             // Post a Runnable to the rendering thread that processes the result
@@ -72,8 +72,9 @@ public class ConnectedThread extends Thread {
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
         try {
-            Gdx.app.log(LOG, "Write BYTES: " + bytes.length);
-            dos.writeInt(bytes.length);
+            Gdx.app.log(LOG, "Written BYTES: " + bytes.length);
+            int size = bytes.length;
+            dos.writeInt(size);
             dos.write(bytes);
         } catch (IOException e) {
             Gdx.app.log(LOG, "Write: " + e.getMessage());

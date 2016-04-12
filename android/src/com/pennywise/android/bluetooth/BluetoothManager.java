@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Json;
 import com.pennywise.android.AndroidLauncher;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
