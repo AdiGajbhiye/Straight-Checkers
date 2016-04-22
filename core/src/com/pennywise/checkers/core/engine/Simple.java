@@ -40,7 +40,7 @@ public class Simple {
 
     // int*play;
 
-    public static int isLegal(int[][] b, int color, int from, int to, CBMove move) {
+    public static int isLegal(int[][] b, int human, int from, int to, CBMove move) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
         the move the user wants to make with from&to */
@@ -95,13 +95,11 @@ public class Simple {
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
-       /* board initialized */
-        n = generatecapturelist(board, movelist, color);
 
+        n = generatecapturelist(board, movelist, human);
         capture = n;
-
         if (n == 0)
-            n = generatemovelist(board, movelist, color);
+            n = generatemovelist(board, movelist, human);
         if (n == 0)
             return NOLEGALMOVE;
 
