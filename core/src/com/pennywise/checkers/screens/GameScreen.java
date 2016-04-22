@@ -195,6 +195,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         transmissionPackagePool = new TransmissionPackagePool();
         bluetoothInterface = game.getBluetoothInterface();
 
+        Gdx.input.setCatchBackKey(true);
+
     }
 
     @Override
@@ -539,16 +541,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         dest = Util.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
 
-        System.out.println("BOARD FROM=> " + from.x + "," + from.y + " TO " + dest.x + "," + dest.y);
-
         CBMove move = new CBMove();
 
         int result = Simple.isLegal(board, playerTurn, Util.coorstonumber(from.x, from.y), Util.coorstonumber(dest.x, dest.y), move);
+
+        Gdx.app.log("RESULT Dump", "" + result);
 
         if (result == Simple.LEGAL) {
             humanPiece.setName(toTile.getName());
             completed = true;
             multicapture = false;
+            Util.dumpMove(move);
             move();
 
             if (multiplayer) {
@@ -568,20 +571,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             humanTurn = true;
         }
     }
-
-    /*protected void drawRect() {
-        if (ready) {
-            ShapeRenderer shapeRenderer = new ShapeRenderer();
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.setColor(Color.RED);
-
-            shapeRenderer.setAutoShapeType(true);
-            shapeRenderer.begin();
-            shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.rect(xx, yy, (cellsize / 2), (cellsize / 2));
-            shapeRenderer.end();
-        }
-    }*/
 
     protected Piece getPiece(int x, int y) {
 
@@ -655,6 +644,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             return;
         else
             cpuPiece.setSelected(true);
+
+        Util.dumpMove(cbMove);
 
         for (int i = 0; i < cbMove.path.length; i++) {
 
@@ -935,11 +926,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         if (cbMove.from == null || cbMove.to == null)
             return;
 
-        int startx = cbMove.from.x;
-        int starty = cbMove.from.y;
+        int startX = cbMove.from.x;
+        int startY = cbMove.from.y;
 
-
-        cpuPiece = getPiece(startx, starty);
+        cpuPiece = getPiece(startX, startY);
 
         if (cpuPiece == null) {
             drawPieces(8, 8);
@@ -990,14 +980,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     public int getPlayer() {
-        //Gdx.app.log("PLAYER", "CHANGING TURN =>" + round);
         return (playerTurn == Simple.BLACK) ? Simple.WHITE : Simple.BLACK;
     }
 
     @Override
     public void keyBackPressed() {
         super.keyBackPressed();
-
         game.setScreen(new LevelScreen(game));
     }
 }

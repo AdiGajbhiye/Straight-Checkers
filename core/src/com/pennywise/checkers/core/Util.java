@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.pennywise.checkers.core.engine.CBMove;
 import com.pennywise.checkers.core.engine.Point;
 import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.GameObject;
@@ -356,5 +357,11 @@ public class Util {
         Gdx.app.log(logTag, "Original: " + data.length);
         Gdx.app.log(logTag, "Compressed: " + output.length);
         return output;
+    }
+
+    public static void dumpMove(CBMove move) {
+        //dump from,to
+        Gdx.app.log("Move Dump", move.toString());
+
     }
 }

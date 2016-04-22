@@ -1,5 +1,6 @@
 package com.pennywise.checkers.core.engine;
 
+import com.badlogic.gdx.Gdx;
 import com.pennywise.checkers.core.Util;
 
 public class Simple {
@@ -49,7 +50,7 @@ public class Simple {
         int[] board = new int[46];
         int capture = 0;
         String Lstr;
-    
+
 	/* initialize board */
         for (i = 0; i < 46; i++)
             board[i] = OCCUPIED;
@@ -110,8 +111,8 @@ public class Simple {
             mv = moveNotation(movelist[i]);
 
             if (capture != 0) {
-                if (multiCapture(mv[0], mv[1])) {
-                    System.out.println("INCOMPLETE => " + mv[0] + ":" + mv[1]);
+                if (multiCapture(mv[0], mv[1]) && (mv[0] == from)) {
+                    Gdx.app.log("INCOMPLETE Dump", Util.numbertocoors(mv[0]) + "(" + mv[0] + ") to " + Util.numbertocoors(mv[1]) + "(" + mv[1] + ")");
                     playerMove = INCOMLETEMOVE;
                 }
                 Lfrom = mv[0];
@@ -162,9 +163,9 @@ public class Simple {
 
         cbMove.from = numbertocoor(from);
         cbMove.to = numbertocoor(to);
-     // cbMove.ismove = jumps;
-     // cbMove.newpiece = ((move.m[1] >> 16) % 256);
-     // cbMove.oldpiece = ((move.m[0] >> 8) % 256);
+        // cbMove.ismove = jumps;
+        // cbMove.newpiece = ((move.m[1] >> 16) % 256);
+        // cbMove.oldpiece = ((move.m[0] >> 8) % 256);
         for (i = 2; i < move.n; i++) {
             cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
             cbMove.del[i - 2] = numbertocoor(move.m[i] % 256);
@@ -195,7 +196,7 @@ public class Simple {
     private static Point numbertocoor(int n) {
     /* turns square number n into a coordinate for checkerboard */
    /*    (white)
-                    37  38  39  40
+                37  38  39  40
               32  33  34  35
                 28  29  30  31
               23  24  25  26
