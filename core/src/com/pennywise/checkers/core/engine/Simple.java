@@ -97,7 +97,9 @@ public class Simple {
 
 
         n = generatecapturelist(board, movelist, human);
+
         capture = n;
+
         if (n == 0)
             n = generatemovelist(board, movelist, human);
         if (n == 0)
@@ -161,13 +163,14 @@ public class Simple {
 
         cbMove.from = numbertocoor(from);
         cbMove.to = numbertocoor(to);
-        // cbMove.ismove = jumps;
-        // cbMove.newpiece = ((move.m[1] >> 16) % 256);
-        // cbMove.oldpiece = ((move.m[0] >> 8) % 256);
+        cbMove.jumps = jumps;
+        cbMove.newpiece = ((move.m[1] >> 16) % 256);
+        cbMove.oldpiece = ((move.m[0] >> 8) % 256);
         for (i = 2; i < move.n; i++) {
             cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
             cbMove.del[i - 2] = numbertocoor(move.m[i] % 256);
         }
+
         if (jumps > 1)
         /* more than one jump - need to calculate intermediate squares*/ {
         /* set square where we start to c1 */
@@ -176,10 +179,14 @@ public class Simple {
                 c2 = numbertocoor(move.m[i] % 256);
             /* c2 is the piece we jump */
             /* => we land on the next square?! */
-                if (c2.x > c1.x) c2.x++;
-                else c2.x--;
-                if (c2.y > c1.y) c2.y++;
-                else c2.y--;
+                if (c2.x > c1.x)
+                    c2.x++;
+                else
+                    c2.x--;
+                if (c2.y > c1.y)
+                    c2.y++;
+                else
+                    c2.y--;
             /* now c2 holds the square after the jumped piece - this is our path square */
                 cbMove.path[i - 1] = c2;
                 c1 = c2;
@@ -187,8 +194,15 @@ public class Simple {
         } else {
             cbMove.path[1] = numbertocoor(to);
         }
-        //for(i=1;i<move.n;i++)
-        //	mCBmove.path[i]=numbertocoor(to);
+
+        String out = "";
+        //print best move
+        for (i = 0; i < move.n; i++) {
+            Point pp = numbertocoor(move.m[i] % 256);
+            out += pp.toString() + ";";
+        }
+
+        Gdx.app.log("setbestmove Dump", out);
     }
 
     private static Point numbertocoor(int n) {
@@ -401,7 +415,7 @@ public class Simple {
      * english checkers this is not necessary.
      */
 
-    public static int getmove(int b[][], int color, double maxtime, String str, CBMove move) {
+    public static int getmove(int b[][], int color, double maxtime, CBMove move) {
 
 
         int n = 0;
@@ -463,7 +477,7 @@ public class Simple {
         for (int i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
-        value = checkers(board, color, maxtime, str, move);
+        value = checkers(board, color, maxtime, move);
 
 
        /* return the board */
@@ -575,7 +589,7 @@ public class Simple {
         return str;
     }
 
-    private static int checkers(int[] b, int color, double maxtime, String str, CBMove move)
+    private static int checkers(int[] b, int color, double maxtime, CBMove move)
 /*----------> purpose: entry point to checkers. find a move on board b for color
   ---------->          in the time specified by maxtime, write the best move in
   ---------->          board, returns information on the search in str
@@ -595,39 +609,36 @@ public class Simple {
         numberofmoves = generatecapturelist(b, movelist, color);
 
         if (numberofmoves == 1) {
+            //"forced capture";
             domove(b, movelist[0]);
-            str = "forced capture";
-            str2 = movetonotation(best);
-            str = String.format("best Move: %s %s", str2, str);
-
+            move.forcedCapture = true;
             setbestmove(movelist[0], move);
             return (1);
-        } else {
+        } else if (numberofmoves == 0) {
             numberofmoves = generatemovelist(b, movelist, color);
 
             if (numberofmoves == 1) {
+                //only move
                 domove(b, movelist[0]);
-                str = "only move";
+                move.onlyMove = true;
                 setbestmove(movelist[0], move);
                 return (1);
             }
 
             if (numberofmoves == 0) {
-                str = "no legal moves in this position";
+                //no legal moves in this position;
+                move.noLegalMove = true;
                 return NOLEGALMOVE;
             }
         }
 
         start = System.currentTimeMillis();
 
-        System.out.println("START =>" + start);
-
         eval = firstalphabeta(b, 1, -10000, 10000, color, best);
 
         for (i = 2; (i <= MAXDEPTH) && (((System.currentTimeMillis() - start) / MILLIS) < maxtime); i++) {
-            lastbest = best;
+
             eval = firstalphabeta(b, i, -10000, 10000, color, best);
-            str2 = movetonotation(best);
 
             if (eval == 5000) {
                 break;
@@ -639,7 +650,7 @@ public class Simple {
         i--;
 
         str2 = movetonotation(best);
-        str = String.format("best Move: %s time %2.2f, depth %2d, value %4d ", str2, (System.currentTimeMillis() - start) / MILLIS, i, eval);
+        String str = String.format("best Move: %s time %2.2f, depth %2d, value %4d ", str2, (System.currentTimeMillis() - start) / MILLIS, i, eval);
         System.out.println(str);
 
         domove(b, best);
