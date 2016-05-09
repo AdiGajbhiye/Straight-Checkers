@@ -3,6 +3,8 @@ package com.pennywise.checkers.core.engine;
 import com.badlogic.gdx.Gdx;
 import com.pennywise.checkers.core.Util;
 
+import java.awt.SystemTray;
+
 public class Simple {
 
 /*----------> platform stuff */
@@ -47,7 +49,6 @@ public class Simple {
         Move[] movelist = new Move[MAXMOVES];
         int[] board = new int[46];
         int capture = 0;
-        String Lstr;
 
 	/* initialize board */
         for (i = 0; i < 46; i++)
@@ -93,8 +94,7 @@ public class Simple {
         for (i = 9; i <= 36; i += 9)
             board[i] = OCCUPIED;
 
-
-        n = generatecapturelist(board, movelist, human);
+        n = generateCaptureList(board, movelist, human);
 
         capture = n;
 
@@ -157,57 +157,6 @@ public class Simple {
         }
 
         Gdx.app.log("printMoveList Dump", out);
-    }
-
-
-    private static Move sanitizeMove(Move move) {
-
-        if (move.n <= 4)
-            return move;
-
-        CBMove cbMove = new CBMove();
-
-        setbestmove(move, cbMove);
-
-        int to = Util.coorstonumber(cbMove.to.x, cbMove.to.y);
-        int path = 0;
-
-        for (int i = 1; i < move.n; i++) {
-
-            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) - 10 == to)
-                path = move.m[i];
-
-            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) - 8 == to)
-                path = move.m[i];
-
-            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) + 10 == to)
-                path = move.m[i];
-        }
-
-        if (path == 0)
-            return move;
-
-        int len = move.n;
-        move.m[len - 2] = path;
-        move.n -= 1;
-        return move;
-    }
-
-    private static int toPoint(int from, int midPoint) {
-
-        Point c2 = numbertocoor(midPoint);
-        Point c1 = numbertocoor(from);
-
-        if (c2.x > c1.x)
-            c2.x++;
-        else
-            c2.x--;
-        if (c2.y > c1.y)
-            c2.y++;
-        else
-            c2.y--;
-
-        return Util.coorstonumber(c2.x, c2.y);
     }
 
     private static void setbestmove(Move move, CBMove cbMove) {
@@ -581,7 +530,7 @@ public class Simple {
 
         //test opponent game status
         if (testcapture(board, (color ^ CHANGECOLOR)))
-            n = generatecapturelist(board, movelist, (color ^ CHANGECOLOR));
+            n = generateCaptureList(board, movelist, (color ^ CHANGECOLOR));
         else
             n = generatemovelist(board, movelist, (color ^ CHANGECOLOR));
 
@@ -664,33 +613,34 @@ public class Simple {
         String str2;
 
 /*--------> check if there is only one move */
-        numberofmoves = generatecapturelist(b, movelist, color);
+        numberofmoves = generateCaptureList(b, movelist, color);
 
         if (numberofmoves > 0) {
             printMoveList(movelist);
         }
+
         if (numberofmoves == 1) {
             //"forced capture";
             domove(b, movelist[0]);
             move.forcedCapture = true;
             setbestmove(movelist[0], move);
-            return (1);
-        } else if (numberofmoves == 0) {
-            numberofmoves = generatemovelist(b, movelist, color);
+            return 1;
+        }
 
-            if (numberofmoves == 1) {
-                //only move
-                domove(b, movelist[0]);
-                move.onlyMove = true;
-                setbestmove(movelist[0], move);
-                return (1);
-            }
+        numberofmoves += generatemovelist(b, movelist, color);
 
-            if (numberofmoves == 0) {
-                //no legal moves in this position;
-                move.noLegalMove = true;
-                return NOLEGALMOVE;
-            }
+        if (numberofmoves == 1) {
+            //only move
+            domove(b, movelist[0]);
+            move.onlyMove = true;
+            setbestmove(movelist[0], move);
+            return 1;
+        }
+
+        if (numberofmoves == 0) {
+            //no legal moves in this position;
+            move.noLegalMove = true;
+            return NOLEGALMOVE;
         }
 
         start = System.currentTimeMillis();
@@ -717,9 +667,7 @@ public class Simple {
         domove(b, best);
 
         /* set the CBmove */
-        //sanitizeMove(movelist[0]);
-        Move sanitized = sanitizeMove(best);
-        setbestmove(sanitized, move);
+        setbestmove(best, move);
 
         return eval;
     }
@@ -758,7 +706,7 @@ public class Simple {
                 }
             }
         } else
-            numberofmoves = generatecapturelist(b, movelist, color);
+            numberofmoves = generateCaptureList(b, movelist, color);
 
 /*----------> for all moves: execute the move, search tree, undo move. */
         for (i = 0; i < numberofmoves; i++) {
@@ -791,7 +739,7 @@ public class Simple {
     }
 
     private static void copyMove(Move src, Move dest) {
-        dest.m = src.m;
+        System.arraycopy(src.m, 0, dest.m, 0, dest.m.length);
         dest.n = src.n;
     }
 
@@ -831,7 +779,7 @@ public class Simple {
                 }
             }
         } else
-            numberofmoves = generatecapturelist(b, movelist, color);
+            numberofmoves = generateCaptureList(b, movelist, color);
 
 /*----------> for all moves: execute the move, search tree, undo move. */
         for (i = 0; i < numberofmoves; i++) {
@@ -1221,8 +1169,10 @@ public class Simple {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | PAWN);
+                            if (i >= 32)
+                                m = (BLACK | KING);
+                            else
+                                m = (BLACK | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1238,8 +1188,10 @@ public class Simple {
                         }
                         if ((b[i + 5] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i >= 32) m = (BLACK | KING);
-                            else m = (BLACK | PAWN);
+                            if (i >= 32)
+                                m = (BLACK | KING);
+                            else
+                                m = (BLACK | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1328,8 +1280,10 @@ public class Simple {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & FREE) != 0) {
                             movelist[n].n = 2;
-                            if (i <= 13) m = (WHITE | KING);
-                            else m = (WHITE | PAWN);
+                            if (i <= 13)
+                                m = (WHITE | KING);
+                            else
+                                m = (WHITE | PAWN);
                             m = m << 8;
                             m += FREE;
                             m = m << 8;
@@ -1433,11 +1387,11 @@ public class Simple {
         return (n);
     }
 
-    private static int generatecapturelist(int[] b, Move[] movelist, int color)
+    private static int generateCaptureList(int[] b, Move[] movelist, int color)
 /*----------> purpose: generate all possible captures
   ----------> version: 1.0
   ----------> date: 25th october 97 */ {
-        MovePos pos = new MovePos();
+        int n = 0;
         int m;
         int i;
         int tmp;
@@ -1451,7 +1405,7 @@ public class Simple {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 if (i >= 28)
                                     m = (BLACKKING);
                                 else
@@ -1460,153 +1414,155 @@ public class Simple {
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKPAWN);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 4];
                                 m = m << 8;
                                 m += i + 4;
-                                movelist[pos.n].m[2] = m;
-                                blackmancapture(b, pos, movelist, i + 8);
+                                movelist[n].m[2] = m;
+                                n = blackManCapture(b, n, movelist, i + 8);
                             }
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
-                                if (i >= 28) m = (BLACKKING);
-                                else m = (BLACKPAWN);
+                                movelist[n].n = 3;
+                                if (i >= 28)
+                                    m = (BLACKKING);
+                                else
+                                    m = (BLACKPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKPAWN);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 5];
                                 m = m << 8;
                                 m += i + 5;
-                                movelist[pos.n].m[2] = m;
-                                blackmancapture(b, pos, movelist, i + 10);
+                                movelist[n].m[2] = m;
+                                n = blackManCapture(b, n, movelist, i + 10);
                             }
                         }
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 4];
                                 m = m << 8;
                                 m += i + 4;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i + 4];
                                 b[i + 4] = FREE;
-                                blackkingcapture(b, pos, movelist, i + 8);
+                                n = blackKingCapture(b, n, movelist, i + 8);
                                 b[i + 4] = tmp;
                             }
                         }
                         if ((b[i + 5] & WHITE) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 5];
                                 m = m << 8;
                                 m += i + 5;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i + 5];
                                 b[i + 5] = FREE;
-                                blackkingcapture(b, pos, movelist, i + 10);
+                                n = blackKingCapture(b, n, movelist, i + 10);
                                 b[i + 5] = tmp;
                             }
                         }
                         if ((b[i - 4] & WHITE) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 4];
                                 m = m << 8;
                                 m += i - 4;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i - 4];
                                 b[i - 4] = FREE;
-                                blackkingcapture(b, pos, movelist, i - 8);
+                                n = blackKingCapture(b, n, movelist, i - 8);
                                 b[i - 4] = tmp;
                             }
                         }
                         if ((b[i - 5] & WHITE) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (BLACKKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (BLACKKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 5];
                                 m = m << 8;
                                 m += i - 5;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i - 5];
                                 b[i - 5] = FREE;
-                                blackkingcapture(b, pos, movelist, i - 10);
+                                n = blackKingCapture(b, n, movelist, i - 10);
                                 b[i - 5] = tmp;
                             }
                         }
@@ -1619,160 +1575,160 @@ public class Simple {
                     if ((b[i] & PAWN) != 0) {
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 if (i <= 17) m = (WHITEKING);
                                 else m = (WHITEPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITEPAWN);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 4];
                                 m = m << 8;
                                 m += i - 4;
-                                movelist[pos.n].m[2] = m;
-                                whitemancapture(b, pos, movelist, i - 8);
+                                movelist[n].m[2] = m;
+                                n = whiteManCapture(b, n, movelist, i - 8);
                             }
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 if (i <= 17) m = (WHITEKING);
                                 else m = (WHITEPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITEPAWN);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 5];
                                 m = m << 8;
                                 m += i - 5;
-                                movelist[pos.n].m[2] = m;
-                                whitemancapture(b, pos, movelist, i - 10);
+                                movelist[n].m[2] = m;
+                                n = whiteManCapture(b, n, movelist, i - 10);
                             }
                         }
                     } else /* b[i] is a KING */ {
                         if ((b[i + 4] & BLACK) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 4];
                                 m = m << 8;
                                 m += i + 4;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i + 4];
                                 b[i + 4] = FREE;
-                                whitekingcapture(b, pos, movelist, i + 8);
+                                n = whiteKingCapture(b, n, movelist, i + 8);
                                 b[i + 4] = tmp;
                             }
                         }
                         if ((b[i + 5] & BLACK) != 0) {
                             if ((b[i + 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i + 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i + 5];
                                 m = m << 8;
                                 m += i + 5;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i + 5];
                                 b[i + 5] = FREE;
-                                whitekingcapture(b, pos, movelist, i + 10);
+                                n = whiteKingCapture(b, n, movelist, i + 10);
                                 b[i + 5] = tmp;
                             }
                         }
                         if ((b[i - 4] & BLACK) != 0) {
                             if ((b[i - 8] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 8;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITEKING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 4];
                                 m = m << 8;
                                 m += i - 4;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i - 4];
                                 b[i - 4] = FREE;
-                                whitekingcapture(b, pos, movelist, i - 8);
+                                n = whiteKingCapture(b, n, movelist, i - 8);
                                 b[i - 4] = tmp;
                             }
                         }
                         if ((b[i - 5] & BLACK) != 0) {
                             if ((b[i - 10] & FREE) != 0) {
-                                movelist[pos.n].n = 3;
+                                movelist[n].n = 3;
                                 m = (WHITEKING);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;
                                 m += i - 10;
-                                movelist[pos.n].m[1] = m;
+                                movelist[n].m[1] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += (WHITE | KING);
                                 m = m << 8;
                                 m += i;
-                                movelist[pos.n].m[0] = m;
+                                movelist[n].m[0] = m;
                                 m = FREE;
                                 m = m << 8;
                                 m += b[i - 5];
                                 m = m << 8;
                                 m += i - 5;
-                                movelist[pos.n].m[2] = m;
+                                movelist[n].m[2] = m;
                                 tmp = b[i - 5];
                                 b[i - 5] = FREE;
-                                whitekingcapture(b, pos, movelist, i - 10);
+                                n = whiteKingCapture(b, n, movelist, i - 10);
                                 b[i - 5] = tmp;
                             }
                         }
@@ -1780,22 +1736,24 @@ public class Simple {
                 }
             }
         }
-        return pos.n;
+        return n;
     }
 
-    private static void blackmancapture(int[] b, MovePos movePos, Move[] movelist, int i) {
+    private static int blackManCapture(int[] b, int n, Move[] movelist, int i) {
         int m;
         boolean found = false;
         Move move, orgmove;
 
-        orgmove = movelist[movePos.n];
+        orgmove = movelist[n];
         move = orgmove;
 
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
-                if (i >= 28) m = (BLACKKING);
-                else m = (BLACKPAWN);
+                if (i >= 28)
+                    m = (BLACKKING);
+                else
+                    m = (BLACKPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1808,8 +1766,8 @@ public class Simple {
                 m += (i + 4);
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[movePos.n] = move;
-                blackmancapture(b, movePos, movelist, i + 8);
+                movelist[n] = move;
+                n = blackManCapture(b, n, movelist, i + 8);
             }
         }
         move = orgmove;
@@ -1830,22 +1788,24 @@ public class Simple {
                 m += (i + 5);
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[movePos.n] = move;
-                blackmancapture(b, movePos, movelist, i + 10);
+                movelist[n] = move;
+                n = blackManCapture(b, n, movelist, i + 10);
             }
         }
 
         if (!found)
-            movePos.n++;
+            n++;
+
+        return n;
     }
 
-    public static void blackkingcapture(int[] b, MovePos pos, Move[] movelist, int i) {
+    public static int blackKingCapture(int[] b, int n, Move[] movelist, int i) {
         int m;
         int tmp;
         boolean found = false;
         Move move, orgmove;
 
-        orgmove = movelist[pos.n];
+        orgmove = movelist[n];
         move = orgmove;
 
         if ((b[i - 4] & WHITE) != 0) {
@@ -1864,10 +1824,10 @@ public class Simple {
                 m += i - 4;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i - 4];
                 b[i - 4] = FREE;
-                blackkingcapture(b, pos, movelist, i - 8);
+                n = blackKingCapture(b, n, movelist, i - 8);
                 b[i - 4] = tmp;
             }
         }
@@ -1888,10 +1848,10 @@ public class Simple {
                 m += i - 5;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i - 5];
                 b[i - 5] = FREE;
-                blackkingcapture(b, pos, movelist, i - 10);
+                n = blackKingCapture(b, n, movelist, i - 10);
                 b[i - 5] = tmp;
             }
         }
@@ -1912,10 +1872,10 @@ public class Simple {
                 m += i + 4;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i + 4];
                 b[i + 4] = FREE;
-                blackkingcapture(b, pos, movelist, i + 8);
+                n = blackKingCapture(b, n, movelist, i + 8);
                 b[i + 4] = tmp;
             }
         }
@@ -1936,30 +1896,34 @@ public class Simple {
                 m += i + 5;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i + 5];
                 b[i + 5] = FREE;
-                blackkingcapture(b, pos, movelist, i + 10);
+                n = blackKingCapture(b, n, movelist, i + 10);
                 b[i + 5] = tmp;
             }
         }
         if (!found)
-            pos.n++;
+            n++;
+
+        return n;
     }
 
-    private static void whitemancapture(int[] b, MovePos pos, Move[] movelist, int i) {
+    private static int whiteManCapture(int[] b, int n, Move[] movelist, int i) {
         int m;
         boolean found = false;
         Move move, orgmove;
 
-        orgmove = movelist[pos.n];
+        orgmove = movelist[n];
         move = orgmove;
 
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
                 move.n++;
-                if (i <= 17) m = (WHITEKING);
-                else m = (WHITEPAWN);
+                if (i <= 17)
+                    m = (WHITEKING);
+                else
+                    m = (WHITEPAWN);
                 m = m << 8;
                 m += FREE;
                 m = m << 8;
@@ -1972,8 +1936,8 @@ public class Simple {
                 m += i - 4;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
-                whitemancapture(b, pos, movelist, i - 8);
+                movelist[n] = move;
+                n = whiteManCapture(b, n, movelist, i - 8);
             }
         }
         move = orgmove;
@@ -1994,21 +1958,23 @@ public class Simple {
                 m += i - 5;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
-                whitemancapture(b, pos, movelist, i - 10);
+                movelist[n] = move;
+                n = whiteManCapture(b, n, movelist, i - 10);
             }
         }
         if (!found)
-            pos.n++;
+            n++;
+
+        return n;
     }
 
-    private static void whitekingcapture(int[] b, MovePos pos, Move[] movelist, int i) {
+    private static int whiteKingCapture(int[] b, int n, Move[] movelist, int i) {
         int m;
         int tmp;
         boolean found = false;
         Move move, orgmove;
 
-        orgmove = movelist[pos.n];
+        orgmove = movelist[n];
         move = orgmove;
 
         if ((b[i - 4] & BLACK) != 0) {
@@ -2027,10 +1993,10 @@ public class Simple {
                 m += i - 4;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i - 4];
                 b[i - 4] = FREE;
-                whitekingcapture(b, pos, movelist, i - 8);
+                whiteKingCapture(b, n, movelist, i - 8);
                 b[i - 4] = tmp;
             }
         }
@@ -2051,10 +2017,10 @@ public class Simple {
                 m += i - 5;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i - 5];
                 b[i - 5] = FREE;
-                whitekingcapture(b, pos, movelist, i - 10);
+                n = whiteKingCapture(b, n, movelist, i - 10);
                 b[i - 5] = tmp;
             }
         }
@@ -2075,10 +2041,10 @@ public class Simple {
                 m += i + 4;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i + 4];
                 b[i + 4] = FREE;
-                whitekingcapture(b, pos, movelist, i + 8);
+                n = whiteKingCapture(b, n, movelist, i + 8);
                 b[i + 4] = tmp;
             }
         }
@@ -2099,15 +2065,17 @@ public class Simple {
                 m += i + 5;
                 move.m[move.n - 1] = m;
                 found = true;
-                movelist[pos.n] = move;
+                movelist[n] = move;
                 tmp = b[i + 5];
                 b[i + 5] = FREE;
-                whitekingcapture(b, pos, movelist, i + 10);
+                n = whiteKingCapture(b, n, movelist, i + 10);
                 b[i + 5] = tmp;
             }
         }
         if (!found)
-            pos.n++;
+            n++;
+
+        return n;
     }
 
     private static boolean testcapture(int[] b, int color)
