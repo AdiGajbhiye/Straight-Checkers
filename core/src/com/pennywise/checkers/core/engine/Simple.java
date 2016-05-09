@@ -38,8 +38,6 @@ public class Simple {
 
     int[] value = {0, 0, 0, 0, 0, 1, 256, 0, 0, 16, 4096, 0, 0, 0, 0, 0, 0};
 
-    // int*play;
-
     public static int isLegal(int[][] b, int human, int from, int to, CBMove move) {
     /* islegal tells CheckerBoard if a move the user wants to make is legal or not */
     /* to check this, we generate a movelist and compare the moves in the movelist to
@@ -150,8 +148,69 @@ public class Simple {
         }
     }
 
+    private static void printMoveList(Move[] movelist) {
+        String out = "";
+        //print best move
+        for (int i = 0; i < movelist[0].n; i++) {
+            Point pp = numbertocoor(movelist[0].m[i] % 256);
+            out += pp.toString() + ";";
+        }
+
+        Gdx.app.log("printMoveList Dump", out);
+    }
+
+
+    private static Move sanitizeMove(Move move) {
+
+        if (move.n <= 4)
+            return move;
+
+        CBMove cbMove = new CBMove();
+
+        setbestmove(move, cbMove);
+
+        int to = Util.coorstonumber(cbMove.to.x, cbMove.to.y);
+        int path = 0;
+
+        for (int i = 1; i < move.n; i++) {
+
+            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) - 10 == to)
+                path = move.m[i];
+
+            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) - 8 == to)
+                path = move.m[i];
+
+            if (Util.coorstonumber(cbMove.path[i].x, cbMove.path[i].x) + 10 == to)
+                path = move.m[i];
+        }
+
+        if (path == 0)
+            return move;
+
+        int len = move.n;
+        move.m[len - 2] = path;
+        move.n -= 1;
+        return move;
+    }
+
+    private static int toPoint(int from, int midPoint) {
+
+        Point c2 = numbertocoor(midPoint);
+        Point c1 = numbertocoor(from);
+
+        if (c2.x > c1.x)
+            c2.x++;
+        else
+            c2.x--;
+        if (c2.y > c1.y)
+            c2.y++;
+        else
+            c2.y--;
+
+        return Util.coorstonumber(c2.x, c2.y);
+    }
+
     private static void setbestmove(Move move, CBMove cbMove) {
-        int i;
         int jumps;
         int from, to;
         Point c1, c2;
@@ -166,7 +225,7 @@ public class Simple {
         cbMove.jumps = jumps;
         cbMove.newpiece = ((move.m[1] >> 16) % 256);
         cbMove.oldpiece = ((move.m[0] >> 8) % 256);
-        for (i = 2; i < move.n; i++) {
+        for (int i = 2; i < move.n; i++) {
             cbMove.delpiece[i - 2] = ((move.m[i] >> 8) % 256);
             cbMove.del[i - 2] = numbertocoor(move.m[i] % 256);
         }
@@ -175,8 +234,9 @@ public class Simple {
         /* more than one jump - need to calculate intermediate squares*/ {
         /* set square where we start to c1 */
             c1 = numbertocoor(from);
-            for (i = 2; i < move.n; i++) {
+            for (int i = 2; i < move.n; i++) {
                 c2 = numbertocoor(move.m[i] % 256);
+
             /* c2 is the piece we jump */
             /* => we land on the next square?! */
                 if (c2.x > c1.x)
@@ -197,7 +257,7 @@ public class Simple {
 
         String out = "";
         //print best move
-        for (i = 0; i < move.n; i++) {
+        for (int i = 0; i < move.n; i++) {
             Point pp = numbertocoor(move.m[i] % 256);
             out += pp.toString() + ";";
         }
@@ -414,7 +474,6 @@ public class Simple {
      * versions of checkers to return a move to CB. for engines playing
      * english checkers this is not necessary.
      */
-
     public static int getmove(int b[][], int color, double maxtime, CBMove move) {
 
 
@@ -478,7 +537,6 @@ public class Simple {
             board[i] = OCCUPIED;
 
         value = checkers(board, color, maxtime, move);
-
 
        /* return the board */
         b[0][0] = board[5];
@@ -608,6 +666,9 @@ public class Simple {
 /*--------> check if there is only one move */
         numberofmoves = generatecapturelist(b, movelist, color);
 
+        if (numberofmoves > 0) {
+            printMoveList(movelist);
+        }
         if (numberofmoves == 1) {
             //"forced capture";
             domove(b, movelist[0]);
@@ -656,7 +717,9 @@ public class Simple {
         domove(b, best);
 
         /* set the CBmove */
-        setbestmove(best, move);
+        //sanitizeMove(movelist[0]);
+        Move sanitized = sanitizeMove(best);
+        setbestmove(sanitized, move);
 
         return eval;
     }
@@ -689,10 +752,8 @@ public class Simple {
 /*----------> if there are no possible moves, we lose: */
             if (numberofmoves == 0) {
                 if (color == BLACK) {
-                    System.out.println("firstalphabeta: numberofmoves == 0 , -5000");
                     return (-5000);
                 } else {
-                    System.out.println("firstalphabeta: numberofmoves == 0 , 5000");
                     return (5000);
                 }
             }
@@ -706,15 +767,18 @@ public class Simple {
             value = alphabeta(b, depth - 1, alpha, beta, (color ^ CHANGECOLOR));
 
             undomove(b, movelist[i]);
+
             if (color == BLACK) {
-                if (value >= beta) return (value);
+                if (value >= beta)
+                    return (value);
                 if (value > alpha) {
                     alpha = value;
                     copyMove(movelist[i], best);
                 }
             }
             if (color == WHITE) {
-                if (value <= alpha) return (value);
+                if (value <= alpha)
+                    return (value);
                 if (value < beta) {
                     beta = value;
                     copyMove(movelist[i], best);
@@ -1388,8 +1452,10 @@ public class Simple {
                         if ((b[i + 4] & WHITE) != 0) {
                             if ((b[i + 8] & FREE) != 0) {
                                 movelist[pos.n].n = 3;
-                                if (i >= 28) m = (BLACKKING);
-                                else m = (BLACKPAWN);
+                                if (i >= 28)
+                                    m = (BLACKKING);
+                                else
+                                    m = (BLACKPAWN);
                                 m = m << 8;
                                 m += FREE;
                                 m = m << 8;

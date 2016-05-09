@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 /* coordinate class for board coordinates */
 public class Point implements Serializable {
-    public int x;
-    public int y;
+    public int x = -1;
+    public int y = -1;
 
     @Override
     public String toString() {

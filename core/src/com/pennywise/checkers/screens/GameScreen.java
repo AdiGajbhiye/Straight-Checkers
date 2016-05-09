@@ -298,16 +298,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 //Gdx.app.log("FFF", "INCOMPLETE");
                 Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
 
-                if (actor != null && toTile != null) {
-                    if (!(actor.getName().equals(toTile.getName()))) {
-                        if (actor instanceof Tile) {
-                            toTile = ((Tile) actor);
-                            if (toTile.getCellEntry() == Simple.BLACK) {
-                                movePiece();
+                if (actor instanceof Tile) {
+                    if (actor != null && toTile != null) {
+                        if (((Tile) actor).getCellEntry() == Simple.BLACK) {
+                            if (!(actor.getName().equals(toTile.getName()))) {
+                                toTile = ((Tile) actor);
+                                if (toTile.getCellEntry() == Simple.BLACK) {
+                                    movePiece();
+                                }
+                            } else {
+                                Gdx.app.log("Tiles", "ILLEGAL MOVE");
                             }
                         }
-                    } else {
-                        Gdx.app.log("Tiles", "ILLEGAL MOVE");
                     }
                 }
             }
@@ -484,12 +486,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 if (isPossibleSquare(row, col)) {
                     text = (count += 2) / 2;
-                    style.background = getSkin().getDrawable("darkcell");//Assets.img_cell_dark;
+                    style.background = getSkin().getDrawable("darkcell");
                     backgroundTiles[index] = new Tile(Simple.BLACK, new Label.LabelStyle(style));
 
                 } else {
                     text = 0;
-                    style.background = getSkin().getDrawable("litecell");//Assets.img_cell_light;
+                    style.background = getSkin().getDrawable("litecell");
                     backgroundTiles[index] = new Tile(Simple.WHITE, new Label.LabelStyle(style));
                 }
 
@@ -612,11 +614,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         SequenceAction sequenceAction = new SequenceAction();
         int[] counter = new int[1];
         counter[0] = 0;
-        String str = "";
 
         CBMove cbMove = new CBMove();
 
-        final int result = Simple.getmove(board, playerTurn, level, str, cbMove);
+        final int result = Simple.getmove(board, playerTurn, level, cbMove);
 
         if ((playerTurn == Simple.BLACK && result == -200000)
                 || (playerTurn == Simple.BLACK && result == Simple.NOLEGALMOVE)) {
