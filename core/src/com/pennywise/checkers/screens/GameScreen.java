@@ -96,6 +96,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private int undoCount = 0;
     private int[] pieceCount = new int[2];
     private int saveCounter = 0;
+    private Simple engine;
 
     private boolean multiplayer = false;
     private float[] boardPosition = null;
@@ -196,6 +197,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         bluetoothInterface = game.getBluetoothInterface();
 
         Gdx.input.setCatchBackKey(true);
+
+        engine = new Simple();
 
     }
 
@@ -545,7 +548,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         CBMove move = new CBMove();
 
-        int result = Simple.isLegal(board, playerTurn, Util.coorstonumber(from.x, from.y), Util.coorstonumber(dest.x, dest.y), move);
+        int result = engine.isLegal(board, playerTurn, Util.coorstonumber(from.x, from.y), Util.coorstonumber(dest.x, dest.y), move);
 
         Gdx.app.log("RESULT Dump", "" + result);
 
@@ -617,7 +620,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         CBMove cbMove = new CBMove();
 
-        final int result = Simple.getmove(board, playerTurn, level, cbMove);
+        final int result = engine.getmove(board, playerTurn, level, cbMove);
 
         if ((playerTurn == Simple.BLACK && result == -200000)
                 || (playerTurn == Simple.BLACK && result == Simple.NOLEGALMOVE)) {

@@ -8,7 +8,7 @@ import java.util.Arrays;
  */
 public class Move implements Serializable {
     int n;
-    int[] m = new int[24];
+    int[] m = new int[16];
 
 
     @Override
