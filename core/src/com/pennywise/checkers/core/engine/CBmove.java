@@ -18,6 +18,9 @@ public class CBMove implements Serializable {
     public boolean onlyMove;
     public boolean noLegalMove;
 
+    public CBMove() {
+    }
+
     public CBMove(CBMove cbm) {
         set(cbm);
     }
