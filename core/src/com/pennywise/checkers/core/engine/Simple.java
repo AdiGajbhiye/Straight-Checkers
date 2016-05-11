@@ -1757,7 +1757,7 @@ public class Simple {
         int p = mp.n;
 
         orgmove = movelist[p];
-        move = orgmove;
+        move = orgmove.cpy();
 
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
@@ -1782,7 +1782,7 @@ public class Simple {
                 blackManCapture(b, mp, movelist, i + 8);
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i + 5] & WHITE) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
@@ -1811,7 +1811,7 @@ public class Simple {
             mp.n++;
     }
 
-    private static void blackKingCapture(int[] b, MovePos mp, Move[] movelist, int i) {
+    private void blackKingCapture(int[] b, MovePos mp, Move[] movelist, int i) {
         int m;
         int p = mp.n;
         int tmp;
@@ -1819,7 +1819,7 @@ public class Simple {
         Move move, orgmove;
 
         orgmove = movelist[p];
-        move = orgmove;
+        move = orgmove.cpy();
 
         if ((b[i - 4] & WHITE) != 0) {
             if ((b[i - 8] & FREE) != 0) {
@@ -1844,7 +1844,7 @@ public class Simple {
                 b[i - 4] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i - 5] & WHITE) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
@@ -1920,14 +1920,13 @@ public class Simple {
             mp.n++;
     }
 
-    private static void whiteManCapture(int[] b, MovePos mp, Move[] movelist, int i) {
+    private void whiteManCapture(int[] b, MovePos mp, Move[] movelist, int i) {
         int m;
-        int p = mp.n;
         int found = 0;
         Move move, orgmove;
 
-        orgmove = movelist[p];
-        move = orgmove;
+        orgmove = movelist[mp.n];
+        move = orgmove.cpy();
 
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
@@ -1952,7 +1951,8 @@ public class Simple {
                 whiteManCapture(b, mp, movelist, i - 8);
             }
         }
-        move = orgmove;
+        //
+        move = orgmove.cpy();
         if ((b[i - 5] & BLACK) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
@@ -1981,7 +1981,7 @@ public class Simple {
 
     }
 
-    private static void whiteKingCapture(int[] b, MovePos mp, Move[] movelist, int i) {
+    private void whiteKingCapture(int[] b, MovePos mp, Move[] movelist, int i) {
         int m;
         int p = mp.n;
         int tmp;
@@ -1989,7 +1989,7 @@ public class Simple {
         Move move, orgmove;
 
         orgmove = movelist[p];
-        move = orgmove;
+        move = orgmove.cpy();
 
         if ((b[i - 4] & BLACK) != 0) {
             if ((b[i - 8] & FREE) != 0) {
@@ -2014,7 +2014,7 @@ public class Simple {
                 b[i - 4] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i - 5] & BLACK) != 0) {
             if ((b[i - 10] & FREE) != 0) {
                 move.n++;
