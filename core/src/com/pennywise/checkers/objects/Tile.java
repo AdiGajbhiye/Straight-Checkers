@@ -18,7 +18,4 @@ public class Tile extends Label {
         return cellEntry;
     }
 
-    public void setCellEntry(int cellEntry) {
-        this.cellEntry = cellEntry;
-    }
 }

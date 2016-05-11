@@ -1,56 +1,125 @@
 package com.pennywise.managers;
 
-/*******************************************************************************
- * Copyright 2012-Present, MoribitoTech
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-
-
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 
+import java.util.ArrayList;
+import java.util.Random;
+
+/**
+ * Created by Joshua.Nabongo on 3/16/2016.
+ */
 public class AudioManager {
 
+    private Random rnd;
+    private ArrayList<Music> musicShuffleList;
+    private Music currentMusic;
+    private AudioManager audioManager;
+    private boolean isShuffling = false;
+    private float shuffleVolume = 0.5f;
+
+
+    private static Sound click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
+    private static Sound illegal = Gdx.audio.newSound(Gdx.files.internal("audio/illegal.mp3"));
+    private static Sound loss = Gdx.audio.newSound(Gdx.files.internal("audio/loss.mp3"));
+    private static Sound win = Gdx.audio.newSound(Gdx.files.internal("audio/win.mp3"));
+
     public AudioManager() {
+        audioManager = new AudioManager();
+        rnd = new Random();
+        musicShuffleList = new ArrayList<Music>();
+        currentMusic = null;
     }
 
-    /**
-     * Play sound effect, it only plays if SettingsManager.isSoundOn() is true
-     *
-     * @param sound  to play
-     * @param volume is the volume setting (Range [0.0 - 1.0])
-     * @see SettingsManager.isSoundOn
-     */
-    public void playSound(Sound sound, float volume) {
-        if (SettingsManager.isSoundOn()) {
-            sound.play(volume);
-        }
+    public void addMusicToShuffleList(Music music) {
+        musicShuffleList.add(music);
     }
 
-    /**
-     * Play music, it only plays if SettingsManager.isMusicOn() is true
-     *
-     * @param music     to play
-     * @param isLooping to loop or not
-     * @param volume    is the volume setting (Range [0.0 - 1.0])
-     * @see SettingsManager.isMusicOn
-     */
+    public void playShuffle(float volume) {
+        clearCurrentMusic();
+        clearLoops();
+        isShuffling = true;
+        startShuffling(volume);
+    }
+
     public void playMusic(Music music, boolean isLooping, float volume) {
-        if (SettingsManager.isMusicOn()) {
-            music.setLooping(isLooping);
-            music.setVolume(volume);
-            music.play();
+        clearCurrentMusic();
+        isShuffling = false;
+        currentMusic = music;
+        shuffleVolume = volume;
+        audioManager.playMusic(currentMusic, isLooping, shuffleVolume);
+    }
+
+    public void stopMusic() {
+        if (currentMusic != null) {
+            currentMusic.stop();
         }
+    }
+
+    public void pauseMusic() {
+        if (currentMusic != null) {
+            currentMusic.pause();
+        }
+    }
+
+    private void clearLoops() {
+        for (int i = 0; i < musicShuffleList.size(); i++) {
+            Music m = musicShuffleList.get(i);
+            m.setLooping(false);
+        }
+    }
+
+    private void clearCurrentMusic() {
+        if (currentMusic != null) {
+            currentMusic.stop();
+            currentMusic = null;
+        }
+    }
+
+    private void startShuffling(float volume) {
+        if (musicShuffleList.size() > 0) {
+            int rndNumber = rnd.nextInt(musicShuffleList.size());
+            currentMusic = musicShuffleList.get(rndNumber);
+            audioManager.playMusic(currentMusic, false, volume);
+        }
+    }
+
+    /**
+     * This method must be checked in render() or similar all the time, for
+     * shuffle list
+     */
+    public void checkShuffleMusicFinished() {
+        if (isShuffling) {
+            if (currentMusic != null) {
+                if (!currentMusic.isPlaying()) {
+                    startShuffling(shuffleVolume);
+                }
+            }
+        }
+    }
+
+
+    public static void DestroyAudio() {
+        click.dispose();
+        illegal.dispose();
+        loss.dispose();
+        win.dispose();
+    }
+
+    public static void playClick() {
+        click.play(1.0f);
+    }
+
+    public static void playIllegal() {
+        illegal.play(1.0f);
+    }
+
+    public static void playLoss() {
+        loss.play(1.0f);
+    }
+
+    public static void playWin() {
+        win.play(1.0f);
     }
 }

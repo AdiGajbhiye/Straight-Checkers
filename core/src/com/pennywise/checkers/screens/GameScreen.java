@@ -2,42 +2,50 @@ package com.pennywise.checkers.screens;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.pennywise.Assets;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
-import com.pennywise.checkers.core.engine.Checker;
-import com.pennywise.checkers.core.engine.Move;
-import com.pennywise.checkers.core.engine.Simplech;
+import com.pennywise.checkers.core.engine.CBMove;
+import com.pennywise.checkers.core.engine.Point;
+import com.pennywise.checkers.core.engine.Simple;
+import com.pennywise.checkers.core.persistence.GameObject;
+import com.pennywise.checkers.core.persistence.Player;
+import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
+import com.pennywise.checkers.screens.dialogs.GameOver;
+import com.pennywise.managers.MultiplayerDirector;
+import com.pennywise.multiplayer.BluetoothInterface;
+import com.pennywise.multiplayer.TransmissionPackage;
+import com.pennywise.multiplayer.TransmissionPackagePool;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
+import java.util.Date;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
@@ -48,143 +56,296 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 /**
  * Created by Joshua.Nabongo on 4/15/2015.
  */
-public class GameScreen extends AbstractScreen implements InputProcessor {
-
+public class GameScreen extends AbstractScreen implements InputProcessor, MultiplayerDirector {
 
     private final Stage stage;
     private final Stage boardStage;
     private final Stage dialogStage;
     private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
+    private Label infoLabel;
+    protected TransmissionPackagePool transmissionPackagePool;
 
     SpriteBatch batch;
     private float cellsize = 0;
-    private float gridHeight = 0;
-    private Button pause;
-    private boolean isBusy = false;
     private int width, height;
     private Tile[] backgroundTiles;
     private Panel panel;
     private Piece humanPiece = null;
+    private int humanPlayer;
     private Piece cpuPiece = null;
     private Tile fromTile;
     private Tile toTile;
-    private List<Tile> toTiles;
-    private int[][] board;
+
     private boolean gameOver = false;
+    private boolean completed = true;
+    private boolean humanTurn = true;
+
     String strTime = "";
 
-    private Image pauseButton;
-    private long startTime = System.nanoTime();
+
+    private Group gameBoard;
+    private long startTime = 0;
+    private boolean timer = false;
     private long secondsTime = 0L;
     private BitmapFont hudFont;
-    private Move move = new Move();
     private boolean opponentMove = false;
+    double level = Constants.EASY;
 
-    public GameScreen(Checkers game) {
+    int[][] board = new int[8][8];
+    private int undoCount = 0;
+    private int[] pieceCount = new int[2];
+    private int saveCounter = 0;
+    private Simple engine;
+
+    private boolean multiplayer = false;
+    private float[] boardPosition = null;
+    private int playerTurn = Simple.BLACK;
+    private int round = 0;
+    private Image blackTurn;
+    private Image whiteTurn;
+    private int winner;
+    private boolean multicapture = false;
+    private Point from = null, dest = null;
+    private Player player;
+    private Label blackName, whiteName;
+    protected BluetoothInterface bluetoothInterface;
+    private boolean firstTransmission = true;
+    private boolean firstReception = true;
+
+    public void newGame() {                            //creates a new game
+
+        initBoard();
+
+    }
+
+    void initBoard() {
+        // initialize board to starting position
+
+        int i, j;
+
+        for (i = 0; i <= 7; i++) {
+            for (j = 0; j <= 7; j++) {
+                board[i][j] = Simple.FREE;
+            }
+        }
+
+        board[0][0] = Simple.BLACKPAWN;
+        board[2][0] = Simple.BLACKPAWN;
+        board[4][0] = Simple.BLACKPAWN;
+        board[6][0] = Simple.BLACKPAWN;
+        board[1][1] = Simple.BLACKPAWN;
+        board[3][1] = Simple.BLACKPAWN;
+        board[5][1] = Simple.BLACKPAWN;
+        board[7][1] = Simple.BLACKPAWN;
+        board[0][2] = Simple.BLACKPAWN;
+        board[2][2] = Simple.BLACKPAWN;
+        board[4][2] = Simple.BLACKPAWN;
+        board[6][2] = Simple.BLACKPAWN;
+
+        board[1][7] = Simple.WHITEPAWN;
+        board[3][7] = Simple.WHITEPAWN;
+        board[5][7] = Simple.WHITEPAWN;
+        board[7][7] = Simple.WHITEPAWN;
+        board[0][6] = Simple.WHITEPAWN;
+        board[2][6] = Simple.WHITEPAWN;
+        board[4][6] = Simple.WHITEPAWN;
+        board[6][6] = Simple.WHITEPAWN;
+        board[1][5] = Simple.WHITEPAWN;
+        board[3][5] = Simple.WHITEPAWN;
+        board[5][5] = Simple.WHITEPAWN;
+        board[7][5] = Simple.WHITEPAWN;
+    }
+
+
+    private void clearBoard() {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                board[i][j] = Simple.FREE;
+    }
+
+    private void copyBoard(int[][] src, int[][] dst) {
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(src[i], 0, dst[i], 0, 8);                       //for undo
+        }
+    }
+
+    private boolean isPossibleSquare(int i, int j) {
+        return ((i % 2) == (j % 2));
+    }
+
+    public GameScreen(Checkers game, double difficulty) {
         super(game);
-
 
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
-        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        camera.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); //  flip y-axis
         camera.update();
 
         hudCam = new OrthographicCamera();
         hudCam.position.set(0, 0, 0);
-        hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // don't flip y-axis
+        hudCam.setToOrtho(false, Constants.GAME_WIDTH, Constants.GAME_HEIGHT); // flip y-axis
         hudCam.update();
-
 
         stage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         dialogStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
         boardStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, camera));
 
+        this.level = difficulty;
 
-        Gdx.input.setInputProcessor(this);
+        transmissionPackagePool = new TransmissionPackagePool();
+        bluetoothInterface = game.getBluetoothInterface();
 
-        hudFont = Assets.font;
+        Gdx.input.setCatchBackKey(true);
 
-        width = 8;
-        height = 8;
-        gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
-
-        batch = new SpriteBatch();
-
-        board = Checker.createBoard();
-        toTiles = new LinkedList<Tile>();
+        engine = new Simple();
 
     }
-
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
+
+        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
+
+        blackTurn = new Image(getSkin().getDrawable("red_dot"));
+        whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
+
+        width = 8;
+        height = 8;
+        //gridHeight = ((Constants.GAME_HEIGHT * 3) / 4);
+        cellsize = ((Constants.GAME_WIDTH - width) / (width));
+
+        batch = new SpriteBatch();
+
+        initGame();
+    }
+
+    protected void initGame() {
+
+        multiplayer = game.isMultiplayer();
+        player = SaveUtil.loadUserData(Constants.USER_FILE);
+
+        whiteName = new Label("Player name:", getSkin(), "black-text");
+        blackName = new Label("Player name:", getSkin(), "black-text");
+
+        if (multiplayer) {
+            if (player.isHost()) {
+                if (player.getColor() == Simple.BLACK) {
+                    blackName.setText(player.getName());
+                    playerTurn = humanPlayer = Simple.BLACK;
+                    humanTurn = true;
+                } else {
+                    humanTurn = false;
+                    playerTurn = Simple.BLACK;
+                    humanPlayer = Simple.WHITE;
+                    whiteName.setText(player.getName());
+                }
+
+            } else {
+                playerTurn = Simple.BLACK;
+                humanPlayer = Simple.WHITE;
+                whiteName.setText(player.getName());
+                humanTurn = false;
+            }
+        } else {
+            humanPlayer = playerTurn;
+            whiteName.setText("Droid");
+            blackName.setText(player.getName().isEmpty() ? "Human" : player.getName());
+        }
+
+        newGame();
+
         setupScreen();
 
+        timer = true;
     }
 
     private final Vector2 stageCoords = new Vector2();
-
-    private int getRow(int index, int boardCol) {
-        return (int) Math.floor((((index - 2) - boardCol) / boardCol));
-    }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (System.nanoTime() - startTime >= 1000000000) {
-            secondsTime++;
-            startTime = System.nanoTime();
-        }
-
-        if (opponentMove) {
-            opponentMove = false;
-            new Thread("Opponent") {
-                public void run() {
-                    engine.getMove(board, Simplech.WHITE, 1, false, move);
-                    moveOpponentPiece(move);
-                    engine.printBoard(board);
-                }
-            }.start();
-        }
-
-        if (Gdx.input.isTouched() && !isBusy) {
+        if (Gdx.input.isTouched() && humanTurn) {
             stage.screenToStageCoordinates(stageCoords.set(Gdx.input.getX(), Gdx.input.getY()));
+
             Actor actor = stage.hit(stageCoords.x, stageCoords.y, true);
-            Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
 
-            if (actor2 != null && actor2 instanceof Piece) {
-                humanPiece = (Piece) actor2;
-                humanPiece.setSelected(true);
-                fromTile = (Tile) actor;
-                if (actor instanceof Tile) {
-                    Tile tile = (((Tile) actor));
-                    if (tile.getCellEntry() == Simplech.BLACK)
-                        tile.getStyle().background = Assets.img_selected_human_dark;
-                    else
-                        tile.getStyle().background = Assets.img_selected_human_lite;
+            if (completed) {
+                Actor actor2 = boardStage.hit(stageCoords.x, stageCoords.y, true);
+
+                if (actor2 != null && actor2 instanceof Piece) {
+                    humanPiece = (Piece) actor2;
+                    if ((humanPiece.getPlayer() & humanPlayer) != 0) {
+                        humanPiece.setSelected(true);
+                        if (actor instanceof Tile) {
+                            fromTile = (Tile) actor;
+                        }
+                    } else
+                        humanPiece = null;
+                } else {
+                    if (humanPiece != null && actor != null) {
+                        if (actor instanceof Tile) {
+
+                            toTile = ((Tile) actor);
+
+                            if (toTile.getCellEntry() == Simple.BLACK) {
+                                movePiece();
+                            }
+                        }
+                    }
                 }
-            } else {
+            } else { //move not complete multi capture
+                //Gdx.app.log("FFF", "INCOMPLETE");
+                Gdx.app.log("Tiles", "FROM => " + fromTile.getName() + " TO => " + toTile.getName());
 
-                if (humanPiece != null) {
-                    if (actor instanceof Tile) {
-                        if (((Tile) actor).getCellEntry() == Simplech.BLACK) {
-                            toTile = (Tile) actor;
-                            movePiece();
+                if (actor instanceof Tile) {
+                    if (actor != null && toTile != null) {
+                        if (((Tile) actor).getCellEntry() == Simple.BLACK) {
+                            if (!(actor.getName().equals(toTile.getName()))) {
+                                toTile = ((Tile) actor);
+                                if (toTile.getCellEntry() == Simple.BLACK) {
+                                    movePiece();
+                                }
+                            } else {
+                                Gdx.app.log("Tiles", "ILLEGAL MOVE");
+                            }
                         }
                     }
                 }
             }
         }
 
-        if (humanPiece != null)
-            checkBlackPieceCollision(humanPiece);
+        if (timer)
+            if (System.nanoTime() - startTime >= 1000000000) {
+                secondsTime++;
+                startTime = System.nanoTime();
+            }
 
-        if (cpuPiece != null)
-            checkWhitePieceCollision(cpuPiece);
+        if (opponentMove && !multiplayer) {
+            opponentMove = false;
+            new Thread("Opponent") {
+                public void run() {
+                    moveOpponentPiece();
+                }
+            }.start();
+        }
 
+        if (gameOver) {
+            gameOver = false;
+            showGameOver();
+        }
+
+        //switch lights
+        if (playerTurn == Simple.WHITE) {
+            whiteTurn.setDrawable(getSkin(), "red_dot");
+            blackTurn.setDrawable(getSkin(), "grey_dot");
+        } else {
+            whiteTurn.setDrawable(getSkin(), "grey_dot");
+            blackTurn.setDrawable(getSkin(), "red_dot");
+        }
 
         stage.act();
         stage.draw();
@@ -195,10 +356,10 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         dialogStage.act();
         dialogStage.draw();
 
-        renderHud(batch, delta);
-        renderFPS(batch);
+        renderHud(batch);
 
-        removeCapturedPieces();
+        save();
+
     }
 
     @Override
@@ -224,53 +385,82 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
     @Override
     public void dispose() {
-
+        super.dispose();
+        transmissionPackagePool.dispose();
     }
-
 
     private void setupScreen() {
         // build all layers
-        Table layerPuzzle = buildBoard();
         stage.clear();
+        boardStage.clear();
+        //will hold pieces
+        gameBoard = new Group();
+        drawPieces(height, width);
+
+        Table layerBoard = drawBoard();
+
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        //stack.add(backGround());
+        stack.add(backGround());
         stack.add(hud());
-        stack.add(layerPuzzle);
+        stack.add(opponentHud());
+        stack.add(layerBoard);
         stage.addActor(stack);
-        boardStage.addActor(drawPieces(height, width, false));
+
+        boardStage.addActor(gameBoard);
     }
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(Assets.img_background);
+        Image bg = new Image(getSkin().getDrawable("wooden"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
 
     private Table hud() {
         Table layer = new Table();
-        layer.top();
-        pauseButton = new Image(Assets.img_btn_pause);
-        layer.add(pauseButton).height(40).width(40).top().right().expandX().padRight(20).padTop(30);
+        layer.bottom();
+
+        blackName.setAlignment(Align.center);
+        layer.add(blackTurn).size(30, 30).center().padBottom(80);
+        layer.add(blackName).size(320, 60).left().padBottom(80);
+        layer.row();
         return layer;
     }
 
-    private Table buildBoard() {
+    private Table opponentHud() {
         Table layer = new Table();
-        layer.addActor(board(height, width, false));
+        //layer.setDebug(true);
+        layer.top();
+        layer.padTop(75);
+        layer.setWidth(Constants.GAME_WIDTH);
+
+
+        whiteName.setAlignment(Align.center);
+        layer.add(whiteTurn).size(30, 30).center().padTop(5);
+        layer.add(whiteName).size(320, 60).left().padTop(5);
         return layer;
     }
 
-    private Group board(int rows, int cols, boolean inverted) {
+    private Table drawBoard() {
+        Table layer = new Table();
+        Group g = board(height, width);
+        boardPosition = new float[2];
+        boardPosition[0] = g.getOriginX();
+        boardPosition[1] = g.getOriginY();
+        layer.addActor(g);
+        return layer;
+    }
 
-        panel = new Panel(Assets.img_board_bg);
+    private Group board(int rows, int cols) {
+
+        panel = new Panel(getSkin().getPatch("panel_brown"));
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = hudFont;
-        style.background = Assets.img_dark_outline;
+        style.background = getSkin().getDrawable("line_dark");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -278,10 +468,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
 
         cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
-        int index, y, x = 0;
+        int index = 0;
 
-
-        float posY = (float) (0.25 * Constants.GAME_HEIGHT);
+        float posY = (float) (0.20 * Constants.GAME_HEIGHT);
 
         panel.setOrigin(0, posY);
         panel.setWidth(Constants.GAME_WIDTH);
@@ -291,274 +480,237 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int text = 0;
         int count = 1;
 
-        if (inverted) {
-            for (int row = 7; row >= 0; row--) {
-                for (int col = 0; col < cols; col++) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
+                position[index] = new Vector2((row * cellsize) + padding,
+                        padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
-                    } else {
-                        text = 0;
-                        style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
-                    }
+                if (isPossibleSquare(row, col)) {
+                    text = (count += 2) / 2;
+                    style.background = getSkin().getDrawable("darkcell");
+                    backgroundTiles[index] = new Tile(Simple.BLACK, new Label.LabelStyle(style));
 
-                    backgroundTiles[index].setSize(cellsize, cellsize);
-                    backgroundTiles[index].setAlignment(Align.center);
-                    backgroundTiles[index].setPosition(position[index].x, position[index].y);
-                    backgroundTiles[index].setName(text + "");
-                    panel.addActor(backgroundTiles[index]);
+                } else {
+                    text = 0;
+                    style.background = getSkin().getDrawable("litecell");
+                    backgroundTiles[index] = new Tile(Simple.WHITE, new Label.LabelStyle(style));
                 }
-            }
-        } else {
-            for (int row = 0; row < rows; row++) {
-                for (int col = 7; col >= 0; col--) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        style.background = Assets.img_cell_dark;
-                        backgroundTiles[index] = new Tile(Simplech.BLACK, new Label.LabelStyle(style));
+                backgroundTiles[index].setSize(cellsize, cellsize);
+                backgroundTiles[index].setAlignment(Align.center);
+                backgroundTiles[index].setPosition(position[index].x, position[index].y);
 
-                    } else {
-                        text = 0;
-                        style.background = Assets.img_cell_light;
-                        backgroundTiles[index] = new Tile(Simplech.WHITE, new Label.LabelStyle(style));
-                    }
-
-                    backgroundTiles[index].setSize(cellsize, cellsize);
-                    backgroundTiles[index].setAlignment(Align.center);
-                    backgroundTiles[index].setPosition(position[index].x, position[index].y);
+                if (text != 0) {
                     backgroundTiles[index].setName(text + "");
-                    panel.addActor(backgroundTiles[index]);
                 }
+
+                panel.addActor(backgroundTiles[index]);
             }
         }
         return panel;
-
-
     }
 
     protected void move() {
 
-        float posX = toTile.getX() + (cellsize / 2);
-        float posY = toTile.getY() + (cellsize / 2);
+        float posX = toTile.getX() + (toTile.getWidth() / 2);
+        float posY = toTile.getY() + (toTile.getHeight() / 2);
 
         MoveToAction moveAction = new MoveToAction();
         moveAction.setPosition(posX, posY, Align.center);
-        moveAction.setDuration(0.5f);
+        moveAction.setDuration(0.35f);
         humanPiece.toFront();
         humanPiece.addAction(sequence(moveAction, run(new Runnable() {
             public void run() {
-                humanPiece.toBack();
-                humanPiece.setSelected(false);
-                if (isKingTile(toTile, humanPiece.getPlayer()) &&
-                        !humanPiece.isKing()) {
-                    crownPiece(humanPiece);
+                if (completed) {
+                    if (humanPiece != null) {
+                        humanPiece.toBack();
+                        humanPiece.setSelected(false);
+                    }
+
+                    drawPieces(8, 8);
+                    humanTurn = false;
+                    playerTurn = getPlayer();
+                    opponentMove = true;
+
                 }
-                //toTiles.clear();
-                opponentMove = true;
             }
         })));
     }
 
-    protected boolean isKingTile(Tile tile, int color) {
-
-        if (color == Simplech.BLACK) {
-            //32  31  30  29
-            if (tile.getName().equals("32")
-                    || tile.getName().equals("31")
-                    || tile.getName().equals("30")
-                    || tile.getName().equals("29")) {
-                return true;
-            }
-        } else {
-            //4   3   2   1
-            if (tile.getName().equals("1")
-                    || tile.getName().equals("2")
-                    || tile.getName().equals("3")
-                    || tile.getName().equals("4")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void checkBlackPieceCollision(Piece piece) {
-
-        if (piece.isSelected()) {
-
-            //find the piece
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren()) {
-                        if (actor instanceof Piece) {
-                            Piece p = (Piece) actor;
-                            if (p.isSelected())
-                                continue;
-                            if ((p.getPlayer() == Simplech.WHITE)) {
-                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
-                                    p.setCaptured(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void checkWhitePieceCollision(Piece piece) {
-
-        if (piece.isSelected()) {
-
-            for (Actor a : boardStage.getActors()) {
-                if (a instanceof Group) {
-                    for (Actor actor : ((Group) a).getChildren()) {
-                        if (actor instanceof Piece) {
-                            Piece p = (Piece) actor;
-                            if (p.isSelected())
-                                continue;
-                            if ((p.getPlayer() == Simplech.BLACK)) {
-                                if (Util.isActorCollide(piece, p) && !p.isCaptured()) {
-                                    p.setCaptured(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected synchronized void removeCapturedPieces() {
-        for (Actor a : boardStage.getActors()) {
-            if (a instanceof Group) {
-                for (Actor actor : ((Group) a).getChildren()) {
-                    if (actor instanceof Piece) {
-                        Piece p = (Piece) actor;
-                        if (p.isCaptured()) {
-                            p.remove();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     protected void movePiece() {
 
-        Vector<Move> moves = null;
+        if (!multicapture)
+            from = Util.getIndex(fromTile.getX() - boardPosition[0], fromTile.getY() - boardPosition[1], cellsize);
 
-        int orig = Integer.parseInt(fromTile.getName());
-        int dest = Integer.parseInt(toTile.getName());
+        dest = Util.getIndex(toTile.getX() - boardPosition[0], toTile.getY() - boardPosition[1], cellsize);
 
-        int[] from = Checker.getBoardPosition(orig);
-        int[] to = Checker.getBoardPosition(orig);
+        CBMove move = new CBMove();
 
-        if (Checker.isValid(board, humanPiece.getPlayer(), from[1], from[0], to[1], to[0])) {
-            board = Checker.applyMove(board, humanPiece.getPlayer(), from[1], from[0], to[1], to[0]);
+        int result = engine.isLegal(board, playerTurn, Util.coorstonumber(from.x, from.y), Util.coorstonumber(dest.x, dest.y), move);
+
+        Gdx.app.log("RESULT Dump", "" + result);
+
+        if (result == Simple.LEGAL) {
+            humanPiece.setName(toTile.getName());
+            completed = true;
+            multicapture = false;
+            Util.dumpMove(move);
             move();
-        } else
+
+            if (multiplayer) {
+                updatePeer(move);
+            }
+
+        } else if (result == Simple.INCOMLETEMOVE) {
+            System.out.println("INCOMPLETE");
+            multicapture = true;
+            move();
+            completed = false;
+        } else {
+            humanPiece = null;
+            fromTile = null;
+            toTile = null;
+            completed = true;
+            humanTurn = true;
+        }
+    }
+
+    protected Piece getPiece(int x, int y) {
+
+        Piece selected = null;
+        float[] position = new float[2];
+        position[0] = (cellsize * x);
+        position[1] = (cellsize * y);
+
+        Group pp = null;
+
+        Actor a = boardStage.getActors().first();
+
+        if (a instanceof Group) {
+            pp = (Group) a;
+        }
+
+        Rectangle rect1 = new Rectangle(position[0] + (cellsize / 4),
+                position[1] + boardPosition[1] + (cellsize / 4),
+                cellsize / 2,
+                cellsize / 2);
+
+        SnapshotArray<Actor> actors = pp.getChildren();
+
+        for (int i = 0; i < actors.size; i++) {
+            if (actors.get(i) instanceof Piece) {
+                selected = (Piece) actors.get(i);
+                Rectangle rect2 = Util.getRectangleOfActor(selected);
+                if (Intersector.overlaps(rect2, rect1)) {
+                    break;
+                } else
+                    selected = null;
+            }
+        }
+
+        return selected;
+    }
+
+    protected void moveOpponentPiece() {
+        SequenceAction sequenceAction = new SequenceAction();
+        int[] counter = new int[1];
+        counter[0] = 0;
+
+        CBMove cbMove = new CBMove();
+
+        final int result = engine.getmove(board, playerTurn, level, cbMove);
+
+        if ((playerTurn == Simple.BLACK && result == -200000)
+                || (playerTurn == Simple.BLACK && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.WHITE;
+            gameOver = true;
+            timer = false;
+        }
+
+        if (playerTurn == Simple.WHITE && result == -100000
+                || (playerTurn == Simple.WHITE && result == Simple.NOLEGALMOVE)) {
+            winner = Simple.BLACK;
+            gameOver = true;
+            timer = false;
+        }
+
+        if (cbMove.from == null || cbMove.to == null)
             return;
 
-    }
+        int startx = cbMove.from.x;
+        int starty = cbMove.from.y;
 
-    protected void crownPiece(Piece piece) {
-
-        if (piece.getPlayer() == Simplech.BLACK)
-            piece.setDrawable(Assets.img_king_black);
-        else
-            piece.setDrawable(Assets.img_king_white);
-
-        piece.setKing(true);
-    }
-
-    protected Tile getTile(String name) {
-
-        for (Tile t : backgroundTiles) {
-            if (t.getName().equalsIgnoreCase(name))
-                return t;
-        }
-
-        return null;
-    }
-
-    protected Piece getPiece(int n) {
-
-        Actor a = boardStage.getRoot();
-        Actor actor = null;
-        if (a instanceof Group) {
-            Group g = ((Group) a);
-            actor = g.findActor(String.valueOf(n));
-        }
-
-        return ((Piece) actor);
-    }
-
-    protected void moveOpponentPiece(Move move) {
-        Tile srcTile;
-        String srcName = "";
-        Tile destTile = null;
-        SequenceAction sequenceAction = new SequenceAction();
-
-        int[] steps = engine.moveNotation2(move);
-        engine.moveNotation3(move);
-
-        cpuPiece = getPiece(steps[0]);
+        cpuPiece = getPiece(startx, starty);
 
         if (cpuPiece == null)
             return;
         else
             cpuPiece.setSelected(true);
 
-        for (int i = 1; i < 2; i++) {
+        Util.dumpMove(cbMove);
 
-            Gdx.app.log("moveOpponentPiece", "Moving =>" + steps[i]);
-            destTile = getTile(steps[i] + "");
-            destTile.getStyle().background = Assets.img_selected_cell_dark;
-            cpuPiece.setName(steps[i] + "");
+        for (int i = 0; i < cbMove.path.length; i++) {
 
-            float posX = destTile.getX();
-            float posY = destTile.getY();
+            if (cbMove.path[i] == null)
+                continue;
 
-            sequenceAction.addAction(delay(0.5f));
-            sequenceAction.addAction(moveTo(posX, posY, 0.5f));
+            //float posX = toTile.getX() + (toTile.getWidth() / 2) ;
+            //float posY = toTile.getY() + (toTile.getHeight() / 2);
+
+            float posX = (cbMove.path[i].x * cellsize) + 4;
+            float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
+
+            sequenceAction.addAction(delay(0.35f));
+            sequenceAction.addAction(moveTo(posX, posY, 0.35f));
         }
 
-        final Tile end = destTile;
+        sequenceAction.addAction(
 
-        sequenceAction.addAction(run(new Runnable() {
-            public void run() {
-                cpuPiece.setSelected(false);
-                cpuPiece.toBack();
-                if (isKingTile(end, cpuPiece.getPlayer()) &&
-                        !cpuPiece.isKing()) {
-                    crownPiece(cpuPiece);
-                }
-            }
-        }));
+                run(new Runnable() {
+                        public void run() {
+
+                            Gdx.app.log("PLAYER", "CPU FINISHED " + round++);
+
+                            cpuPiece.setSelected(false);
+
+                            cpuPiece.toBack();
+
+                            drawPieces(8, 8);
+
+                            if (((playerTurn == Simple.BLACK) && (result == 200000))) {
+                                winner = Simple.BLACK;
+                                gameOver = true;
+                                timer = false;
+                            }
+
+                            if (((playerTurn == Simple.WHITE) && (result == 100000))) {
+                                winner = Simple.WHITE;
+                                gameOver = true;
+                                timer = false;
+                            }
+
+                            playerTurn = getPlayer();
+
+                            humanTurn = true;
+
+                        }
+                    }
+                ));
 
         //update name
         if (cpuPiece != null) {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
+
     }
 
-    protected Group drawPieces(int rows, int cols, boolean inverted) {
+    protected void drawPieces(int rows, int cols) {
 
-        Group board = new Group();
-        board.setTouchable(Touchable.childrenOnly);
+        gameBoard.clear();
+        gameBoard.setTouchable(Touchable.childrenOnly);
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -571,64 +723,44 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int index, text = 0;
         int count = 1;
 
-        float posY = (float) (0.25 * Constants.GAME_HEIGHT);
+        float posY = (float) (0.20 * Constants.GAME_HEIGHT);
 
-        board.setOrigin(0, posY);
-        board.setWidth(Constants.GAME_WIDTH);
+        gameBoard.setOrigin(0, posY);
+        gameBoard.setWidth(Constants.GAME_WIDTH);
         float bHeight = (cellsize * rows) + (padding * 2);
-        board.setHeight(bHeight);
+        gameBoard.setHeight(bHeight);
 
-        if (inverted) {
-            for (int row = 7; row >= 0; row--) {
-                for (int col = 0; col < cols; col++) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
-                        else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                index = col + (row * cols);
 
-                        if (pieces[index] == null)
-                            continue;
+                position[index] = new Vector2((row * cellsize) + padding,
+                        padding + ((col * (cellsize)) + (Constants.GAME_HEIGHT * 0.20f)));
 
-                        pieces[index].setSize(cellsize, cellsize);
-                        pieces[index].setPosition(position[index].x, position[index].y);
-                        pieces[index].setName(index + "");
-                        board.addActor(pieces[index]);
-                    }
-                }
-            }
-        } else {
-            for (int row = 0; row < rows; row++) {
-                for (int col = 7; col >= 0; col--) {
-                    index = col + (row * cols);
-                    position[index] = new Vector2((col * cellsize) + padding,
-                            padding + ((row * (cellsize)) + (Constants.GAME_HEIGHT * 0.25f)));
 
-                    if ((row % 2) == (col % 2)) {
-                        text = (count += 2) / 2;
-                        if (row >= 5)
-                            pieces[index] = new Piece(Assets.img_pawn_white, Simplech.WHITE);
-                        else if (row < 3)
-                            pieces[index] = new Piece(Assets.img_pawn_black, Simplech.BLACK);
+                if (board[row][col] == (Simple.BLACKPAWN))
+                    pieces[index] = new Piece(getSkin().getDrawable("blackPawn"), (Simple.BLACKPAWN));
+                if (board[row][col] == (Simple.BLACKKING))
+                    pieces[index] = new Piece(getSkin().getDrawable("blackKing"), (Simple.BLACKKING));
+                if (board[row][col] == (Simple.WHITEKING))
+                    pieces[index] = new Piece(getSkin().getDrawable("redKing"), (Simple.WHITEKING));
+                if (board[row][col] == (Simple.WHITEPAWN))
+                    pieces[index] = new Piece(getSkin().getDrawable("redPawn"), (Simple.WHITEPAWN));
+                if (board[row][col] == Simple.FREE)
+                    continue;
 
-                        if (pieces[index] == null)
-                            continue;
-                        pieces[index].setSize(cellsize, cellsize);
-                        pieces[index].setPosition(position[index].x, position[index].y);
-                        pieces[index].setName(text + "");
-                        board.addActor(pieces[index]);
-                    }
-                }
+                text = (count += 2) / 2;
+
+                if (pieces[index] == null)
+                    continue;
+
+                pieces[index].setSize((cellsize - 4), (cellsize - 4));
+                pieces[index].setPosition(position[index].x + 2, position[index].y + 2);
+                pieces[index].setName(text + "");
+                gameBoard.addActor(pieces[index]);
             }
         }
-
-
-        return board;
     }
 
 
@@ -672,14 +804,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         return false;
     }
 
-
-    private void renderGui(SpriteBatch batch, float runTime) {
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-
-        batch.end();
-    }
-
     /**
      * Get screen time from start in format of HH:MM:SS. It is calculated from
      * "secondsTime" parameter, reset that to get resetted time.
@@ -688,19 +812,35 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         int seconds = (int) (secondsTime % 60);
         int minutes = (int) ((secondsTime / 60) % 60);
         int hours = (int) ((secondsTime / 3600) % 24);
+
         String secondsStr = (seconds < 10 ? "0" : "") + seconds;
         String minutesStr = (minutes < 10 ? "0" : "") + minutes;
         String hoursStr = (hours < 10 ? "0" : "") + hours;
         return new String(hoursStr + ":" + minutesStr + ":" + secondsStr);
     }
 
+    public void save() {
 
-    private void renderHud(SpriteBatch batch, float gameTime) {
+        int minutes = (int) ((secondsTime / 60) % 60);
+
+        //save after every 1 minutes
+        if ((minutes - saveCounter) == 1) {
+
+            GameObject obj = new GameObject();
+            obj.setName("test");
+            obj.setBoard(board);
+            obj.setDate(new Date());
+            obj.setMultiplayer(multiplayer);
+            obj.setTurn(playerTurn);
+            SaveUtil.save(obj);
+
+            saveCounter++;
+        }
+    }
+
+    private void renderHud(SpriteBatch batch) {
 
         float y = Constants.GAME_HEIGHT * 0.95f;
-
-        float minutes = (float) Math.floor(gameTime / 60.0f);
-        float seconds = (float) Math.floor(gameTime - minutes * 60.0f);
 
         strTime = getScreenTime();
 
@@ -710,61 +850,146 @@ public class GameScreen extends AbstractScreen implements InputProcessor {
         batch.end();
     }
 
-    private void renderFPS(SpriteBatch batch) {
+    public void showGameOver() {
 
-        float x = hudCam.viewportWidth - 150;
-        float y = 30;
+        String text = "";
 
-        int fps = Gdx.graphics.getFramesPerSecond();
+        if (humanPlayer == winner)
+            text = "You Win!";
+        else
+            text = "Droid Wins!";
 
-        BitmapFont fpsFont = hudFont;
 
-        if (fps >= 45) {
-            // 45 or more FPS show up in green
-            fpsFont.setColor(0, 1, 0, 1);
-        } else if (fps >= 30) {
-            // 30 or more FPS show up in yellow
-            fpsFont.setColor(1, 1, 0, 1);
-        } else {
-            // less than 30 FPS show up in red
-            fpsFont.setColor(1, 0, 0, 1);
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        gameOver.text("Game Over, Play again?");
+
+        gameOver.button("Yes", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+        gameOver.button("No", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.app.exit();
+                return false;
+            }
+        });
+        gameOver.show(dialogStage); // actually show the dialog
+    }
+
+    public Label getInfoLabel() {
+        return infoLabel;
+    }
+
+    public void setInfoLabel(Label infoLabel) {
+        this.infoLabel = infoLabel;
+    }
+
+    @Override
+    public void updatePeer(CBMove move) {
+
+        TransmissionPackage transmissionPackage = transmissionPackagePool.obtain();
+        transmissionPackage.setGameboard(board);
+
+        if (firstTransmission) {
+            transmissionPackage.setName(game.getBluetoothInterface().getName());
+            transmissionPackage.setColor(player.getColor());
+            firstTransmission = false;
         }
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-        fpsFont.draw(batch, "FPS: " + fps, x, y);
-        batch.end();
+
+        transmissionPackage.setMove(move);
+        bluetoothInterface.transmitPackage(transmissionPackage);
+        transmissionPackagePool.free(transmissionPackage);
     }
 
+    @Override
+    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage) {
+        updateBoard(transmissionPackage);
+    }
 
-    public void gameOverDialog(String winner) {
+    private void updateBoard(TransmissionPackage transmissionPackage) {
 
-        Skin skin = new Skin(Gdx.files.internal("images/ui-pack.json"), Assets.getAtlas());
+        if (firstReception) {
+            if (transmissionPackage.getColor() == Simple.BLACK) {
+                blackName.setText(transmissionPackage.getName());
+                whiteName.setText(player.getName());
+            } else {
+                whiteName.setText(transmissionPackage.getName());
+                blackName.setText(player.getName());
+            }
+            firstReception = false;
+        }
 
-        Label label = new Label(winner + "wins!", skin);
-        label.setWrap(true);
-        label.setFontScale(.8f);
-        label.setAlignment(Align.center);
+        copyBoard(transmissionPackage.getGameboard(), board);
 
-        Dialog dialog =
-                new Dialog("Game Over", skin) {
-                    protected void result(Object object) {
-                        System.out.println("Chosen: " + object);
+        CBMove cbMove = transmissionPackage.getMove();
+
+        SequenceAction sequenceAction = new SequenceAction();
+        if (cbMove.from == null || cbMove.to == null)
+            return;
+
+        int startX = cbMove.from.x;
+        int startY = cbMove.from.y;
+
+        cpuPiece = getPiece(startX, startY);
+
+        if (cpuPiece == null) {
+            drawPieces(8, 8);
+            playerTurn = getPlayer();
+            humanTurn = true;
+            return;
+        } else
+            cpuPiece.setSelected(true);
+
+        for (
+                int i = 0;
+                i < cbMove.path.length; i++)
+
+        {
+
+            if (cbMove.path[i] == null)
+                continue;
+
+            float posX = (cbMove.path[i].x * cellsize) + 4;
+            float posY = (cbMove.path[i].y * cellsize + boardPosition[1]) + 4;
+
+            sequenceAction.addAction(delay(0.35f));
+            sequenceAction.addAction(moveTo(posX, posY, 0.35f));
+        }
+
+        sequenceAction.addAction(
+
+                run(new Runnable() {
+                        public void run() {
+                            cpuPiece.setSelected(false);
+                            cpuPiece.toBack();
+                            drawPieces(8, 8);
+                            playerTurn = getPlayer();
+                            humanTurn = true;
+                        }
                     }
-                };
 
-        dialog.padTop(50).padBottom(50);
-        dialog.getContentTable().add(label).width((Constants.GAME_WIDTH * 0.65f)).row();
-        dialog.getButtonTable().padTop(50);
+                ));
 
-        TextButton dbutton = new TextButton("Yes", skin);
-        dialog.button(dbutton, true);
+        //update
+        if (cpuPiece != null)
 
-        dbutton = new TextButton("No", skin);
-        dialog.button(dbutton, false);
-        dialog.invalidateHierarchy();
-        dialog.invalidate();
-        dialog.layout();
-        dialog.show(dialogStage);
+        {
+            cpuPiece.toFront();
+            cpuPiece.addAction(sequenceAction);
+        }
+
     }
 
+    public int getPlayer() {
+        return (playerTurn == Simple.BLACK) ? Simple.WHITE : Simple.BLACK;
+    }
+
+    @Override
+    public void keyBackPressed() {
+        super.keyBackPressed();
+        game.setScreen(new LevelScreen(game));
+    }
 }
