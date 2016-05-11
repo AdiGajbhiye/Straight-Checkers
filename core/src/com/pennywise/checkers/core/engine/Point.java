@@ -11,6 +11,23 @@ public class Point implements Serializable {
     public int x = -1;
     public int y = -1;
 
+    public Point() {
+    }
+
+    public Point(Point p) {
+        set(p);
+    }
+
+    public Point cpy() {
+        return new Point(this);
+    }
+
+    public Point set(Point p) {
+        x = p.x;
+        y = p.y;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Point{" +

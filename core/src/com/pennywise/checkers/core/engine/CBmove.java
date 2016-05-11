@@ -18,6 +18,30 @@ public class CBMove implements Serializable {
     public boolean onlyMove;
     public boolean noLegalMove;
 
+    public CBMove(CBMove cbm) {
+        set(cbm);
+    }
+
+    public CBMove cpy() {
+        return new CBMove(this);
+    }
+
+    public CBMove set(CBMove cbm) {
+
+        jumps = cbm.jumps;				/* how many jumps are there in this move? */
+        newpiece = cbm.newpiece;        /* what type of piece appears on to */
+        oldpiece = cbm.oldpiece;        /* what disappears on from */
+        from = cbm.from;
+        to = cbm.to; /* coordinates of the piece - in 8x8 notation!*/
+        System.arraycopy(cbm.path, 0, path, 0, path.length);
+        System.arraycopy(cbm.del, 0, del, 0, del.length);
+        System.arraycopy(cbm.delpiece, 0, delpiece, 0, delpiece.length);
+        forcedCapture = cbm.forcedCapture;
+        onlyMove = cbm.onlyMove;
+        noLegalMove = cbm.noLegalMove;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "CBMove{" +
