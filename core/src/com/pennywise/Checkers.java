@@ -80,7 +80,7 @@ public class Checkers extends Game {
         if (getScreen() instanceof HostScreen) {
             if (bluetoothInterface.isListening()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
-                        "Game hosted! Tell your buddy to connect!");
+                        "Game hosted, waiting for connection");
             }
             bluetoothInterface.startConnectionListening();
         }
@@ -91,11 +91,9 @@ public class Checkers extends Game {
             ((HostScreen) getScreen())
                     .getInfoLabel()
                     .setText(
-                            "Game hosted but Bluetooth is NOT discoverable!\n"
-                                    + "Your buddies can connect only if your devices are paired.\n"
-                                    + "Go back and host a new game to enable discoverability.");
+                            "Bluetooth is NOT discoverable!");
             ((HostScreen) getScreen()).getBackButton().setVisible(true);
-            // bluetoothInterface.startConnectionListening();
+
         }
     }
 
@@ -196,7 +194,7 @@ public class Checkers extends Game {
     }
 
     public void notify_PeerDataReceived(TransmissionPackage transmissionPackage) {
-        MultiplayerDirector director = (MultiplayerDirector) ((GameScreen) getScreen());
+        MultiplayerDirector director = ((GameScreen) getScreen());
         director.notify_PeerDataReceived(transmissionPackage);
     }
 

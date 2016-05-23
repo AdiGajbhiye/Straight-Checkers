@@ -48,7 +48,7 @@
       }
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
-      default: { background: blue_outline, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
+      default: { background: glassPanel, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
     },
     com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
       default: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black },

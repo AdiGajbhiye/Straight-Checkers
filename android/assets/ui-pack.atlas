@@ -6,42 +6,42 @@ filter: Nearest,Nearest
 repeat: none
 beige_plain
   rotate: false
-  xy: 658, 135
+  xy: 928, 457
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 beige_tile
   rotate: false
-  xy: 642, 236
+  xy: 978, 464
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 blackKing
   rotate: false
-  xy: 454, 78
+  xy: 760, 432
   size: 54, 54
   orig: 54, 54
   offset: 0, 0
   index: -1
-blackPawn
+blackpawn
   rotate: false
-  xy: 676, 308
+  xy: 760, 376
   size: 54, 54
   orig: 54, 54
   offset: 0, 0
   index: -1
 blue_box_checked
   rotate: false
-  xy: 735, 283
+  xy: 978, 383
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 blue_button_down
   rotate: false
-  xy: 371, 2
+  xy: 658, 53
   size: 49, 45
   split: 21, 26, 22, 21
   orig: 49, 45
@@ -49,7 +49,7 @@ blue_button_down
   index: -1
 blue_button_up
   rotate: false
-  xy: 816, 415
+  xy: 760, 213
   size: 49, 49
   split: 16, 32, 21, 27
   orig: 49, 49
@@ -57,7 +57,7 @@ blue_button_up
   index: -1
 blue_field
   rotate: false
-  xy: 2, 6
+  xy: 2, 12
   size: 186, 41
   split: 8, 9, 20, 17
   orig: 186, 41
@@ -65,7 +65,7 @@ blue_field
   index: -1
 blue_highlight
   rotate: false
-  xy: 676, 466
+  xy: 190, 20
   size: 179, 33
   split: 15, 160, 17, 11
   orig: 179, 33
@@ -73,23 +73,31 @@ blue_highlight
   index: -1
 blue_knob
   rotate: false
-  xy: 685, 236
-  size: 17, 17
-  split: 8, 8, 8, 8
-  orig: 17, 17
+  xy: 642, 474
+  size: 12, 12
+  split: 5, 6, 5, 6
+  orig: 12, 12
   offset: 0, 0
   index: -1
 blue_outline
   rotate: false
-  xy: 735, 240
+  xy: 811, 23
   size: 45, 41
   split: 12, 31, 16, 23
   orig: 45, 41
   offset: 0, 0
   index: -1
+bluetooth_list_blue
+  rotate: false
+  xy: 454, 362
+  size: 100, 100
+  split: 82, 8, 48, 38
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 brown_knob
   rotate: false
-  xy: 876, 483
+  xy: 896, 387
   size: 17, 16
   split: 8, 8, 7, 8
   orig: 17, 16
@@ -97,28 +105,44 @@ brown_knob
   index: -1
 brown_tile
   rotate: false
-  xy: 732, 321
+  xy: 978, 421
   size: 41, 41
   orig: 41, 41
   offset: 0, 0
   index: -1
 darkcell
   rotate: false
-  xy: 673, 85
+  xy: 928, 407
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+glassPanel
+  rotate: false
+  xy: 454, 260
+  size: 100, 100
+  split: 42, 56, 38, 57
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+glassPanel_projection
+  rotate: false
+  xy: 454, 158
+  size: 100, 100
+  split: 46, 51, 38, 58
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 green_box_checked
   rotate: false
-  xy: 773, 102
+  xy: 816, 364
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 green_button_down
   rotate: false
-  xy: 454, 31
+  xy: 371, 8
   size: 49, 45
   split: 18, 30, 22, 22
   orig: 49, 45
@@ -126,7 +150,7 @@ green_button_down
   index: -1
 green_button_up
   rotate: false
-  xy: 816, 364
+  xy: 826, 456
   size: 49, 49
   split: 11, 37, 23, 24
   orig: 49, 49
@@ -134,14 +158,14 @@ green_button_up
   index: -1
 grey_box
   rotate: false
-  xy: 773, 64
+  xy: 816, 326
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 grey_button_down
   rotate: false
-  xy: 505, 31
+  xy: 760, 166
   size: 49, 45
   split: 22, 26, 15, 28
   orig: 49, 45
@@ -149,7 +173,7 @@ grey_button_down
   index: -1
 grey_button_up
   rotate: false
-  xy: 816, 313
+  xy: 826, 405
   size: 49, 49
   split: 12, 36, 18, 29
   orig: 49, 49
@@ -157,7 +181,7 @@ grey_button_up
   index: -1
 grey_dot
   rotate: false
-  xy: 857, 482
+  xy: 622, 37
   size: 17, 17
   split: 8, 8, 7, 9
   orig: 17, 17
@@ -165,28 +189,22 @@ grey_dot
   index: -1
 hScroll
   rotate: false
-  xy: 190, 30
-  size: 179, 17
-  orig: 179, 17
+  xy: 2, 2
+  size: 84, 8
+  split: 40, 42, 3, 4
+  orig: 84, 8
   offset: 0, 0
   index: -1
 hScroll_brown
   rotate: false
-  xy: 190, 11
+  xy: 642, 488
   size: 179, 17
   orig: 179, 17
   offset: 0, 0
   index: -1
-ic_laucher
-  rotate: false
-  xy: 454, 279
-  size: 220, 220
-  orig: 220, 220
-  offset: 0, 0
-  index: -1
 line_dark
   rotate: false
-  xy: 685, 258
+  xy: 740, 116
   size: 48, 48
   split: 10, 35, 17, 28
   orig: 48, 48
@@ -194,28 +212,76 @@ line_dark
   index: -1
 litecell
   rotate: false
-  xy: 708, 135
+  xy: 422, 5
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 whiteCell
   rotate: false
-  xy: 708, 135
+  xy: 422, 5
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+metalPanel
+  rotate: false
+  xy: 454, 56
+  size: 100, 100
+  split: 48, 50, 45, 52
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+metalPanel_blue
+  rotate: false
+  xy: 556, 362
+  size: 100, 100
+  split: 47, 50, 54, 42
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+metalPanel_green
+  rotate: false
+  xy: 556, 260
+  size: 100, 100
+  split: 48, 49, 53, 44
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+metalPanel_plate
+  rotate: false
+  xy: 658, 100
+  size: 80, 80
+  split: 35, 42, 29, 49
+  orig: 80, 80
+  offset: 0, 0
+  index: -1
+metalPanel_red
+  rotate: false
+  xy: 556, 158
+  size: 100, 100
+  split: 45, 53, 52, 45
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+metalPanel_yellow
+  rotate: false
+  xy: 556, 56
+  size: 100, 100
+  split: 49, 48, 51, 47
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
 orange_box_checked
   rotate: false
-  xy: 607, 40
+  xy: 816, 288
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 orange_button_down
   rotate: false
-  xy: 556, 31
+  xy: 709, 53
   size: 49, 45
   split: 24, 23, 21, 22
   orig: 49, 45
@@ -223,7 +289,7 @@ orange_button_down
   index: -1
 orange_button_up
   rotate: false
-  xy: 622, 83
+  xy: 877, 456
   size: 49, 49
   split: 18, 29, 23, 24
   orig: 49, 49
@@ -231,7 +297,7 @@ orange_button_up
   index: -1
 panel-beigelight
   rotate: false
-  xy: 454, 134
+  xy: 658, 386
   size: 100, 100
   split: 40, 55, 57, 37
   orig: 100, 100
@@ -239,7 +305,7 @@ panel-beigelight
   index: -1
 panel_beige
   rotate: false
-  xy: 676, 364
+  xy: 658, 284
   size: 100, 100
   split: 13, 85, 38, 60
   orig: 100, 100
@@ -247,7 +313,7 @@ panel_beige
   index: -1
 panel_brown
   rotate: false
-  xy: 556, 134
+  xy: 658, 182
   size: 100, 100
   split: 79, 12, 44, 46
   orig: 100, 100
@@ -255,28 +321,28 @@ panel_brown
   index: -1
 pause_dark
   rotate: false
-  xy: 723, 85
+  xy: 472, 6
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 redKing
   rotate: false
-  xy: 510, 78
+  xy: 760, 320
   size: 54, 54
   orig: 54, 54
   offset: 0, 0
   index: -1
 redPawn
   rotate: false
-  xy: 566, 78
+  xy: 760, 264
   size: 54, 54
   orig: 54, 54
   offset: 0, 0
   index: -1
 red_dot
   rotate: false
-  xy: 422, 30
+  xy: 816, 269
   size: 17, 17
   split: 8, 8, 8, 8
   orig: 17, 17
@@ -284,63 +350,71 @@ red_dot
   index: -1
 scroll_background
   rotate: false
-  xy: 685, 255
+  xy: 928, 404
   size: 48, 1
   orig: 48, 1
   offset: 0, 0
   index: -1
 selected_green
   rotate: false
-  xy: 709, 190
+  xy: 522, 6
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 selected_red
   rotate: false
-  xy: 759, 190
+  xy: 572, 6
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+selectedhumancell
+  rotate: false
+  xy: 790, 116
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+selectedhumanlite
+  rotate: false
+  xy: 760, 66
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 undo
   rotate: false
-  xy: 758, 140
+  xy: 810, 66
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 vScroll
   rotate: false
-  xy: 778, 285
-  size: 17, 179
-  orig: 17, 179
-  offset: 0, 0
-  index: -1
-vScroll_brown
-  rotate: false
-  xy: 797, 285
-  size: 17, 179
-  orig: 17, 179
+  xy: 816, 402
+  size: 8, 84
+  split: 2, 4, 30, 51
+  orig: 8, 84
   offset: 0, 0
   index: -1
 wooden
   rotate: false
-  xy: 2, 49
+  xy: 2, 55
   size: 450, 450
   orig: 450, 450
   offset: 0, 0
   index: -1
 yellow_box_checked
   rotate: false
-  xy: 647, 45
+  xy: 856, 367
   size: 38, 36
   orig: 38, 36
   offset: 0, 0
   index: -1
 yellow_button_down
   rotate: false
-  xy: 816, 266
+  xy: 760, 19
   size: 49, 45
   split: 22, 25, 23, 20
   orig: 49, 45
@@ -348,7 +422,7 @@ yellow_button_down
   index: -1
 yellow_button_up
   rotate: false
-  xy: 658, 185
+  xy: 877, 405
   size: 49, 49
   split: 21, 26, 23, 24
   orig: 49, 49
@@ -356,7 +430,7 @@ yellow_button_up
   index: -1
 yellow_field
   rotate: false
-  xy: 454, 236
+  xy: 454, 464
   size: 186, 41
   split: 95, 82, 16, 19
   orig: 186, 41
