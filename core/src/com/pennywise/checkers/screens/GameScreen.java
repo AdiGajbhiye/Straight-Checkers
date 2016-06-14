@@ -2,6 +2,8 @@ package com.pennywise.checkers.screens;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
@@ -198,6 +200,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         Gdx.input.setCatchBackKey(true);
 
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean keyUp(final int keycode) {
+                if (keycode == Input.Keys.BACK) {
+                    Gdx.app.log("Score", "Back");
+                    keyBackPressed();
+                }
+                return false;
+            }
+        });
+
+
         engine = new Simple();
 
     }
@@ -232,14 +246,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         if (multiplayer) {
             if (player.isHost()) {
                 if (player.getColor() == Simple.BLACK) {
-                    blackName.setText(player.getName());
+                    blackName.setText("Me"/*player.getName()*/);
                     playerTurn = humanPlayer = Simple.BLACK;
                     humanTurn = true;
                 } else {
                     humanTurn = false;
                     playerTurn = Simple.BLACK;
                     humanPlayer = Simple.WHITE;
-                    whiteName.setText(player.getName());
+                    whiteName.setText("Me"/*player.getName()*/);
                 }
 
             } else {
@@ -251,7 +265,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         } else {
             humanPlayer = playerTurn;
             whiteName.setText("Droid");
-            blackName.setText(player.getName().isEmpty() ? "Human" : player.getName());
+            blackName.setText("Me");
         }
 
         newGame();
@@ -455,7 +469,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Group board(int rows, int cols) {
 
-        panel = new Panel(getSkin().getPatch("panel_brown"));
+        panel = new Panel(getSkin().getPatch("border"));
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
@@ -766,11 +780,17 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     @Override
     public boolean keyDown(int keycode) {
+
+
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
+        if (keycode == Input.Keys.BACK) {
+            Gdx.app.log("Score", "Back");
+            keyBackPressed();
+        }
         return false;
     }
 

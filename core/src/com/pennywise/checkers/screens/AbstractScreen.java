@@ -148,7 +148,7 @@ public abstract class AbstractScreen implements Screen {
     /**
      * Back button
      */
-    private void setBackBackButton() {
+    private void setBackButton() {
         uiStage.addListener(new InputListener() {
             @Override
             public boolean keyUp(InputEvent event, int keycode) {

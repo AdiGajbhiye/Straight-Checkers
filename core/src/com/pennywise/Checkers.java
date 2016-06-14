@@ -6,6 +6,7 @@ import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.screens.GameScreen;
 import com.pennywise.checkers.screens.HostScreen;
 import com.pennywise.checkers.screens.JoinScreen;
+import com.pennywise.checkers.screens.LevelScreen;
 import com.pennywise.checkers.screens.MenuScreen;
 import com.pennywise.checkers.screens.MultiplayerScreen;
 import com.pennywise.managers.AdManager;

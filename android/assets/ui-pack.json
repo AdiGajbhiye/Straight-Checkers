@@ -38,17 +38,10 @@
         }
     },
     com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
-       default: { vScroll: vScroll, hScrollKnob: blue_knob, background: scroll_background, hScroll: hScroll, vScrollKnob: blue_knob }
-    },
-    com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
-      default: {
-        font: normaltext, fontColor: black, background: blue_field,
-        scrollStyle: default,
-        listStyle: { font: normaltext, selection: blue_highlight ,background: blue_outline,fontColorUnselected: black, fontColorSelected: white }
-      }
+       default: { vScroll: vScroll, hScrollKnob: blue_knob,  hScroll: hScroll, vScrollKnob: blue_knob,background:glassPanel}
     },
     com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
-      default: { background: glassPanel, fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font: normaltext }
+      default: {fontColorUnselected: black, selection: blue_highlight, fontColorSelected: white, font:normaltext}
     },
     com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
       default: { checkboxOn: blue_box_checked, checkboxOff: grey_box, font: normaltext, fontColor: black },

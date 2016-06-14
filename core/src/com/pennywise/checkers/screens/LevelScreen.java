@@ -1,5 +1,6 @@
 package com.pennywise.checkers.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -26,7 +27,7 @@ public class LevelScreen extends AbstractScreen {
     @Override
     public void show() {
         getTable().row();
-        welcomeLabel = new Label("Game Level", getSkin(),"title-text");
+        welcomeLabel = new Label("Straight Checkers", getSkin(),"title-text");
         getTable().add(welcomeLabel).spaceBottom(30);
         getTable().row();
 
@@ -81,17 +82,6 @@ public class LevelScreen extends AbstractScreen {
         });
 
         getTable().row();
-
-
-        final TextButton backButton = new TextButton("Back", getSkin());
-        getTable().add(backButton).size(360, 70).center().colspan(2).uniform();
-        backButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                game.setScreen(new MenuScreen(game));
-            }
-        });
     }
 
     public void dispose() {
@@ -102,7 +92,7 @@ public class LevelScreen extends AbstractScreen {
     public void keyBackPressed() {
         super.keyBackPressed();
 
-        game.setScreen(new MenuScreen(game));
+        //game.setScreen(new MenuScreen(game));
     }
 
 }
