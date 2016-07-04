@@ -118,8 +118,7 @@ public class Checkers extends Game {
     public void notify_BT_STATE_ON() {
         if (getScreen() instanceof JoinScreen) {
             ((JoinScreen) getScreen()).getInfoLabel().setText(
-                    "Select device to connect!");
-            ((JoinScreen) getScreen()).getBackButton().setVisible(true);
+                    "Select Opponent!");
             ((JoinScreen) getScreen()).getScanButton().setVisible(true);
             ((JoinScreen) getScreen()).getConnectButton().setVisible(true);
             ((JoinScreen) getScreen()).listDevices();

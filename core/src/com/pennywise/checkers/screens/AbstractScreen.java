@@ -46,7 +46,7 @@ public abstract class AbstractScreen implements Screen {
 
             uiStage = new Stage(new FitViewport(Constants.GAME_WIDTH, Constants.GAME_HEIGHT, uiCam));
             Gdx.input.setInputProcessor(uiStage);
-
+            setBackButton();
             uiStage.addActor(backGround());
         }
         return uiStage;
@@ -110,7 +110,7 @@ public abstract class AbstractScreen implements Screen {
         Gdx.app.log(LOG, "Will call dispose on screen");
         // This call is necessary to dispose the screen's resources
         // after hiding it. Otherwise, the resources will reside in memory!
-        dispose();
+        //dispose();
     }
 
     @Override

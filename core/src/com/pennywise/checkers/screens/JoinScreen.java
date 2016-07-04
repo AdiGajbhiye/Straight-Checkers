@@ -30,7 +30,6 @@ public class JoinScreen extends AbstractScreen {
     private Label infoLabel;
     private List devicesList;
     private ScrollPane devicesListScrollPane;
-    private TextButton backButton;
     private TextButton scanButton;
     private TextButton connectButton;
     private Skin skin;
@@ -42,38 +41,19 @@ public class JoinScreen extends AbstractScreen {
         bluetoothInterface = game.getBluetoothInterface();
         game.setHost(false);
         game.setMultiplayer(true);
+        setBackButtonActive(true);
     }
 
     public Label getInfoLabel() {
         return infoLabel;
     }
 
-    public void setInfoLabel(Label infoLabel) {
-        this.infoLabel = infoLabel;
-    }
-
-    public TextButton getBackButton() {
-        return backButton;
-    }
-
-    public void setBackButton(TextButton backButton) {
-        this.backButton = backButton;
-    }
-
     public TextButton getScanButton() {
         return scanButton;
     }
 
-    public void setScanButton(TextButton scanButton) {
-        this.scanButton = scanButton;
-    }
-
     public TextButton getConnectButton() {
         return connectButton;
-    }
-
-    public void setConnectButton(TextButton connectButton) {
-        this.connectButton = connectButton;
     }
 
     @Override
@@ -96,7 +76,6 @@ public class JoinScreen extends AbstractScreen {
         getTable().row();
 
         scanButton = new TextButton("Scan", skin);
-        scanButton.setVisible(false);
         getTable().add(scanButton).size(220, 70).expand()
                 .padBottom(60).spaceLeft(5);
         scanButton.addListener(new ChangeListener() {
@@ -114,7 +93,6 @@ public class JoinScreen extends AbstractScreen {
 
 
         connectButton = new TextButton("Connect", skin);
-        connectButton.setVisible(false);
         getTable().add(connectButton).size(220, 70).expand()
                 .padBottom(60).spaceRight(5);
         connectButton.addListener(new ChangeListener() {
@@ -142,24 +120,6 @@ public class JoinScreen extends AbstractScreen {
             }
         });
 
-        backButton = new TextButton("Back", skin);
-        backButton.setVisible(false);
-
-        backButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                // If connection is in progress, do nothing
-                if (bluetoothInterface.isConnecting()
-                        || bluetoothInterface.isDiscovering())
-                    return;
-                bluetoothInterface.cancelDiscovery();
-                bluetoothInterface.stopConnectionToHost();
-                game.setScreen(new MultiplayerScreen(game));
-            }
-        });
-
-
         // Check if the Android device supports bluetooth.
         if (bluetoothInterface.isBluetoothSupported()) {
             // Check if bluetooth is enabled. If not, enable it.
@@ -176,9 +136,6 @@ public class JoinScreen extends AbstractScreen {
                                 + bluetoothInterface.isBluetoothEnabled());
                 infoLabel
                         .setText("Select device to connect!");
-                backButton.setVisible(true);
-                scanButton.setVisible(true);
-                connectButton.setVisible(true);
                 listDevices();
             }
         }
@@ -232,13 +189,12 @@ public class JoinScreen extends AbstractScreen {
 
     public void dispose() {
         super.dispose();
-        Gdx.app.log(LOG, "Disposing JoinScreen");
     }
 
     @Override
     public void keyBackPressed() {
-        super.keyBackPressed();
-
+        bluetoothInterface.cancelDiscovery();
+        bluetoothInterface.stopConnectionToHost();
         game.setScreen(new MultiplayerScreen(game));
     }
 }

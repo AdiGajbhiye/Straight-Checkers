@@ -127,7 +127,6 @@ public class HostScreen extends AbstractScreen {
     @Override
     public void keyBackPressed() {
         super.keyBackPressed();
-
         game.setScreen(new MultiplayerScreen(game));
     }
 

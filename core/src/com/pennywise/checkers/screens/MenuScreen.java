@@ -21,7 +21,7 @@ public class MenuScreen extends AbstractScreen {
     public void show() {
         getTable().row();
         welcomeLabel = new Label("Straight Checkers", getSkin(),"title-text");
-        getTable().add(welcomeLabel).spaceBottom(20);
+        getTable().add(welcomeLabel).spaceBottom(50);
         getTable().row();
 
         final TextButton game1Button = new TextButton("Singleplayer", getSkin(), "orange");
@@ -48,14 +48,14 @@ public class MenuScreen extends AbstractScreen {
 
         getTable().row();
 
-        final TextButton help = new TextButton("Help", getSkin());
+        /*final TextButton help = new TextButton("Help", getSkin());
         getTable().add(help).size(360, 70).uniform().spaceBottom(30);
         help.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
             }
-        });
+        });*/
 
         getTable().row();
 

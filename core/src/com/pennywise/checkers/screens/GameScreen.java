@@ -95,7 +95,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     double level = Constants.EASY;
 
     int[][] board = new int[8][8];
-    private int undoCount = 0;
     private int[] pieceCount = new int[2];
     private int saveCounter = 0;
     private Simple engine;
@@ -114,6 +113,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     protected BluetoothInterface bluetoothInterface;
     private boolean firstTransmission = true;
     private boolean firstReception = true;
+    private Label timeDisplay;
 
     public void newGame() {                            //creates a new game
 
@@ -232,6 +232,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         batch = new SpriteBatch();
 
+        timeDisplay = new Label("", getSkin());
         initGame();
     }
 
@@ -434,7 +435,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table hud() {
         Table layer = new Table();
-        layer.bottom();
+        layer.bottom().setWidth(Constants.GAME_WIDTH);
+
 
         blackName.setAlignment(Align.center);
         layer.add(blackTurn).size(30, 30).center().padBottom(80);
@@ -444,12 +446,31 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     private Table opponentHud() {
+        float y = Constants.GAME_HEIGHT * 0.95f;
+
         Table layer = new Table();
         //layer.setDebug(true);
         layer.top();
         layer.padTop(75);
         layer.setWidth(Constants.GAME_WIDTH);
 
+        String strTime = getScreenTime();
+
+        Label red, black, time;
+        red = new Label("Red", getSkin());
+        black = new Label("black", getSkin());
+        time = new Label("time", getSkin());
+
+        red.setAlignment(Align.center);
+        black.setAlignment(Align.center);
+        timeDisplay.setAlignment(Align.center);
+
+        time.setText(strTime);
+
+        layer.add(red).left().padTop(2);
+        layer.add(timeDisplay).center().padTop(2);
+        layer.add(black).right().padTop(2);
+        layer.row();
 
         whiteName.setAlignment(Align.center);
         layer.add(whiteTurn).size(30, 30).center().padTop(5);
@@ -842,10 +863,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void save() {
 
         int minutes = (int) ((secondsTime / 60) % 60);
-
         //save after every 1 minutes
         if ((minutes - saveCounter) == 1) {
-
             GameObject obj = new GameObject();
             obj.setName("test");
             obj.setBoard(board);
@@ -853,20 +872,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             obj.setMultiplayer(multiplayer);
             obj.setTurn(playerTurn);
             SaveUtil.save(obj);
-
             saveCounter++;
         }
     }
 
     private void renderHud(SpriteBatch batch) {
-
-        float y = Constants.GAME_HEIGHT * 0.95f;
-
         strTime = getScreenTime();
-
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
-        hudFont.draw(batch, strTime, 15, y);
+        timeDisplay.setText(strTime);
         batch.end();
     }
 

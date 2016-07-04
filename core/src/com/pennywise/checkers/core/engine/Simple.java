@@ -1868,7 +1868,7 @@ public class Simple {
                 b[i - 5] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i + 4] & WHITE) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
@@ -1892,7 +1892,7 @@ public class Simple {
                 b[i + 4] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i + 5] & WHITE) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
@@ -2038,7 +2038,7 @@ public class Simple {
                 b[i - 5] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i + 4] & BLACK) != 0) {
             if ((b[i + 8] & FREE) != 0) {
                 move.n++;
@@ -2062,7 +2062,7 @@ public class Simple {
                 b[i + 4] = tmp;
             }
         }
-        move = orgmove;
+        move = orgmove.cpy();
         if ((b[i + 5] & BLACK) != 0) {
             if ((b[i + 10] & FREE) != 0) {
                 move.n++;
