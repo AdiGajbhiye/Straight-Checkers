@@ -6,8 +6,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -24,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -111,6 +114,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private boolean firstTransmission = true;
     private boolean firstReception = true;
     private Label timeDisplay;
+    private BitmapFont hudFont;
 
     public void newGame() {                            //creates a new game
 
@@ -217,6 +221,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     public void show() {
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
 
+        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
+
         blackTurn = new Image(getSkin().getDrawable("red_dot"));
         whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
 
@@ -236,8 +242,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         multiplayer = game.isMultiplayer();
         player = SaveUtil.loadUserData(Constants.USER_FILE);
 
-        whiteName = new Label("Player name:", getSkin(), "title");
-        blackName = new Label("Player name:", getSkin(), "title");
+        whiteName = new Label("Player name:", getSkin());
+        blackName = new Label("Player name:", getSkin());
 
         if (multiplayer) {
             if (player.isHost()) {
@@ -441,19 +447,19 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     private Table opponentHud() {
-        float y = Constants.GAME_HEIGHT * 0.95f;
-
-        Table layer = new Table();
-        //layer.setDebug(true);
+        Table layer = new Table(getSkin());
+        layer.setBackground("dialog");
+        layer.setHeight(150);
+        layer.defaults().height(new Value.Fixed(50));
         layer.top();
-        layer.padTop(75);
+        layer.defaults().pad(0);
         layer.setWidth(Constants.GAME_WIDTH);
 
         String strTime = getScreenTime();
 
         Label red, black, time;
-        red = new Label("Red", getSkin());
-        black = new Label("black", getSkin());
+        red = new Label("Red: 12", getSkin());
+        black = new Label("Black: 12", getSkin());
         time = new Label("time", getSkin());
 
         red.setAlignment(Align.center);
@@ -466,10 +472,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         layer.add(timeDisplay).center().padTop(2);
         layer.add(black).right().padTop(2);
         layer.row();
-
         whiteName.setAlignment(Align.center);
         layer.add(whiteTurn).size(30, 30).center().padTop(5);
-        layer.add(whiteName).size(320, 60).left().padTop(5);
+        layer.add(whiteName).size(180, 60).left().padTop(5);
         return layer;
     }
 
@@ -489,7 +494,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
-        //style.font =
+        style.font = hudFont;
         Vector2[] position = new Vector2[rows * cols];
 
         backgroundTiles = new Tile[rows * cols];

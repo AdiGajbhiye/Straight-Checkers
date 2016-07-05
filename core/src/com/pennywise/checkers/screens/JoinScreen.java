@@ -65,7 +65,7 @@ public class JoinScreen extends AbstractScreen {
         getTable().row();
 
         // Empty list
-        devicesList = new List(skin);
+        devicesList = new List(skin,"dimmed");
         devicesList.setItems(new Array<Object>());
         devicesList.pack();
         devicesListScrollPane = new ScrollPane(devicesList, skin);
