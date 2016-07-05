@@ -96,21 +96,21 @@ button-down
   index: -1
 check-box
   rotate: false
-  xy: 2, 2
+  xy: 26, 54
   size: 12, 12
   orig: 12, 12
   offset: 0, 0
   index: -1
 check-box-off
   rotate: false
-  xy: 16, 2
+  xy: 443, 366
   size: 12, 12
   orig: 12, 12
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 403, 316
+  xy: 459, 414
   size: 18, 16
   split: 9, 8, 7, 8
   pad: 2, 0, 0, 0
@@ -119,7 +119,7 @@ cursor
   index: -1
 cursor-black
   rotate: false
-  xy: 2, 50
+  xy: 403, 316
   size: 18, 16
   split: 9, 8, 7, 8
   pad: 2, 0, 0, 0
@@ -176,14 +176,14 @@ horizontal-split-pane
   index: -1
 light-blue
   rotate: false
-  xy: 483, 428
+  xy: 182, 217
   size: 2, 2
   orig: 2, 2
   offset: 0, 0
   index: -1
 list
   rotate: false
-  xy: 459, 416
+  xy: 2, 52
   size: 22, 14
   split: 0, 21, 0, 13
   pad: 0, 17, 0, 2
@@ -192,7 +192,7 @@ list
   index: -1
 loading-bar-fill
   rotate: false
-  xy: 443, 380
+  xy: 479, 412
   size: 12, 18
   split: 0, 11, 0, 0
   orig: 12, 18
@@ -200,7 +200,7 @@ loading-bar-fill
   index: -1
 loading-bar-knob
   rotate: false
-  xy: 58, 132
+  xy: 443, 380
   size: 12, 18
   orig: 12, 18
   offset: 0, 0
@@ -228,14 +228,14 @@ music-off
   index: -1
 plus
   rotate: false
-  xy: 459, 400
+  xy: 423, 318
   size: 14, 14
   orig: 14, 14
   offset: 0, 0
   index: -1
 progress-bar
   rotate: false
-  xy: 2, 32
+  xy: 2, 34
   size: 16, 16
   split: 7, 8, 7, 8
   pad: 2, 2, 2, 2
@@ -253,14 +253,14 @@ progress-bar-knob
   index: -1
 radio-button
   rotate: false
-  xy: 493, 433
+  xy: 459, 400
   size: 16, 12
   orig: 16, 12
   offset: 0, 0
   index: -1
 radio-button
   rotate: false
-  xy: 493, 433
+  xy: 459, 400
   size: 16, 12
   split: 14, 0, 5, 5
   pad: 13, 0, 0, 0
@@ -269,7 +269,7 @@ radio-button
   index: -1
 radio-button-off
   rotate: false
-  xy: 423, 320
+  xy: 493, 414
   size: 16, 12
   orig: 16, 12
   offset: 0, 0
@@ -288,9 +288,17 @@ redPawn
   orig: 54, 54
   offset: 0, 0
   index: -1
+red_dot
+  rotate: false
+  xy: 493, 428
+  size: 17, 17
+  split: 8, 8, 8, 8
+  orig: 17, 17
+  offset: 0, 0
+  index: -1
 scroll-bar
   rotate: false
-  xy: 2, 16
+  xy: 2, 18
   size: 14, 14
   split: 6, 6, 6, 6
   pad: 0, 0, 0, 0
@@ -361,14 +369,14 @@ sound-off
   index: -1
 text-selection
   rotate: false
-  xy: 182, 217
+  xy: 20, 48
   size: 2, 2
   orig: 2, 2
   offset: 0, 0
   index: -1
 textfield
   rotate: false
-  xy: 22, 51
+  xy: 58, 135
   size: 14, 15
   split: 6, 7, 7, 7
   pad: 3, 3, 2, 2
@@ -391,7 +399,7 @@ touchpad-knob
   index: -1
 vertical-split-pane
   rotate: false
-  xy: 18, 16
+  xy: 2, 2
   size: 10, 14
   split: 0, 0, 6, 6
   pad: 0, 1, 0, 0
@@ -400,7 +408,7 @@ vertical-split-pane
   index: -1
 white
   rotate: false
-  xy: 443, 376
+  xy: 457, 396
   size: 2, 2
   orig: 2, 2
   offset: 0, 0

@@ -6,10 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -90,7 +88,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private long startTime = 0;
     private boolean timer = false;
     private long secondsTime = 0L;
-    private BitmapFont hudFont;
     private boolean opponentMove = false;
     double level = Constants.EASY;
 
@@ -219,8 +216,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     @Override
     public void show() {
         Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
-
-        hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
 
         blackTurn = new Image(getSkin().getDrawable("red_dot"));
         whiteTurn = new Image(getSkin().getDrawable("grey_dot"));
@@ -494,8 +489,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         panel.setTouchable(Touchable.childrenOnly);
 
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = hudFont;
-
+        //style.font =
         Vector2[] position = new Vector2[rows * cols];
 
         backgroundTiles = new Tile[rows * cols];
