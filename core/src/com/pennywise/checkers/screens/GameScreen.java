@@ -449,7 +449,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private Table opponentHud() {
         Table layer = new Table(getSkin());
         layer.setBackground("dialog");
-        layer.setHeight(150);
+        layer.setSize(Constants.GAME_WIDTH,150);
         layer.defaults().height(new Value.Fixed(50));
         layer.top();
         layer.defaults().pad(0);
