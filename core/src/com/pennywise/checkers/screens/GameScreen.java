@@ -241,8 +241,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         multiplayer = game.isMultiplayer();
         player = SaveUtil.loadUserData(Constants.USER_FILE);
 
-        whiteName = new Label("Player name:", getSkin(), "black-text");
-        blackName = new Label("Player name:", getSkin(), "black-text");
+        whiteName = new Label("Player name:", getSkin(), "title");
+        blackName = new Label("Player name:", getSkin(), "title");
 
         if (multiplayer) {
             if (player.isHost()) {
@@ -428,7 +428,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(getSkin().getDrawable("wooden"));
+        Image bg = new Image(getSkin().getDrawable("background"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         return layer;
     }
@@ -495,7 +495,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = hudFont;
-        style.background = getSkin().getDrawable("line_dark");
 
         Vector2[] position = new Vector2[rows * cols];
 
@@ -529,7 +528,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                 } else {
                     text = 0;
-                    style.background = getSkin().getDrawable("litecell");
+                    style.background = getSkin().getDrawable("whitecell");
                     backgroundTiles[index] = new Tile(Simple.WHITE, new Label.LabelStyle(style));
                 }
 

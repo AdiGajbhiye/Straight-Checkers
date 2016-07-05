@@ -1,13 +1,11 @@
 package com.pennywise.checkers.screens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.pennywise.Checkers;
 import com.pennywise.checkers.core.Constants;
-import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.managers.AudioManager;
 
 /**
@@ -27,7 +25,7 @@ public class LevelScreen extends AbstractScreen {
     @Override
     public void show() {
         getTable().row();
-        welcomeLabel = new Label("Straight Checkers", getSkin(),"title-text");
+        welcomeLabel = new Label("Straight Checkers", getSkin(), "title");
         getTable().add(welcomeLabel).spaceBottom(30);
         getTable().row();
 

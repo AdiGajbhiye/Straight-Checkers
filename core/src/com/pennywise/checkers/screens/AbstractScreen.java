@@ -22,7 +22,7 @@ import com.pennywise.checkers.core.Constants;
 public abstract class AbstractScreen implements Screen {
 
     public static final String LOG = AbstractScreen.class.getSimpleName();
-    private final static String FILE_UI_SKIN = "ui-pack.json";
+    private final static String FILE_UI_SKIN = "uiskin.json";
 
     protected Checkers game;
     private Table table;
@@ -54,7 +54,7 @@ public abstract class AbstractScreen implements Screen {
 
     private Table backGround() {
         Table layer = new Table();
-        Image bg = new Image(getSkin().getDrawable("wooden"));
+        Image bg = new Image(getSkin().getDrawable("background"));
         layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
         layer.setFillParent(true);
         return layer;

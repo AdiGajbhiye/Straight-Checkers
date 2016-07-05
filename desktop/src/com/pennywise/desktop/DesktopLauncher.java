@@ -10,7 +10,7 @@ public class DesktopLauncher {
         TexturePacker.Settings settings = new TexturePacker.Settings();
         settings.maxWidth = 2048;
         settings.maxHeight = 2048;
-        TexturePacker.process(settings, "android\\assets\\background", "android\\assets", "ui-pack");
+        TexturePacker.process(settings, "android\\assets\\raw", "android\\assets", "uiskin");
         System.out.println("Done packing...");
     }
 }
