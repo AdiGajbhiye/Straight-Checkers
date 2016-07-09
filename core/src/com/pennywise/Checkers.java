@@ -117,8 +117,7 @@ public class Checkers extends Game {
 
     public void notify_BT_STATE_ON() {
         if (getScreen() instanceof JoinScreen) {
-            ((JoinScreen) getScreen()).getInfoLabel().setText(
-                    "Select Opponent!");
+            ((JoinScreen) getScreen()).getInfoLabel().setText("Select Opponent!");
             ((JoinScreen) getScreen()).getScanButton().setVisible(true);
             ((JoinScreen) getScreen()).getConnectButton().setVisible(true);
             ((JoinScreen) getScreen()).listDevices();
@@ -189,6 +188,15 @@ public class Checkers extends Game {
                 // ((GameScreen) getScreen())
                 //         .getInfoLabel()
                 //         .setText("Touch screen to start the game!");
+            }
+        }else if (getScreen() instanceof GameScreen) {
+            if (bluetoothInterface.isIdle()) {
+                ((GameScreen) getScreen()).showDisconnected();
+            } else if (bluetoothInterface.isListening()) {
+
+            } else if (bluetoothInterface.isConnecting()) {
+
+            } else if (bluetoothInterface.isConnected()) {
             }
         }
     }

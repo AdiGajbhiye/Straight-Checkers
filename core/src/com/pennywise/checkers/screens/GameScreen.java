@@ -26,7 +26,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -47,6 +46,8 @@ import com.pennywise.managers.MultiplayerDirector;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
 import com.pennywise.multiplayer.TransmissionPackagePool;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -95,8 +96,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     double level = Constants.EASY;
 
     int[][] board = new int[8][8];
-    private int[] pieceCount = new int[2];
-    private int saveCounter = 0;
+    private int[] pieceCount = new int[2];  //0 - black , 1 - red
     private Simple engine;
 
     private boolean multiplayer = false;
@@ -113,7 +113,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     protected BluetoothInterface bluetoothInterface;
     private boolean firstTransmission = true;
     private boolean firstReception = true;
-    private Label timeDisplay;
+    private Label timeDisplay, red, black;
     private BitmapFont hudFont;
 
     public void newGame() {                            //creates a new game
@@ -234,6 +234,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         batch = new SpriteBatch();
 
         timeDisplay = new Label("", getSkin());
+        red = new Label("", getSkin());
+        black = new Label("", getSkin());
         initGame();
     }
 
@@ -274,10 +276,39 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         setupScreen();
 
+        pieceCount();
+
         timer = true;
     }
 
     private final Vector2 stageCoords = new Vector2();
+
+    private void pieceCount() {
+
+        pieceCount[0] = 0;
+        pieceCount[1] = 0;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                if (board[row][col] == (Simple.BLACKPAWN))
+                    pieceCount[0]++;
+                if (board[row][col] == (Simple.BLACKKING))
+                    pieceCount[0]++;
+                if (board[row][col] == (Simple.WHITEKING))
+                    pieceCount[1]++;
+                if (board[row][col] == (Simple.WHITEPAWN))
+                    pieceCount[1]++;
+            }
+        }
+
+        String blackCount = String.format("Black: %s", StringUtils.leftPad("" + pieceCount[0], 2, "0"));
+        String redCount = String.format("Red: %s", StringUtils.leftPad("" + pieceCount[1], 2, "0"));
+
+        red.setText(redCount);
+        black.setText(blackCount);
+
+    }
 
     @Override
     public void render(float delta) {
@@ -374,8 +405,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         renderHud(batch);
 
-        save();
-
     }
 
     @Override
@@ -414,68 +443,52 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         drawPieces(height, width);
 
         Table layerBoard = drawBoard();
-
+        Table t1 = new Table(getSkin());
+        t1.setBackground("dialog");
+        //t1.setDebug(true);
+        t1.pad(10);
+        t1.setFillParent(true);
+        t1.top().add(opponentHud());
+        t1.row();
+        t1.center().add().prefHeight(Constants.GAME_HEIGHT);
+        t1.row();
+        t1.bottom().add(hud()).padBottom(60).fill();
 
         Stack stack = new Stack();
         stack.setSize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
-        stack.add(backGround());
-        stack.add(hud());
-        stack.add(opponentHud());
+        stack.add(t1);
         stack.add(layerBoard);
         stage.addActor(stack);
-
         boardStage.addActor(gameBoard);
     }
 
-    private Table backGround() {
-        Table layer = new Table();
-        Image bg = new Image(getSkin().getDrawable("background"));
-        layer.add(bg).height(Constants.GAME_HEIGHT).width(Constants.GAME_WIDTH).expandX().expandY();
-        return layer;
-    }
 
     private Table hud() {
-        Table layer = new Table();
+        Table layer = new Table(getSkin());
+        layer.setBackground("dialog");
         layer.bottom().setWidth(Constants.GAME_WIDTH);
-
-
         blackName.setAlignment(Align.center);
-        layer.add(blackTurn).size(30, 30).center().padBottom(80);
-        layer.add(blackName).size(320, 60).left().padBottom(80);
-        layer.row();
+        layer.add(blackTurn).center().size(30, 30);
+        layer.add(blackName).left().size(180, 60);
         return layer;
     }
 
     private Table opponentHud() {
-        Table layer = new Table(getSkin());
-        layer.setBackground("dialog");
-        layer.setSize(Constants.GAME_WIDTH,150);
-        layer.defaults().height(new Value.Fixed(50));
-        layer.top();
-        layer.defaults().pad(0);
-        layer.setWidth(Constants.GAME_WIDTH);
-
-        String strTime = getScreenTime();
-
-        Label red, black, time;
-        red = new Label("Red: 12", getSkin());
-        black = new Label("Black: 12", getSkin());
-        time = new Label("time", getSkin());
+        Table hud = new Table(getSkin());
+        hud.setBackground("dialog");
 
         red.setAlignment(Align.center);
         black.setAlignment(Align.center);
         timeDisplay.setAlignment(Align.center);
 
-        time.setText(strTime);
-
-        layer.add(red).left().padTop(2);
-        layer.add(timeDisplay).center().padTop(2);
-        layer.add(black).right().padTop(2);
-        layer.row();
+        hud.add(red).left().padTop(2);
+        hud.add(timeDisplay).center().padTop(2);
+        hud.add(black).right().padTop(2);
+        hud.row();
         whiteName.setAlignment(Align.center);
-        layer.add(whiteTurn).size(30, 30).center().padTop(5);
-        layer.add(whiteName).size(180, 60).left().padTop(5);
-        return layer;
+        hud.add(whiteTurn).size(30, 30).center().padTop(5);
+        hud.add(whiteName).size(180, 60).left().padTop(5);
+        return hud;
     }
 
     private Table drawBoard() {
@@ -490,8 +503,9 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     private Group board(int rows, int cols) {
 
-        panel = new Panel(getSkin().getPatch("border"));
+        panel = new Panel(getSkin().getPatch("dialog"));
         panel.setTouchable(Touchable.childrenOnly);
+
 
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = hudFont;
@@ -499,7 +513,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         backgroundTiles = new Tile[rows * cols];
 
-        cellsize = ((Constants.GAME_WIDTH - cols) / (cols));
+        cellsize = (((Constants.GAME_WIDTH - 6) - cols) / (cols));
         float padding = (Constants.GAME_WIDTH - (cellsize * cols)) / 2;
         int index = 0;
 
@@ -566,7 +580,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                     humanTurn = false;
                     playerTurn = getPlayer();
                     opponentMove = true;
-
+                    pieceCount();
                 }
             }
         })));
@@ -712,6 +726,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
                             drawPieces(8, 8);
 
+                            pieceCount();
+
                             if (((playerTurn == Simple.BLACK) && (result == 200000))) {
                                 winner = Simple.BLACK;
                                 gameOver = true;
@@ -796,7 +812,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
     }
 
-
     @Override
     public boolean keyDown(int keycode) {
 
@@ -860,18 +875,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     public void save() {
 
-        int minutes = (int) ((secondsTime / 60) % 60);
-        //save after every 1 minutes
-        if ((minutes - saveCounter) == 1) {
-            GameObject obj = new GameObject();
-            obj.setName("test");
-            obj.setBoard(board);
-            obj.setDate(new Date());
-            obj.setMultiplayer(multiplayer);
-            obj.setTurn(playerTurn);
-            SaveUtil.save(obj);
-            saveCounter++;
-        }
+        GameObject obj = new GameObject();
+        obj.setName("test");
+        obj.setBoard(board);
+        obj.setDate(new Date());
+        obj.setMultiplayer(multiplayer);
+        obj.setTurn(playerTurn);
+        SaveUtil.save(obj);
     }
 
     private void renderHud(SpriteBatch batch) {
@@ -911,13 +921,23 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         gameOver.show(dialogStage); // actually show the dialog
     }
 
-    public Label getInfoLabel() {
-        return infoLabel;
+    public void showDisconnected() {
+
+        String text = "Disconnected";
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        gameOver.text("You have been disconnected from your opponent.");
+
+        gameOver.button("OK", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
     }
 
-    public void setInfoLabel(Label infoLabel) {
-        this.infoLabel = infoLabel;
-    }
 
     @Override
     public void updatePeer(CBMove move) {
@@ -1022,6 +1042,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     @Override
     public void keyBackPressed() {
         super.keyBackPressed();
+        save();
         game.setScreen(new LevelScreen(game));
     }
 }

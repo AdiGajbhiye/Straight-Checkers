@@ -64,7 +64,7 @@ public class HostScreen extends AbstractScreen {
 
         getTable().row();
 
-        infoLabel = new Label("", getSkin(), "black-text");
+        infoLabel = new Label("", getSkin());
         infoLabel.setAlignment(Align.center);
         getTable().add(infoLabel).spaceBottom(15).left().colspan(2);
         getTable().row();
