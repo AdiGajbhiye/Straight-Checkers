@@ -1,0 +1,8 @@
+1. update host screen, add continuous progress bar when waiting for opponents
+2. update join screnn, add continuous progress bar when scanning for opponents
+3. add leaders board for multiplayer mode
+4. load saved games
+5. disable game save in multiplayer  mode, to be added later
+6. add proguard config
+7. deploy app
+8. add draw, resign options

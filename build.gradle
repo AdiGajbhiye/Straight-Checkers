@@ -40,6 +40,7 @@ project(":desktop") {
 
 project(":android") {
     apply plugin: "android"
+    apply from: 'release-signing.gradle'
 
     configurations { natives }
 

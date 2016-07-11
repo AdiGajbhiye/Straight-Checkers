@@ -1,0 +1,22 @@
+Properties props = new Properties()
+props.load(new FileInputStream(file("iogarage-app-keystore.properties")))
+
+android {
+    signingConfigs {
+         release {
+             storeFile file(props['keystore'])
+             storePassword props['keystore.password']
+             keyAlias props['key.alias']
+             keyPassword props['key.password']
+         }
+     }
+    buildTypes {
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile 'proguard-project.txt'
+        }
+    }
+
+}
