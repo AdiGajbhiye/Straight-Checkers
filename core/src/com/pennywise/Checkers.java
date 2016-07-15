@@ -93,7 +93,6 @@ public class Checkers extends Game {
                     .getInfoLabel()
                     .setText(
                             "Bluetooth is NOT discoverable!");
-            ((HostScreen) getScreen()).getBackButton().setVisible(true);
 
         }
     }
@@ -178,7 +177,6 @@ public class Checkers extends Game {
             } else if (bluetoothInterface.isListening()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Waiting for opponent...");
-                ((HostScreen) getScreen()).getBackButton().setVisible(true);
             } else if (bluetoothInterface.isConnecting()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Connecting...");

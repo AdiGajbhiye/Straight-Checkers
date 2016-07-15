@@ -6,3 +6,5 @@
 6. add proguard config
 7. deploy app
 8. add draw, resign options
+9. there is no game over dialog in multiplayer mode
+

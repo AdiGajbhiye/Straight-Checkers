@@ -38,8 +38,8 @@ public class SaveUtil {
 
     }
 
-    public static void saveUserData(String preference, Player player) {
-        Preferences pref = Gdx.app.getPreferences(preference);
+    public static void savePlayer(Player player) {
+        Preferences pref = Gdx.app.getPreferences(Constants.USER_FILE);
         pref.putString(Constants.NAME, player.getName());
         pref.putInteger(Constants.COLOR, player.getColor());
         pref.putBoolean(Constants.HOST, player.isHost());
@@ -47,8 +47,8 @@ public class SaveUtil {
 
     }
 
-    public static Player loadUserData(String preference) {
-        Preferences pref = Gdx.app.getPreferences(preference);
+    public static Player loadPlayer() {
+        Preferences pref = Gdx.app.getPreferences(Constants.USER_FILE);
 
         String name = pref.getString(Constants.NAME, "Player 1");
         int color = pref.getInteger(Constants.COLOR, Simple.BLACK);

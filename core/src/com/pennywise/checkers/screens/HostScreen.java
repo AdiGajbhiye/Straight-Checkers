@@ -2,8 +2,9 @@ package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -25,12 +26,7 @@ public class HostScreen extends AbstractScreen {
 
     private Label infoLabel;
     private TextField playerName;
-    private CheckBox redPlayer;
-    private CheckBox blackPlayer;
-    private TextButton backButton;
-    private TextButton hostButton;
-    private Label colorLabel;
-    private Label nameLabel;
+    private ProgressBar waitProgress;
     private Player player;
 
 
@@ -39,47 +35,62 @@ public class HostScreen extends AbstractScreen {
         bluetoothInterface = game.getBluetoothInterface();
         game.setHost(true);
         game.setMultiplayer(true);
-        player = SaveUtil.loadUserData(Constants.USER_FILE);
+        player = SaveUtil.loadPlayer();
     }
 
     public Label getInfoLabel() {
         return infoLabel;
     }
 
-    public void setInfoLabel(Label infoLabel) {
-        this.infoLabel = infoLabel;
-    }
-
-    public TextButton getBackButton() {
-        return backButton;
-    }
-
-    public void setBackButton(TextButton backButton) {
-        this.backButton = backButton;
-    }
-
     @Override
     public void show() {
 
 
+        getTable().setBackground("dialog");
+        getTable().pad(10);
+
+        Label welcomeLabel = new Label("Host Game", getSkin());
+        welcomeLabel.setAlignment(Align.center);
+        Table gameTitle = new Table(getSkin());
+        gameTitle.setBackground("dialog");
+        gameTitle.setDebug(true);
+        gameTitle.add(welcomeLabel).center().size(Constants.GAME_WIDTH * 0.90f, 80);
+        getTable().top().add(gameTitle).fillX();
         getTable().row();
+
+        Table menuContainer = new Table(getSkin());
+        menuContainer.setBackground("dialog");
+        getTable().add(menuContainer).fill();
+
+        Label name = new Label("Player Name:", getSkin());
+        welcomeLabel.setAlignment(Align.left);
+        menuContainer.left().add(name).expandX().padLeft(20).padBottom(10);
+        menuContainer.row();
+
+        playerName = new TextField(player.getName(), getSkin());
+        menuContainer.add(playerName).size(360, 70).padBottom(30).padLeft(20);
+
+        menuContainer.row();
 
         infoLabel = new Label("", getSkin());
+        infoLabel.setWidth(Constants.GAME_WIDTH * 0.85f);
         infoLabel.setAlignment(Align.center);
-        getTable().add(infoLabel).spaceBottom(15).left().colspan(2);
-        getTable().row();
+        infoLabel.setWrap(true);
+        menuContainer.left().add(infoLabel).pad(15);
 
-        hostButton = new TextButton("Start Hosting", getSkin());
-        getTable().add(hostButton).size(360, 70).center().colspan(2).uniform().spaceBottom(30);
-        hostButton.addListener(new ChangeListener() {
+        menuContainer.row();
+
+        final TextButton game2Button = new TextButton("Start Hosting", getSkin());
+        menuContainer.add(game2Button).size(360, 70).padTop(25).padBottom(25);
+        game2Button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
                 //save player data
-                player.setName(bluetoothInterface.getName());
+                player.setName(playerName.getText());
                 player.setHost(true);
                 player.setColor(Simple.BLACK);
-                SaveUtil.saveUserData(Constants.USER_FILE, player);
+                SaveUtil.savePlayer(player);
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {
                     // Check if bluetooth is discoverable. If not, make it discoverable.
@@ -91,7 +102,6 @@ public class HostScreen extends AbstractScreen {
                     } else {
                         Gdx.app.log(LOG, "isBluetoothDiscoverable = "
                                 + bluetoothInterface.isBluetoothDiscoverable());
-                        backButton.setVisible(true);
                         bluetoothInterface.startConnectionListening();
                     }
                 }
@@ -103,19 +113,21 @@ public class HostScreen extends AbstractScreen {
             }
         });
 
-        getTable().row();
+        menuContainer.row();
 
-        backButton = new TextButton("Back", getSkin());
-        getTable().add(backButton).size(360, 70).center().colspan(2).uniform();
-        backButton.addListener(new ChangeListener() {
+        final TextButton quit = new TextButton("Back", getSkin());
+        menuContainer.add(quit).size(360, 70).padBottom(25).padTop(25);
+        quit.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                AudioManager.playClick();
-                bluetoothInterface.stopConnectionListening();
+                if (bluetoothInterface.isListening())
+                    bluetoothInterface.stopConnectionListening();
                 game.setScreen(new MultiplayerScreen(game));
             }
         });
 
+        menuContainer.row();
+        menuContainer.add().prefHeight(200);
 
     }
 

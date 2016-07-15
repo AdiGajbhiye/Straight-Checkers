@@ -462,7 +462,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         boardStage.addActor(gameBoard);
     }
 
-
     private Table hud() {
         Table layer = new Table(getSkin());
         layer.setBackground("dialog");
@@ -979,6 +978,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         CBMove cbMove = transmissionPackage.getMove();
 
         SequenceAction sequenceAction = new SequenceAction();
+
         if (cbMove.from == null || cbMove.to == null)
             return;
 
@@ -1027,7 +1027,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         //update
         if (cpuPiece != null)
-
         {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
