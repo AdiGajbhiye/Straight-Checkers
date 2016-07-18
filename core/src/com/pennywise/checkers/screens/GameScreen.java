@@ -242,7 +242,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     protected void initGame() {
 
         multiplayer = game.isMultiplayer();
-        player = SaveUtil.loadUserData(Constants.USER_FILE);
+        player = SaveUtil.loadPlayer();
 
         whiteName = new Label("Player name:", getSkin());
         blackName = new Label("Player name:", getSkin());

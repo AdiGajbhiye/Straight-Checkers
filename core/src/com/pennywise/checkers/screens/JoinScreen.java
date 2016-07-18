@@ -103,7 +103,7 @@ public class JoinScreen extends AbstractScreen {
                         && !bluetoothInterface.isConnecting()) {
 
                     Player player = new Player(bluetoothInterface.getName(), 0, false);
-                    SaveUtil.saveUserData(Constants.USER_FILE, player);
+                    SaveUtil.savePlayer(player);
                     // To get the MAC from the string subtract the length of the
                     // MAC from the end of the string
                     // and get the substring beginning at that index.

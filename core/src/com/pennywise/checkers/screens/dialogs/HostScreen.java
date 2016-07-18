@@ -2,14 +2,12 @@ package com.pennywise.checkers.screens.dialogs;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.pennywise.Checkers;
-import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.engine.Simple;
 import com.pennywise.checkers.core.persistence.Player;
 import com.pennywise.checkers.core.persistence.SaveUtil;
@@ -27,8 +25,6 @@ public class HostScreen extends AbstractScreen {
 
     private Label infoLabel;
     private TextField playerName;
-    private CheckBox redPlayer;
-    private CheckBox blackPlayer;
     private TextButton backButton;
     private TextButton hostButton;
     private Label colorLabel;
@@ -41,7 +37,7 @@ public class HostScreen extends AbstractScreen {
         bluetoothInterface = game.getBluetoothInterface();
         game.setHost(true);
         game.setMultiplayer(true);
-        player = SaveUtil.loadUserData(Constants.USER_FILE);
+        player = SaveUtil.loadPlayer();
     }
 
     public Label getInfoLabel() {
@@ -81,7 +77,7 @@ public class HostScreen extends AbstractScreen {
                 player.setName(bluetoothInterface.getName());
                 player.setHost(true);
                 player.setColor(Simple.BLACK);
-                SaveUtil.saveUserData(Constants.USER_FILE, player);
+                SaveUtil.savePlayer(player);
                 // Check if the Android device supports bluetooth.
                 if (bluetoothInterface.isBluetoothSupported()) {
                     // Check if bluetooth is discoverable. If not, make it discoverable.
