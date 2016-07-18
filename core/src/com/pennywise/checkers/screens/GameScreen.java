@@ -41,6 +41,7 @@ import com.pennywise.checkers.core.persistence.SaveUtil;
 import com.pennywise.checkers.objects.Panel;
 import com.pennywise.checkers.objects.Piece;
 import com.pennywise.checkers.objects.Tile;
+import com.pennywise.checkers.screens.dialogs.GameDialog;
 import com.pennywise.checkers.screens.dialogs.GameOver;
 import com.pennywise.managers.MultiplayerDirector;
 import com.pennywise.multiplayer.BluetoothInterface;
@@ -250,14 +251,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         if (multiplayer) {
             if (player.isHost()) {
                 if (player.getColor() == Simple.BLACK) {
-                    blackName.setText("Me"/*player.getName()*/);
+                    blackName.setText(player.getName());
                     playerTurn = humanPlayer = Simple.BLACK;
                     humanTurn = true;
                 } else {
                     humanTurn = false;
                     playerTurn = Simple.BLACK;
                     humanPlayer = Simple.WHITE;
-                    whiteName.setText("Me"/*player.getName()*/);
+                    whiteName.setText(player.getName());
                 }
 
             } else {
@@ -269,7 +270,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         } else {
             humanPlayer = playerTurn;
             whiteName.setText("Droid");
-            blackName.setText("Me");
+            blackName.setText(player.getName());
         }
 
         newGame();
@@ -900,7 +901,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         else
             text = "Droid Wins!";
 
-
         final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
         gameOver.text("Game Over, Play again?");
 
@@ -913,11 +913,40 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         });
         gameOver.button("No", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.exit();
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
                 return false;
             }
         });
         gameOver.show(dialogStage); // actually show the dialog
+    }
+
+
+    public void showGameDialog() {
+
+        String text = "Straight Checkers!";
+
+        final GameDialog gameDialog = new GameDialog(text, getSkin()); // this is the dialog title
+        gameDialog.content("Poke", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameDialog.hide();
+                return true;
+            }
+        });
+        gameDialog.content("Offer Draw", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameDialog.hide();
+                return true;
+            }
+        });
+        gameDialog.content("Resign", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameDialog.hide();
+                return true;
+            }
+        });
+
+        gameDialog.show(dialogStage); // actually show the dialog
     }
 
     public void showDisconnected() {
@@ -1026,8 +1055,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 ));
 
         //update
-        if (cpuPiece != null)
-        {
+        if (cpuPiece != null) {
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
