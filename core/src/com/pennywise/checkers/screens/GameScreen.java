@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -200,27 +201,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         transmissionPackagePool = new TransmissionPackagePool();
         bluetoothInterface = game.getBluetoothInterface();
 
-        Gdx.input.setCatchBackKey(true);
+        engine = new Simple();
 
-        Gdx.input.setInputProcessor(new InputAdapter() {
+        stage.addListener(new InputListener() {
             @Override
-            public boolean keyUp(final int keycode) {
-                if (keycode == Input.Keys.BACK) {
-                    Gdx.app.log("Score", "Back");
-                    keyBackPressed();
+            public boolean keyUp(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE) {
+                   return true;
                 }
                 return false;
             }
         });
-
-
-        engine = new Simple();
-
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new InputMultiplexer(this, dialogStage));
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, stage, dialogStage));
 
         hudFont = Util.loadFont("fonts/Roboto-Regular.ttf", 32, Color.BLACK);
 
@@ -464,12 +460,22 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     private Table hud() {
+
+        ImageButton menu = new ImageButton(getSkin(), "hamburgerMenu");
+
+        menu.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                showGameDialog();
+                return true;
+            }
+        });
+
         Table layer = new Table(getSkin());
         layer.setBackground("dialog");
-        layer.bottom().setWidth(Constants.GAME_WIDTH);
         blackName.setAlignment(Align.center);
-        layer.add(blackTurn).center().size(30, 30);
-        layer.add(blackName).left().size(180, 60);
+        layer.left().add(blackTurn).center().size(30, 30).padLeft(20);
+        layer.center().add(blackName).center().size(180, 60).expandX();
+        layer.right().add(menu).center().size(50, 60);
         return layer;
     }
 
@@ -486,8 +492,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         hud.add(black).right().padTop(2);
         hud.row();
         whiteName.setAlignment(Align.center);
-        hud.add(whiteTurn).size(30, 30).center().padTop(5);
-        hud.add(whiteName).size(180, 60).left().padTop(5);
+        hud.left().add(whiteTurn).size(30, 30).center().padLeft(20).padTop(5);
+        hud.center().add(whiteName).size(180, 60).center().expandX().padTop(5);
         return hud;
     }
 
@@ -812,52 +818,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         }
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-
-
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        if (keycode == Input.Keys.BACK) {
-            Gdx.app.log("Score", "Back");
-            keyBackPressed();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
-    }
-
     /**
      * Get screen time from start in format of HH:MM:SS. It is calculated from
      * "secondsTime" parameter, reset that to get resetted time.
@@ -1067,9 +1027,42 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     @Override
-    public void keyBackPressed() {
-        super.keyBackPressed();
-        save();
-        game.setScreen(new LevelScreen(game));
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
     }
 }
