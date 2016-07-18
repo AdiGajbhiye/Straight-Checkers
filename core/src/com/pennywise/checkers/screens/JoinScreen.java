@@ -6,7 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -34,6 +36,8 @@ public class JoinScreen extends AbstractScreen {
     private TextButton connectButton;
     private Skin skin;
     Set<String> devices;
+    Player player;
+    private TextField playerName;
 
     public JoinScreen(Checkers game) {
         super(game);
@@ -58,26 +62,61 @@ public class JoinScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        infoLabel = new Label("", skin);
-        infoLabel.setAlignment(Align.center);
-        getTable().padTop(60);
-        getTable().add(infoLabel).spaceBottom(5).spaceTop(5).colspan(2);
+
+        player = SaveUtil.loadPlayer();
+
+        getTable().setBackground("dialog");
+        getTable().pad(10);
+
+        Label welcomeLabel = new Label("Join Game", getSkin());
+        welcomeLabel.setAlignment(Align.center);
+        Table gameTitle = new Table(getSkin());
+        gameTitle.setBackground("dialog");
+        gameTitle.add(welcomeLabel).center().size(Constants.GAME_WIDTH * 0.88f, 80);
+        getTable().top().add(gameTitle).fillX();
         getTable().row();
 
+
+        Table menuContainer = new Table(getSkin());
+        menuContainer.setBackground("dialog");
+        getTable().add(menuContainer).fill();
+
+        Label name = new Label("Player Name:", getSkin());
+        name.setAlignment(Align.left);
+        menuContainer.left().add(name).left().size(Constants.GAME_WIDTH * 0.88f, 50).padLeft(5);
+        menuContainer.row();
+
+        playerName = new TextField(player.getName(), getSkin());
+        menuContainer.left().add(playerName).left().size(Constants.GAME_WIDTH * 0.88f, 70).padBottom(15).padLeft(5);
+
+        menuContainer.row();
+
+        infoLabel = new Label("sadasdasdsdasda asdasdas\nasdasdasdas dasddasdas", getSkin());
+        infoLabel.setAlignment(Align.left);
+        infoLabel.setWrap(true);
+        menuContainer.left().add(infoLabel).left().size(Constants.GAME_WIDTH * 0.88f, 70).pad(5);
+
+        menuContainer.row();
+
         // Empty list
-        devicesList = new List(skin,"dimmed");
+        devicesList = new List(skin, "dimmed");
         devicesList.setItems(new Array<Object>());
         devicesList.pack();
         devicesListScrollPane = new ScrollPane(devicesList, skin);
-        devicesListScrollPane.setSize(Constants.GAME_WIDTH - 20, Constants.GAME_HEIGHT * 0.55f);
+        devicesListScrollPane.setSize(Constants.GAME_WIDTH * 0.88f, Constants.GAME_HEIGHT * 0.20f);
 
-        getTable().add(devicesListScrollPane).center().colspan(2)
-                .spaceBottom(5).width(Constants.GAME_WIDTH - 20).height(Constants.GAME_HEIGHT * 0.60f).expand();
-        getTable().row();
+        menuContainer.center().add(devicesListScrollPane).center()
+                .spaceBottom(5).width(Constants.GAME_WIDTH * 0.88f).height(Constants.GAME_HEIGHT * 0.30f).expand();
+        menuContainer.row();
+
+        Table footer = new Table(getSkin());
+        footer.setBackground("dialog");
+        menuContainer.bottom().add(footer).fillX();
+        menuContainer.row();
 
         scanButton = new TextButton("Scan", skin);
-        getTable().add(scanButton).size(220, 70).expand()
-                .padBottom(60).spaceLeft(5);
+        footer.add(scanButton).size(200, 70).expand()
+                .padBottom(10).spaceLeft(5);
         scanButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -93,11 +132,11 @@ public class JoinScreen extends AbstractScreen {
 
 
         connectButton = new TextButton("Connect", skin);
-        getTable().add(connectButton).size(220, 70).expand()
-                .padBottom(60).spaceRight(5);
+        footer.add(connectButton).size(200, 70).expand()
+                .padBottom(10).spaceRight(5);
         connectButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 AudioManager.playClick();
                 if (!bluetoothInterface.isDiscovering()
                         && !bluetoothInterface.isConnecting()) {
@@ -120,30 +159,24 @@ public class JoinScreen extends AbstractScreen {
             }
         });
 
+        Gdx.app.log(LOG, "isBluetoothEnabled = " + bluetoothInterface.isBluetoothEnabled());
+        infoLabel.setText("Select device to connect!");
+        listDevices();
+
         // Check if the Android device supports bluetooth.
         if (bluetoothInterface.isBluetoothSupported()) {
             // Check if bluetooth is enabled. If not, enable it.
             if (!bluetoothInterface.isBluetoothEnabled()) {
-                Gdx.app.log(
-                        LOG,
-                        "isBluetoothEnabled = "
-                                + bluetoothInterface.isBluetoothEnabled());
+                Gdx.app.log(LOG, "isBluetoothEnabled = " + bluetoothInterface.isBluetoothEnabled());
                 bluetoothInterface.enableBluetooth();
             } else {
-                Gdx.app.log(
-                        LOG,
-                        "isBluetoothEnabled = "
-                                + bluetoothInterface.isBluetoothEnabled());
-                infoLabel
-                        .setText("Select device to connect!");
-                listDevices();
             }
         }
         // The Android device does not support bluetooth.
         else {
-            infoLabel
-                    .setText("Bluetooth not supported on this device.");
+            infoLabel.setText("Bluetooth not supported on this device.");
         }
+
     }
 
     private String mac(String deviceName) {

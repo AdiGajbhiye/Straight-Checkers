@@ -3,7 +3,6 @@ package com.pennywise.checkers.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -26,7 +25,6 @@ public class HostScreen extends AbstractScreen {
 
     private Label infoLabel;
     private TextField playerName;
-    private ProgressBar waitProgress;
     private Player player;
 
 
@@ -53,7 +51,6 @@ public class HostScreen extends AbstractScreen {
         welcomeLabel.setAlignment(Align.center);
         Table gameTitle = new Table(getSkin());
         gameTitle.setBackground("dialog");
-        gameTitle.setDebug(true);
         gameTitle.add(welcomeLabel).center().size(Constants.GAME_WIDTH * 0.90f, 80);
         getTable().top().add(gameTitle).fillX();
         getTable().row();
@@ -63,17 +60,17 @@ public class HostScreen extends AbstractScreen {
         getTable().add(menuContainer).fill();
 
         Label name = new Label("Player Name:", getSkin());
-        welcomeLabel.setAlignment(Align.left);
-        menuContainer.left().add(name).expandX().padLeft(20).padBottom(10);
+        name.setAlignment(Align.left);
+        menuContainer.left().add(name).left().size(Constants.GAME_WIDTH * 0.88f, 50).padLeft(5);
         menuContainer.row();
 
         playerName = new TextField(player.getName(), getSkin());
-        menuContainer.add(playerName).size(360, 70).padBottom(30).padLeft(20);
+        menuContainer.left().add(playerName).left().size(Constants.GAME_WIDTH * 0.88f, 70).padBottom(15).padLeft(5);
 
         menuContainer.row();
 
         infoLabel = new Label("", getSkin());
-        infoLabel.setWidth(Constants.GAME_WIDTH * 0.85f);
+        infoLabel.setWidth(Constants.GAME_WIDTH * 0.88f);
         infoLabel.setAlignment(Align.center);
         infoLabel.setWrap(true);
         menuContainer.left().add(infoLabel).pad(15);
