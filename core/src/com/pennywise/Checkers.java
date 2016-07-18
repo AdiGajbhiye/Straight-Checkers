@@ -6,7 +6,6 @@ import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.screens.GameScreen;
 import com.pennywise.checkers.screens.HostScreen;
 import com.pennywise.checkers.screens.JoinScreen;
-import com.pennywise.checkers.screens.LevelScreen;
 import com.pennywise.checkers.screens.MenuScreen;
 import com.pennywise.checkers.screens.MultiplayerScreen;
 import com.pennywise.managers.AdManager;
@@ -91,8 +90,7 @@ public class Checkers extends Game {
         if (getScreen() instanceof HostScreen) {
             ((HostScreen) getScreen())
                     .getInfoLabel()
-                    .setText(
-                            "Bluetooth is NOT discoverable!");
+                    .setText("Bluetooth is NOT discoverable!");
 
         }
     }
@@ -154,7 +152,7 @@ public class Checkers extends Game {
         if (getScreen() instanceof JoinScreen) {
             if (bluetoothInterface.isIdle()) {
                 ((JoinScreen) getScreen()).getInfoLabel().setText(
-                        "Unable to connect. Please try again.");
+                        "Unable to connect. \nPlease try again.");
                 ((JoinScreen) getScreen()).getConnectButton()
                         .setText("Connect");
             } else if (bluetoothInterface.isListening()) {
@@ -173,7 +171,7 @@ public class Checkers extends Game {
         } else if (getScreen() instanceof HostScreen) {
             if (bluetoothInterface.isIdle()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
-                        "There seems to be a problem. Please try again :)");
+                        "There seems to be a problem.\n Please try again :)");
             } else if (bluetoothInterface.isListening()) {
                 ((HostScreen) getScreen()).getInfoLabel().setText(
                         "Waiting for opponent...");
@@ -187,7 +185,7 @@ public class Checkers extends Game {
                 //         .getInfoLabel()
                 //         .setText("Touch screen to start the game!");
             }
-        }else if (getScreen() instanceof GameScreen) {
+        } else if (getScreen() instanceof GameScreen) {
             if (bluetoothInterface.isIdle()) {
                 ((GameScreen) getScreen()).showDisconnected();
             } else if (bluetoothInterface.isListening()) {

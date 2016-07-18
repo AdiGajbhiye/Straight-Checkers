@@ -91,7 +91,7 @@ public class JoinScreen extends AbstractScreen {
 
         menuContainer.row();
 
-        infoLabel = new Label("sadasdasdsdasda asdasdas\nasdasdasdas dasddasdas", getSkin());
+        infoLabel = new Label("", getSkin());
         infoLabel.setAlignment(Align.left);
         infoLabel.setWrap(true);
         menuContainer.left().add(infoLabel).left().size(Constants.GAME_WIDTH * 0.88f, 70).pad(5);
@@ -174,7 +174,7 @@ public class JoinScreen extends AbstractScreen {
         }
         // The Android device does not support bluetooth.
         else {
-            infoLabel.setText("Bluetooth not supported on this device.");
+            infoLabel.setText("Bluetooth not supported\non this device.");
         }
 
     }
