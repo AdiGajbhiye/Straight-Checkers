@@ -1028,12 +1028,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     @Override
     public boolean keyDown(int keycode) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        return false;
+        return true;
     }
 
     @Override

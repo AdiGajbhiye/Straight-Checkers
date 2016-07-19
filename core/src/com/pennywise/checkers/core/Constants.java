@@ -36,4 +36,10 @@ public class Constants {
 
     public static final String USER_FILE = "user_preference";
 
+    //Message Type
+    public static final int MSG_UPDATE = 21;
+    public static final int MSG_RESIGN = 22;
+    public static final int MSG_DRAW = 23;
+    public static final int MSG_POKE = 24;
+
 }

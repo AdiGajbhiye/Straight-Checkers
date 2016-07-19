@@ -12,9 +12,9 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '2.0'
     ext {
-        appName = 'FindWords'
+        appName = 'Straight Checkers'
         gdxVersion = '1.9.2'
     }
 
@@ -54,7 +54,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-        compile 'com.google.android.gms:play-services-ads:8.4.0'
+        compile 'com.google.android.gms:play-services-ads:9.2.0'
     }
 }
 
