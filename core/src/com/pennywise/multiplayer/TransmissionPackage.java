@@ -13,6 +13,7 @@ public class TransmissionPackage implements Serializable, Poolable {
     private CBMove move = null;
     private String name;
     private int color;
+    private int type;
 
     public TransmissionPackage() {
     }
@@ -51,6 +52,14 @@ public class TransmissionPackage implements Serializable, Poolable {
 
     public void setColor(int color) {
         this.color = color;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     @Override
