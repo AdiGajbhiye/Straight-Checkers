@@ -44,6 +44,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 },
 com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	default: { up: button, down: button-down }
+	hamburgerMenu: { up: hamburger, down: hamburger }
 },
 com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
 	default-vertical: { handle: vertical-split-pane },
