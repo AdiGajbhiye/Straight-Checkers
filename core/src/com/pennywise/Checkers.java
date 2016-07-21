@@ -197,9 +197,30 @@ public class Checkers extends Game {
         }
     }
 
-    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage) {
+    public void updateDataReceived(TransmissionPackage transmissionPackage) {
         MultiplayerDirector director = ((GameScreen) getScreen());
-        director.notify_PeerDataReceived(transmissionPackage);
+        director.notifyUpdateReceived(transmissionPackage);
+    }
+
+
+    public void draw(){
+        MultiplayerDirector director = ((GameScreen) getScreen());
+        director.draw();
+    }
+
+    public void resign(){
+        MultiplayerDirector director = ((GameScreen) getScreen());
+        director.resign();
+    }
+
+    public void rematch(){
+        MultiplayerDirector director = ((GameScreen) getScreen());
+        director.rematch();
+    }
+
+    public void quit(){
+        MultiplayerDirector director = ((GameScreen) getScreen());
+        director.quit();
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.pennywise.checkers.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
@@ -934,18 +933,18 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         transmissionPackage.setGameboard(board);
 
         if (firstTransmission) {
-            transmissionPackage.setName(game.getBluetoothInterface().getName());
+            transmissionPackage.setName(player.getName());
             transmissionPackage.setColor(player.getColor());
             firstTransmission = false;
         }
 
         transmissionPackage.setMove(move);
-        bluetoothInterface.transmitPackage(transmissionPackage);
+        bluetoothInterface.transmitPackage(transmissionPackage,Constants.UPDATE);
         transmissionPackagePool.free(transmissionPackage);
     }
 
     @Override
-    public void notify_PeerDataReceived(TransmissionPackage transmissionPackage) {
+    public void notifyUpdateReceived(TransmissionPackage transmissionPackage) {
         updateBoard(transmissionPackage);
     }
 
@@ -1019,6 +1018,27 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             cpuPiece.toFront();
             cpuPiece.addAction(sequenceAction);
         }
+
+    }
+
+
+    @Override
+    public void resign(){
+
+    }
+
+    @Override
+    public void quit(){
+
+    }
+
+    @Override
+    public void draw(){
+
+    }
+
+    @Override
+    public void rematch(){
 
     }
 

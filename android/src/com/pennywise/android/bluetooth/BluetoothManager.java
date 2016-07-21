@@ -3,9 +3,12 @@ package com.pennywise.android.bluetooth;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
+import android.util.Log;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Json;
@@ -41,7 +44,12 @@ public class BluetoothManager implements BluetoothInterface {
 
     // Message types sent from the Handler (used only for read messages, for
     // now)
-    public static final int MESSAGE_READ = 1;
+    public static final int UPDATE = 0x200;
+    public static final int RESIGN = 0x201;
+    public static final int DRAW = 0x202;
+    public static final int POKE = 0x203;
+    public static final int REMATCH = 0x204;
+    public static final int QUIT = 0x205;
 
     // Request to enable Bluetooth discoverability
     public static final int REQUEST_ENABLE_BT_DISCOVERABILITY = 1;
@@ -66,34 +74,49 @@ public class BluetoothManager implements BluetoothInterface {
     // Communication thread (read(), write())
     private ConnectedThread connectedThread;
 
-    // Here we queue the packages coming from the peer
-    // private Array<TransmissionPackage> incomingPackages = new
-    // Array<TransmissionPackage>();
 
     // The Handler that gets information back from the ConnectedThread
     private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MESSAGE_READ:
+                case UPDATE:
                     byte[] readBuf = (byte[]) msg.obj;
                     try {
                         // Deserialize bytes to Package
                         TransmissionPackage transmissionPackage = (TransmissionPackage) SerializationUtils
                                 .deserialize(readBuf);
                         // Notify game about incoming data
-                        currentActivity.getCheckers().notify_PeerDataReceived(transmissionPackage);
+                        currentActivity.getCheckers().updateDataReceived(transmissionPackage);
                         // Add package to queue
                         // incomingPackages.add(transmissionPackage);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Gdx.app.log("TRX", "Deserialization problem ? " + e.getMessage());
                     }
-
+                    break;
+                case POKE:
+                    poke();
+                    break;
+                case DRAW:
+                    currentActivity.getCheckers().draw();
+                    break;
+                case REMATCH:
+                    currentActivity.getCheckers().rematch();
+                    break;
+                case RESIGN:
+                    currentActivity.getCheckers().resign();
+                    break;
+                case QUIT:
+                    currentActivity.getCheckers().quit();
                     break;
             }
         }
     };
+
+    private void poke() {
+        currentActivity.poke();
+    }
 
     public BluetoothManager(AndroidLauncher currentActivity) {
         this.currentActivity = currentActivity;
@@ -290,11 +313,11 @@ public class BluetoothManager implements BluetoothInterface {
     }
 
     @Override
-    public void transmitPackage(TransmissionPackage transmissionPackage) {
+    public void transmitPackage(TransmissionPackage transmissionPackage, int messageType) {
         try {
             // Serialize package to bytes
             byte[] data = SerializationUtils.serialize(transmissionPackage);
-            connectedThread.write(data);
+            connectedThread.write(data,messageType);
         } catch (Exception e) {
             Gdx.app.log(LOG, "transmitPackage() - " + e.getMessage());
         }

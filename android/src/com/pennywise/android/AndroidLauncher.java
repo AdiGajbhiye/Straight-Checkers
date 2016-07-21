@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -243,4 +245,16 @@ public class AndroidLauncher extends AndroidApplication implements AdManager {
     }
 
 
+    public void poke() {
+
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        if (v.hasVibrator()) {
+            Log.v("Can Vibrate", "YES");
+            v.vibrate(400);
+        } else {
+            Log.v("Can Vibrate", "NO");
+        }
+    }
 }

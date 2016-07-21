@@ -52,6 +52,7 @@ public class ConnectedThread extends Thread {
                 // Read from the InputStream
 
                 int lenght = dis.readInt(); //.read(buffer);
+                final int messageType = dis.readInt();
                 Gdx.app.log(LOG, "Read BYTES: " + lenght);
                 dis.readFully(buffer, 0, lenght);
                 byte[] temp = Util.decompress(buffer);
@@ -63,9 +64,15 @@ public class ConnectedThread extends Thread {
                     public void run() {
                         // Let BluetoothManager's handler handle the incoming
                         // bytes
-                        mBluetoothManager
-                                .getHandler()
-                                .obtainMessage(BluetoothManager.MESSAGE_READ, buffer).sendToTarget();
+                        if(messageType == BluetoothManager.UPDATE) {
+                            mBluetoothManager
+                                    .getHandler()
+                                    .obtainMessage(BluetoothManager.UPDATE, buffer).sendToTarget();
+                        }else{
+                            mBluetoothManager
+                                    .getHandler()
+                                    .obtainMessage(messageType, messageType).sendToTarget();
+                        }
                     }
                 });
             } catch (IOException e) {
@@ -79,10 +86,11 @@ public class ConnectedThread extends Thread {
     }
 
     /* Call this from the main activity to send data to the remote device */
-    public void write(byte[] bytes) {
+    public void write(byte[] bytes,int messageType) {
         try {
             byte[] compressed = Util.compress(bytes);
             dos.writeInt(compressed.length);
+            dos.writeInt(messageType);
             dos.write(compressed);
             Gdx.app.log(LOG, "Written: " + compressed.length);
         } catch (IOException e) {
