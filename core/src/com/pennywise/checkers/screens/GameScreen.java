@@ -68,7 +68,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private final Stage dialogStage;
     private final OrthographicCamera camera;
     private OrthographicCamera hudCam;
-    private Label infoLabel;
     protected TransmissionPackagePool transmissionPackagePool;
 
     SpriteBatch batch;
@@ -111,16 +110,14 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     private Point from = null, dest = null;
     private Player player;
     private Label blackName, whiteName;
-    protected BluetoothInterface bluetoothInterface;
+    private BluetoothInterface bluetoothInterface;
     private boolean firstTransmission = true;
     private boolean firstReception = true;
     private Label timeDisplay, red, black;
     private BitmapFont hudFont;
 
-    public void newGame() {                            //creates a new game
-
+    private void newGame() {                            //creates a new game
         initBoard();
-
     }
 
     void initBoard() {
@@ -206,7 +203,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             @Override
             public boolean keyUp(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE) {
-                   return true;
+                    return true;
                 }
                 return false;
             }
