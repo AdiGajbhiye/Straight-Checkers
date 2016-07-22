@@ -36,11 +36,5 @@ public class Constants {
 
     public static final String USER_FILE = "user_preference";
 
-    //Message Type
-    public static final int UPDATE = 0x200;
-    public static final int RESIGN = 0x201;
-    public static final int DRAW = 0x202;
-    public static final int POKE = 0x203;
-    public static final int REMATCH = 0x204;
-    public static final int QUIT = 0x205;
+
 }

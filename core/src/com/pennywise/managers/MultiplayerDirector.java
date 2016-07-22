@@ -10,14 +10,8 @@ public interface MultiplayerDirector {
 
     void updatePeer(CBMove move);
 
-    void notifyUpdateReceived(TransmissionPackage transmissionPackage);
+    void updateReceived(TransmissionPackage transmissionPackage);
 
-    void draw();
-
-    void resign();
-
-    void rematch();
-
-    void quit();
+    void commandReceived(byte[] cmd);
 
 }

@@ -14,7 +14,7 @@ import java.util.zip.DataFormatException;
 
 public class ConnectedThread extends Thread {
 
-    public static final String LOG = "TRX";
+    private static final String LOG = "TRX";
 
     private BluetoothManager mBluetoothManager;
     private final BluetoothSocket mmSocket;
@@ -64,11 +64,11 @@ public class ConnectedThread extends Thread {
                     public void run() {
                         // Let BluetoothManager's handler handle the incoming
                         // bytes
-                        if(messageType == BluetoothManager.UPDATE) {
+                        if (messageType == BluetoothManager.UPDATE) {
                             mBluetoothManager
                                     .getHandler()
                                     .obtainMessage(BluetoothManager.UPDATE, buffer).sendToTarget();
-                        }else{
+                        } else {
                             mBluetoothManager
                                     .getHandler()
                                     .obtainMessage(messageType, messageType).sendToTarget();
@@ -86,13 +86,10 @@ public class ConnectedThread extends Thread {
     }
 
     /* Call this from the main activity to send data to the remote device */
-    public void write(byte[] bytes,int messageType) {
+    public void write(byte[] bytes) {
         try {
-            byte[] compressed = Util.compress(bytes);
-            dos.writeInt(compressed.length);
-            dos.writeInt(messageType);
-            dos.write(compressed);
-            Gdx.app.log(LOG, "Written: " + compressed.length);
+            dos.write(bytes);
+            Gdx.app.log(LOG, "Written: " + bytes.length);
         } catch (IOException e) {
             Gdx.app.log(LOG, "Write: " + e.getMessage());
         }

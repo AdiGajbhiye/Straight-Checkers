@@ -30,6 +30,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pennywise.Checkers;
+import com.pennywise.checkers.core.CommandBytes;
 import com.pennywise.checkers.core.Constants;
 import com.pennywise.checkers.core.Util;
 import com.pennywise.checkers.core.engine.CBMove;
@@ -50,6 +51,7 @@ import com.pennywise.multiplayer.TransmissionPackagePool;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.Date;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
@@ -826,7 +828,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         String secondsStr = (seconds < 10 ? "0" : "") + seconds;
         String minutesStr = (minutes < 10 ? "0" : "") + minutes;
         String hoursStr = (hours < 10 ? "0" : "") + hours;
-        return new String(hoursStr + ":" + minutesStr + ":" + secondsStr);
+        return hoursStr + ":" + minutesStr + ":" + secondsStr;
     }
 
     public void save() {
@@ -878,25 +880,28 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
 
-    public void showGameDialog() {
+    private void showGameDialog() {
 
         String text = "Straight Checkers!";
 
         final GameDialog gameDialog = new GameDialog(text, getSkin()); // this is the dialog title
         gameDialog.content("Poke", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                poke();
                 gameDialog.hide();
                 return true;
             }
         });
         gameDialog.content("Offer Draw", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                offerDraw();
                 gameDialog.hide();
                 return true;
             }
         });
         gameDialog.content("Resign", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                resign();
                 gameDialog.hide();
                 return true;
             }
@@ -905,7 +910,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         gameDialog.show(dialogStage); // actually show the dialog
     }
 
-    public void showDisconnected() {
+    private void showDisconnected() {
 
         String text = "Disconnected";
 
@@ -926,22 +931,26 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     @Override
     public void updatePeer(CBMove move) {
 
-        TransmissionPackage transmissionPackage = transmissionPackagePool.obtain();
-        transmissionPackage.setGameboard(board);
+        try {
+            TransmissionPackage transmissionPackage = transmissionPackagePool.obtain();
+            transmissionPackage.setGameboard(board);
 
-        if (firstTransmission) {
-            transmissionPackage.setName(player.getName());
-            transmissionPackage.setColor(player.getColor());
-            firstTransmission = false;
+            if (firstTransmission) {
+                transmissionPackage.setName(player.getName());
+                transmissionPackage.setColor(player.getColor());
+                firstTransmission = false;
+            }
+
+            transmissionPackage.setMove(move);
+            bluetoothInterface.transmitPackage(CommandBytes.commandUpdate(transmissionPackage));
+            transmissionPackagePool.free(transmissionPackage);
+        } catch (IOException io) {
+            io.printStackTrace();
         }
-
-        transmissionPackage.setMove(move);
-        bluetoothInterface.transmitPackage(transmissionPackage,Constants.UPDATE);
-        transmissionPackagePool.free(transmissionPackage);
     }
 
     @Override
-    public void notifyUpdateReceived(TransmissionPackage transmissionPackage) {
+    public void updateReceived(TransmissionPackage transmissionPackage) {
         updateBoard(transmissionPackage);
     }
 
@@ -1018,25 +1027,41 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
     }
 
-
     @Override
-    public void resign(){
+    public void commandReceived(byte[] cmd) {
 
+        byte command = cmd[1];
+
+        switch (command) {
+            case CommandBytes.COMMAND_DRAW:
+                break;
+            case CommandBytes.COMMAND_POKE:
+                break;
+            case CommandBytes.COMMAND_QUIT:
+                break;
+            case CommandBytes.COMMAND_REMATCH:
+                break;
+        }
     }
 
-    @Override
-    public void quit(){
-
+    private void poke() {
+        bluetoothInterface.transmitPackage(CommandBytes.commandPoke(player.getColor()));
     }
 
-    @Override
-    public void draw(){
-
+    private void resign() {
+        bluetoothInterface.transmitPackage(CommandBytes.commandResign(player.getColor()));
     }
 
-    @Override
-    public void rematch(){
+    private void quit() {
+        bluetoothInterface.transmitPackage(CommandBytes.commandQuit(player.getColor()));
+    }
 
+    private void offerDraw() {
+        bluetoothInterface.transmitPackage(CommandBytes.commandDraw(player.getColor()));
+    }
+
+    private void offerRematch() {
+        bluetoothInterface.transmitPackage(CommandBytes.commandRematch(player.getColor()));
     }
 
     public int getPlayer() {

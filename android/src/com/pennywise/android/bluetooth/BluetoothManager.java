@@ -3,15 +3,11 @@ package com.pennywise.android.bluetooth;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Vibrator;
-import android.util.Log;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Json;
 import com.pennywise.android.AndroidLauncher;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
@@ -285,22 +281,22 @@ public class BluetoothManager implements BluetoothInterface {
 
     @Override
     public boolean isIdle() {
-        return (state == STATE_IDLE) ? true : false;
+        return (state == STATE_IDLE);
     }
 
     @Override
     public boolean isListening() {
-        return (state == STATE_LISTEN) ? true : false;
+        return (state == STATE_LISTEN);
     }
 
     @Override
     public boolean isConnecting() {
-        return (state == STATE_CONNECTING) ? true : false;
+        return (state == STATE_CONNECTING);
     }
 
     @Override
     public boolean isConnected() {
-        return (state == STATE_CONNECTED) ? true : false;
+        return (state == STATE_CONNECTED);
     }
 
     @Override
@@ -313,14 +309,8 @@ public class BluetoothManager implements BluetoothInterface {
     }
 
     @Override
-    public void transmitPackage(TransmissionPackage transmissionPackage, int messageType) {
-        try {
-            // Serialize package to bytes
-            byte[] data = SerializationUtils.serialize(transmissionPackage);
-            connectedThread.write(data,messageType);
-        } catch (Exception e) {
-            Gdx.app.log(LOG, "transmitPackage() - " + e.getMessage());
-        }
+    public void transmitPackage(byte[] data) {
+        connectedThread.write(data);
     }
 
 }

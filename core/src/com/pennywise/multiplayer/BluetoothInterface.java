@@ -134,9 +134,9 @@ public interface BluetoothInterface {
     /**
      * Transmits the transmissionPackage to the peer.
      *
-     * @param transmissionPackage the package to be transmitted to the peer
+     * @param data the package to be transmitted to the peer
      */
-    public void transmitPackage(TransmissionPackage transmissionPackage, int messageType);
+    public void transmitPackage(byte [] data);
 
     /**
      * Return the next (first in queue) TransmissionPackage that came from the
