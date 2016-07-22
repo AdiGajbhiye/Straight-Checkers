@@ -187,7 +187,7 @@ public class Checkers extends Game {
             }
         } else if (getScreen() instanceof GameScreen) {
             if (bluetoothInterface.isIdle()) {
-                ((GameScreen) getScreen()).showDisconnected();
+
             } else if (bluetoothInterface.isListening()) {
 
             } else if (bluetoothInterface.isConnecting()) {
@@ -199,28 +199,13 @@ public class Checkers extends Game {
 
     public void updateDataReceived(TransmissionPackage transmissionPackage) {
         MultiplayerDirector director = ((GameScreen) getScreen());
-        director.notifyUpdateReceived(transmissionPackage);
+        director.updateReceived(transmissionPackage);
     }
 
 
-    public void draw(){
+    public void onCommandReceived(byte[] data) {
         MultiplayerDirector director = ((GameScreen) getScreen());
-        director.draw();
-    }
-
-    public void resign(){
-        MultiplayerDirector director = ((GameScreen) getScreen());
-        director.resign();
-    }
-
-    public void rematch(){
-        MultiplayerDirector director = ((GameScreen) getScreen());
-        director.rematch();
-    }
-
-    public void quit(){
-        MultiplayerDirector director = ((GameScreen) getScreen());
-        director.quit();
+        director.commandReceived(data);
     }
 
     @Override

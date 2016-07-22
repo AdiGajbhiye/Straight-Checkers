@@ -9,6 +9,7 @@ import android.os.Message;
 
 import com.badlogic.gdx.Gdx;
 import com.pennywise.android.AndroidLauncher;
+import com.pennywise.checkers.core.CommandBytes;
 import com.pennywise.multiplayer.BluetoothInterface;
 import com.pennywise.multiplayer.TransmissionPackage;
 
@@ -40,12 +41,6 @@ public class BluetoothManager implements BluetoothInterface {
 
     // Message types sent from the Handler (used only for read messages, for
     // now)
-    public static final int UPDATE = 0x200;
-    public static final int RESIGN = 0x201;
-    public static final int DRAW = 0x202;
-    public static final int POKE = 0x203;
-    public static final int REMATCH = 0x204;
-    public static final int QUIT = 0x205;
 
     // Request to enable Bluetooth discoverability
     public static final int REQUEST_ENABLE_BT_DISCOVERABILITY = 1;
@@ -75,9 +70,10 @@ public class BluetoothManager implements BluetoothInterface {
     private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            byte[] readBuf = (byte[]) msg.obj;
+
             switch (msg.what) {
-                case UPDATE:
-                    byte[] readBuf = (byte[]) msg.obj;
+                case CommandBytes.COMMAND_UPDATE:
                     try {
                         // Deserialize bytes to Package
                         TransmissionPackage transmissionPackage = (TransmissionPackage) SerializationUtils
@@ -91,20 +87,14 @@ public class BluetoothManager implements BluetoothInterface {
                         Gdx.app.log("TRX", "Deserialization problem ? " + e.getMessage());
                     }
                     break;
-                case POKE:
+                case CommandBytes.COMMAND_POKE:
                     poke();
                     break;
-                case DRAW:
-                    currentActivity.getCheckers().draw();
-                    break;
-                case REMATCH:
-                    currentActivity.getCheckers().rematch();
-                    break;
-                case RESIGN:
-                    currentActivity.getCheckers().resign();
-                    break;
-                case QUIT:
-                    currentActivity.getCheckers().quit();
+                case CommandBytes.COMMAND_DRAW:
+                case CommandBytes.COMMAND_REMATCH:
+                case CommandBytes.COMMAND_RESIGN:
+                case CommandBytes.COMMAND_QUIT:
+                    currentActivity.getCheckers().onCommandReceived(readBuf);
                     break;
             }
         }

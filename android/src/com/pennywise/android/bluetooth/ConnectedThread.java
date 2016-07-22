@@ -3,6 +3,7 @@ package com.pennywise.android.bluetooth;
 import android.bluetooth.BluetoothSocket;
 
 import com.badlogic.gdx.Gdx;
+import com.pennywise.checkers.core.CommandBytes;
 import com.pennywise.checkers.core.Util;
 
 import java.io.DataInputStream;
@@ -51,28 +52,25 @@ public class ConnectedThread extends Thread {
             try {
                 // Read from the InputStream
 
-                int lenght = dis.readInt(); //.read(buffer);
-                final int messageType = dis.readInt();
-                Gdx.app.log(LOG, "Read BYTES: " + lenght);
-                dis.readFully(buffer, 0, lenght);
-                byte[] temp = Util.decompress(buffer);
-                System.arraycopy(temp, 0, buffer, 0, temp.length);
-                // Post a Runnable to the rendering thread that processes the
-                // result
+                int len = dis.readByte(); //.read(buffer);
+                final byte command = dis.readByte();
+                Gdx.app.log(LOG, "Read BYTES: " + len);
+                dis.readFully(buffer, 2, (len - 1));
+
+                if (command == CommandBytes.COMMAND_UPDATE) {
+                    byte[] temp = Util.decompress(buffer);
+                    System.arraycopy(temp, 0, buffer, 0, temp.length);
+                }
+
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
                         // Let BluetoothManager's handler handle the incoming
                         // bytes
-                        if (messageType == BluetoothManager.UPDATE) {
-                            mBluetoothManager
-                                    .getHandler()
-                                    .obtainMessage(BluetoothManager.UPDATE, buffer).sendToTarget();
-                        } else {
-                            mBluetoothManager
-                                    .getHandler()
-                                    .obtainMessage(messageType, messageType).sendToTarget();
-                        }
+                        mBluetoothManager
+                                .getHandler()
+                                .obtainMessage(command, buffer).sendToTarget();
+
                     }
                 });
             } catch (IOException e) {
