@@ -36,7 +36,7 @@ public class MenuScreen extends AbstractScreen {
 
         Table menuContainer = new Table(getSkin());
         menuContainer.setBackground("dialog");
-        getTable().add(menuContainer).fill();
+        getTable().top().add(menuContainer).fill();
 
         final TextButton game1Button = new TextButton("Singleplayer", getSkin());
         menuContainer.add(game1Button).size(360, 70).padBottom(25).padTop(100);

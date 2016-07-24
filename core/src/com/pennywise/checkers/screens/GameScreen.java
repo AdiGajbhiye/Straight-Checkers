@@ -1035,8 +1035,6 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
         switch (command) {
             case CommandBytes.COMMAND_DRAW:
                 break;
-            case CommandBytes.COMMAND_POKE:
-                break;
             case CommandBytes.COMMAND_QUIT:
                 break;
             case CommandBytes.COMMAND_REMATCH:
