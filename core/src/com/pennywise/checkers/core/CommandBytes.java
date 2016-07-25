@@ -21,6 +21,22 @@ public class CommandBytes {
     public static final byte COMMAND_DECLINE = (byte) 0xf25;
 
 
+    public static byte[] commandAccept(int command) {
+        byte[] cmd = new byte[3];
+        cmd[0] = (byte) (cmd.length - 1);
+        cmd[1] = COMMAND_ACCEPT;
+        cmd[2] = (byte) command;
+        return cmd;
+    }
+
+    public static byte[] commandDecline(int command) {
+        byte[] cmd = new byte[3];
+        cmd[0] = (byte) (cmd.length - 1);
+        cmd[1] = COMMAND_DECLINE;
+        cmd[2] = (byte) command;
+        return cmd;
+    }
+
     public static byte[] commandResign(int colour) {
         byte[] command = new byte[3];
         command[0] = (byte) (command.length - 1);
