@@ -17,6 +17,8 @@ public class CommandBytes {
     public static final byte COMMAND_POKE = (byte) 0xf23;
     public static final byte COMMAND_REMATCH = (byte) 0xf15;
     public static final byte COMMAND_QUIT = (byte) 0xf14;
+    public static final byte COMMAND_ACCEPT = (byte) 0xf24;
+    public static final byte COMMAND_DECLINE = (byte) 0xf25;
 
 
     public static byte[] commandResign(int colour) {

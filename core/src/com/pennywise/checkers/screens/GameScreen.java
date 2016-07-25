@@ -928,6 +928,92 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
 
+    private void showDrawOffer(int color) {
+
+        String text = "Draw";
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        if(color  ==  Simple.BLACK)
+        gameOver.text("Black Offers a Draw");
+        else
+            gameOver.text("White Offers a Draw");
+
+        gameOver.button("Accept", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+
+        gameOver.button("Decline", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+    }
+
+    private void showResignation(int color) {
+
+        String text = "Resigned";
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        if(color  ==  Simple.BLACK)
+            gameOver.text("Black Resigns!");
+        else
+            gameOver.text("White Resigns!");
+
+        gameOver.button("Rematch", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+
+        gameOver.button("Cool", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+    }
+
+    private void rematchDialog(int color) {
+
+        String text = "Rematch";
+
+        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        gameOver.text("Betcha can beat you!!");
+
+        gameOver.button("Decline", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+
+        gameOver.button("Accept", new InputListener() { // button to exit app
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                gameOver.hide();
+                game.setScreen(new LevelScreen(game));
+                return true;
+            }
+        });
+
+    }
+
+
+
     @Override
     public void updatePeer(CBMove move) {
 
@@ -1034,10 +1120,15 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         switch (command) {
             case CommandBytes.COMMAND_DRAW:
+                showDrawOffer(cmd[0]);
                 break;
             case CommandBytes.COMMAND_QUIT:
+                showDisconnected();
                 break;
             case CommandBytes.COMMAND_REMATCH:
+                break;
+            case CommandBytes.COMMAND_RESIGN:
+                showResignation(cmd[0]);
                 break;
         }
     }
