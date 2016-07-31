@@ -12,6 +12,6 @@ public interface MultiplayerDirector {
 
     void updateReceived(TransmissionPackage transmissionPackage);
 
-    void commandReceived(byte[] cmd);
+    void commandReceived(int what,byte[] cmd);
 
 }

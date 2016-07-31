@@ -914,12 +914,12 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         String text = "Disconnected";
 
-        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
-        gameOver.text("You have been disconnected from your opponent.");
+        final GameDialog gameDialog = new GameDialog(text, getSkin()); // this is the dialog title
+        gameDialog.text("You have been disconnected from your opponent.");
 
-        gameOver.button("OK", new InputListener() { // button to exit app
+        gameDialog.button("OK", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameOver.hide();
+                gameDialog.hide();
                 game.setScreen(new LevelScreen(game));
                 return true;
             }
@@ -932,28 +932,30 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
 
         String text = "Draw";
 
-        final GameOver gameOver = new GameOver(text, getSkin()); // this is the dialog title
+        final GameDialog gameDialog = new GameDialog(text, getSkin()); // this is the dialog title
         if(color  ==  Simple.BLACK)
-        gameOver.text("Black Offers a Draw");
+            gameDialog.text("Black Offers a Draw");
         else
-            gameOver.text("White Offers a Draw");
+            gameDialog.text("White Offers a Draw");
 
-        gameOver.button("Accept", new InputListener() { // button to exit app
+        gameDialog.button("Accept", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameOver.hide();
+                gameDialog.hide();
                 game.setScreen(new LevelScreen(game));
                 return true;
             }
         });
 
 
-        gameOver.button("Decline", new InputListener() { // button to exit app
+        gameDialog.button("Decline", new InputListener() { // button to exit app
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                gameOver.hide();
+                gameDialog.hide();
                 game.setScreen(new LevelScreen(game));
                 return true;
             }
         });
+
+        gameDialog.show(dialogStage); // actually show the dialog
 
     }
 
@@ -984,6 +986,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             }
         });
 
+        gameOver.show(dialogStage); // actually show the dialog
     }
 
     private void rematchDialog(int color) {
@@ -1009,6 +1012,8 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
                 return true;
             }
         });
+
+        gameOver.show(dialogStage); // actually show the dialog
 
     }
 
@@ -1114,13 +1119,13 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
     }
 
     @Override
-    public void commandReceived(byte[] cmd) {
+    public void commandReceived(int what,byte[] cmd) {
 
-        byte command = cmd[1];
+        byte data = cmd[0];
 
-        switch (command) {
+        switch (what) {
             case CommandBytes.COMMAND_DRAW:
-                showDrawOffer(cmd[0]);
+                showDrawOffer(data);
                 break;
             case CommandBytes.COMMAND_QUIT:
                 showDisconnected();
@@ -1128,7 +1133,7 @@ public class GameScreen extends AbstractScreen implements InputProcessor, Multip
             case CommandBytes.COMMAND_REMATCH:
                 break;
             case CommandBytes.COMMAND_RESIGN:
-                showResignation(cmd[0]);
+                showResignation(data);
                 break;
         }
     }

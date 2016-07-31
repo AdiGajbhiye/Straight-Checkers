@@ -51,11 +51,17 @@ public class ConnectedThread extends Thread {
         while (true) {
             try {
                 // Read from the InputStream
+                byte []  blen = new byte[2];
 
-                int len = dis.readByte(); //.read(buffer);
+                dis.read(blen,0,2);
+
+                int len = CommandBytes.byte2int(blen);
+
                 final byte command = dis.readByte();
+
                 Gdx.app.log(LOG, "Read BYTES: " + len);
-                dis.readFully(buffer, 2, (len - 1));
+
+                dis.read(buffer, 0, len);
 
                 if (command == CommandBytes.COMMAND_UPDATE) {
                     byte[] temp = Util.decompress(buffer);

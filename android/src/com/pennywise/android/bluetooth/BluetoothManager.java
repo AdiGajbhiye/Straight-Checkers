@@ -94,7 +94,7 @@ public class BluetoothManager implements BluetoothInterface {
                 case CommandBytes.COMMAND_REMATCH:
                 case CommandBytes.COMMAND_RESIGN:
                 case CommandBytes.COMMAND_QUIT:
-                    currentActivity.getCheckers().onCommandReceived(readBuf);
+                    currentActivity.getCheckers().onCommandReceived(msg.what,readBuf);
                     break;
             }
         }

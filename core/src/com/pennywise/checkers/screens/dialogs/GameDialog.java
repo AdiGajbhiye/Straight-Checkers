@@ -20,7 +20,7 @@ public class GameDialog extends Dialog {
     }
 
     private void initialize() {
-        padTop(60); // set padding on top of the dialog title
+        padTop(30); // set padding on top of the dialog title
         padLeft(30);
         padRight(30);
         padBottom(30);

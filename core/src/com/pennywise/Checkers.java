@@ -203,9 +203,9 @@ public class Checkers extends Game {
     }
 
 
-    public void onCommandReceived(byte[] data) {
+    public void onCommandReceived(int what,byte[] data) {
         MultiplayerDirector director = ((GameScreen) getScreen());
-        director.commandReceived(data);
+        director.commandReceived(what,data);
     }
 
     @Override
