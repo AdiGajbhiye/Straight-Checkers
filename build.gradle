@@ -4,7 +4,7 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.3.0'
     }
 }
 
@@ -15,7 +15,7 @@ allprojects {
     version = '2.0'
     ext {
         appName = 'Straight Checkers'
-        gdxVersion = '1.9.2'
+        gdxVersion = '1.9.6'
     }
 
     repositories {
@@ -40,7 +40,7 @@ project(":desktop") {
 
 project(":android") {
     apply plugin: "android"
-    apply from: 'release-signing.gradle'
+//    apply from: 'release-signing.gradle'
 
     configurations { natives }
 
@@ -54,7 +54,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-        compile 'com.google.android.gms:play-services-ads:9.2.0'
+        compile 'com.google.android.gms:play-services-ads:10.2.0'
     }
 }
 
@@ -65,7 +65,7 @@ project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        compile "net.dermetfan.libgdx-utils:libgdx-utils:0.13.0"
+
     }
 }
 
