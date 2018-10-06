@@ -6,7 +6,7 @@
     <string name="gamehelper_app_misconfigured">The application is incorrectly configured. Check that the package name and signing certificate match the client ID created in Developer Console. Also, if the application is not yet published, check that the account you are trying to sign in with is listed as a tester account. See logs for more information.</string>
     <string name="gamehelper_license_failed">License check failed.</string>
     <string name="gamehelper_unknown_error">Unknown error.</string>
-    <string name="adUnitId">ca-app-pub-6424626033677167/7317676931</string>
+    <string name="adUnitId">test</string>
     <string name="wireless_off">Wireless is off, turn it on and try again.</string>
 
 </resources>

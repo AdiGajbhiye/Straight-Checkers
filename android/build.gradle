@@ -1,5 +1,5 @@
 android {
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '28.0.2'
     compileSdkVersion 22
     sourceSets {
         main {
@@ -12,7 +12,6 @@ android {
             jniLibs.srcDirs = ['libs']
         }
 
-        instrumentTest.setRoot('tests')
     }
 
     buildTypes {
@@ -22,6 +21,9 @@ android {
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile 'proguard-project.txt'
         }
+    }
+    defaultConfig {
+        minSdkVersion = 16
     }
 
 }

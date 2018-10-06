@@ -2,9 +2,13 @@ buildscript {
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.2.0'
     }
 }
 
@@ -15,13 +19,17 @@ allprojects {
     version = '2.0'
     ext {
         appName = 'Straight Checkers'
-        gdxVersion = '1.9.6'
+        gdxVersion = '1.9.8'
     }
 
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
 }
 
@@ -54,7 +62,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-        compile 'com.google.android.gms:play-services-ads:10.2.0'
+        compile 'com.google.android.gms:play-services-ads:16.0.0'
     }
 }
 
