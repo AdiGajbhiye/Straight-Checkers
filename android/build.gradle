@@ -1,5 +1,5 @@
 android {
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '28.0.2'
     compileSdkVersion 22
     sourceSets {
         main {
@@ -12,8 +12,20 @@ android {
             jniLibs.srcDirs = ['libs']
         }
 
-        instrumentTest.setRoot('tests')
     }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            // use minifyEnabled instead of runProguard if your gradle plugin version is 0.14+
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile 'proguard-project.txt'
+        }
+    }
+    defaultConfig {
+        minSdkVersion = 16
+    }
+
 }
 // called every time gradle gets executed, takes the native dependencies of
 // the natives configuration, and extracts them to the proper libs/ folders
